@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="sa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ब्रह्मसूत्राणि - Brahma Sutras (Dvaita Vedanta)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/brahmasutra.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>ब्रह्मसूत्राणि</h1>
+            <p class="subtitle">Brahma Sutras with Madhvacharya's Dvaita Vedanta Commentary</p>
+        </div>
+        <nav class="nav-controls">
+            <div class="adhyaya-selector">
+                <label for="adhyaya">अध्यायः:</label>
+                <select id="adhyaya">
+                    <option value="1">प्रथमः (Samanvaya - Harmony)</option>
+                    <option value="2">द्वितीयः (Avirodha - Non-Conflict)</option>
+                    <option value="3">तृतीयः (Sadhana - Means)</option>
+                    <option value="4">चतुर्थः (Phala - Result)</option>
+                </select>
+            </div>
+            <div class="pada-selector">
+                <label for="pada">पादः:</label>
+                <select id="pada">
+                    <option value="1">प्रथमः</option>
+                    <option value="2">द्वितीयः</option>
+                    <option value="3">तृतीयः</option>
+                    <option value="4">चतुर्थः</option>
+                </select>
+            </div>
+            <div class="adhikarana-selector">
+                <label for="adhikarana">अधिकरणम्:</label>
+                <select id="adhikarana">
+                    <option value="all">All Topics</option>
+                </select>
+            </div>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search sutras...">
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="info-panel">
+                <h2>वेदान्त दर्शनम्</h2>
+                <p class="info-text">
+                    The Brahma Sutras (ब्रह्मसूत्राणि), also known as Vedanta Sutras, are foundational texts 
+                    of Vedanta philosophy composed by Sage Badarayana (Vyasa). This presentation follows 
+                    <strong>Madhvacharya's Dvaita (Dualistic) Vedanta</strong> interpretation.
+                </p>
+                <div class="philosophy-box">
+                    <h3>द्वैत वेदान्त सिद्धान्ताः</h3>
+                    <ul>
+                        <li><strong>पञ्चभेद:</strong> Five-fold eternal difference</li>
+                        <li><strong>स्वतन्त्र-परतन्त्र:</strong> Independent Brahman, dependent jīva</li>
+                        <li><strong>विष्णु-सर्वोत्तमता:</strong> Supremacy of Vishnu</li>
+                        <li><strong>तत्त्ववाद:</strong> Realism - differences are real</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="section-heading" id="sectionHeading">
+                    <span id="sectionTitle"></span>
+                    <div class="heading-controls">
+                        <select class="repeat-select" id="repeatSelect" title="Repeat each sutra">
+                            <option value="1">1x</option>
+                            <option value="2">2x</option>
+                            <option value="3">3x</option>
+                            <option value="4">4x</option>
+                            <option value="5">5x</option>
+                        </select>
+                        <div class="speed-control">
+                            <label for="speedSlider" title="Playback speed">⏩</label>
+                            <input type="range" id="speedSlider" min="0.5" max="2" step="0.1" value="1" title="Adjust speed">
+                            <span id="speedValue">1.00x</span>
+                        </div>
+                        <button class="heading-audio-btn" id="headingAudioBtn" title="Play all sutras">🔊</button>
+                        <span class="collapse-icon" id="collapseIcon">▼</span>
+                    </div>
+                </div>
+                <div class="sutra-list" id="sutraList">
+                    <!-- Sutras will be loaded here dynamically -->
+                </div>
+                
+                <div class="sutra-detail" id="sutraDetail" style="display: none;">
+                    <button class="back-button" id="backButton">← Back to List</button>
+                    <div id="detailContent">
+                        <!-- Detailed sutra content will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Based on Madhvacharya's Brahma Sutra Bhashya | For educational purposes</p>
+    </footer>
+
+    <script src="js/brahmasutra.js"></script>
+</body>
+</html>
