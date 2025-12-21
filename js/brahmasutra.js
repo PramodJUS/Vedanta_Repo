@@ -272,11 +272,20 @@ function displaySutras(sutras) {
     const html = sutras.map((sutra, index) => createSutraLink(sutra, index)).join('');
     sutraList.innerHTML = html;
     
-    // Add click listeners to all sutra links
-    document.querySelectorAll('.sutra-link').forEach((link, index) => {
+    // Add click listeners for detail links
+    document.querySelectorAll('.detail-link').forEach((link, index) => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             showSutraDetail(sutras[index]);
+        });
+    });
+    
+    // Add click listeners for sutra text - play or jump to sutra
+    document.querySelectorAll('.sutra-clickable').forEach((element, index) => {
+        element.addEventListener('click', (e) => {
+            e.preventDefault();
+            playSingleSutra(index);
         });
     });
 }
@@ -284,18 +293,20 @@ function displaySutras(sutras) {
 // Create a clickable sutra link
 function createSutraLink(sutra, index) {
     return `
-        <a href="#" class="sutra-link" data-index="${index}">
+        <div class="sutra-link" data-index="${index}">
             <div class="sutra-link-number">
                 ${sutra.adhyaya}.${sutra.pada}.${sutra.sutra_number}
             </div>
-            <div class="sutra-link-text">
-                ${sutra.sutra_text}
+            <div class="sutra-clickable">
+                <div class="sutra-link-text">
+                    ${sutra.sutra_text}
+                </div>
+                <div class="sutra-link-adhikarana">
+                    ${sutra.adhikarana}
+                </div>
             </div>
-            <div class="sutra-link-adhikarana">
-                ${sutra.adhikarana}
-            </div>
-            <div class="arrow">→</div>
-        </a>
+            <a href="#" class="detail-link" title="View Details">ℹ️</a>
+        </div>
     `;
 }
 
@@ -631,6 +642,29 @@ function updateSpeechButton(buttonId, isPlaying) {
 let currentPlaybackIndex = 0;
 let currentRepeatCount = 0;
 let isPlayingSequence = false;
+
+function playSingleSutra(index) {
+    // If already playing sequence, jump to this sutra
+    if (isPlayingSequence) {
+        stopSpeech();
+        currentPlaybackIndex = index;
+        currentRepeatCount = 0;
+        playNextSutra();
+    } else {
+        // Start playing from this sutra
+        isPlayingSequence = true;
+        currentPlaybackIndex = index;
+        currentRepeatCount = 0;
+        
+        const headingBtn = document.getElementById('headingAudioBtn');
+        if (headingBtn) {
+            headingBtn.textContent = '⏸️';
+            headingBtn.title = 'Stop playback';
+        }
+        
+        playNextSutra();
+    }
+}
 
 function playAllSutras() {
     const headingBtn = document.getElementById('headingAudioBtn');
