@@ -109,7 +109,7 @@ $corrections = @{
 }
 
 # Read CSV
-$csv = Import-Csv "c:\AllScripts\Personal\vedanta\sutra\brahmasutra.csv"
+$csv = Import-Csv "c:\AllScripts\Personal\vedanta\sutra\bs.csv"
 
 # Apply corrections
 $fixed = 0
@@ -122,7 +122,7 @@ foreach ($row in $csv) {
 }
 
 # Save corrected CSV
-$csv | Export-Csv "c:\AllScripts\Personal\vedanta\sutra\brahmasutra.csv" -NoTypeInformation -Encoding UTF8
+$csv | Export-Csv "c:\AllScripts\Personal\vedanta\sutra\bs.csv" -NoTypeInformation -Encoding UTF8
 
 Write-Host "Fixed $fixed sutras successfully!"
 Write-Host "`nVerifying corrections..."

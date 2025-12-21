@@ -8,11 +8,11 @@ A comprehensive web-based resource for studying Vedanta philosophy, specifically
 vedanta/
 ├── index.html              # Main HTML page
 ├── css/
-│   └── brahmasutra.css    # Styles for the application
+│   └── bs.css    # Styles for the application
 ├── js/
-│   └── brahmasutra.js     # JavaScript for data loading and interactivity
+│   └── bs.js     # JavaScript for data loading and interactivity
 ├── sutra/
-│   └── brahmasutra.csv    # CSV data with sutras and explanations
+│   └── bs.csv    # CSV data with sutras and explanations
 └── README.md              # This file
 ```
 

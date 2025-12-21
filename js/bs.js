@@ -88,7 +88,7 @@ async function loadSutras() {
         showLoading();
         
         // Load CSV data
-        const csvResponse = await fetch('sutra/brahmasutra.csv');
+        const csvResponse = await fetch('sutra/bs.csv');
         const csvText = await csvResponse.text();
         allSutras = parseCSV(csvText);
         
