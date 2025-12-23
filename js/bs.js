@@ -72,6 +72,25 @@ const languages = {
             '3': 'ಸಾಧನ',
             '4': 'ಫಲ'
         }
+    },
+    te: {
+        // Telugu UI translations
+        title: 'మధ్వాచార్యుల ద్వైత వేదాంత వ్యాఖ్యానంతో బ్రహ్మసూత్రాలు',
+        allTopics: 'అన్ని విషయాలు',
+        searchPlaceholder: 'సూత్రాలను వెతకండి...',
+        infoText: 'బ్రహ్మసూత్రాలు (ब्रह्मसूत्राणि), వేదాంత సూత్రాలు అని కూడా పిలుస్తారు, ఇవి మహర్షి బాదరాయణుడు (వ్యాసుడు) రచించిన వేదాంత తత్వశాస్త్ర మూల గ్రంథాలు. ఈ ప్రదర్శన <strong>మధ్వాచార్యుల ద్వైత వేదాంత</strong> వ్యాఖ్యానాన్ని అనుసరిస్తుంది.',
+        backToList: '← జాబితాకు తిరిగి వెళ్ళండి',
+        references: 'సూచనలు:',
+        loading: 'సూత్రాలు లోడ్ అవుతున్నాయి...',
+        noResults: 'ఎంచుకున్న ప్రమాణాల కోసం సూత్రాలు కనుగొనబడలేదు.',
+        footer: 'మధ్వాచార్యుల బ్రహ్మసూత్ర భాష్యం ఆధారంగా | విద్యా ప్రయోజనాల కోసం',
+        // Telugu explanations for adhyaya/pada options
+        adhyayaExplanations: {
+            '1': 'సమన్వయ',
+            '2': 'అవిరోధ',
+            '3': 'సాధన',
+            '4': 'ఫల'
+        }
     }
 };
 
@@ -575,10 +594,21 @@ function showSutraDetail(sutra) {
     const baseLang = languages['sa'];
     
     // Get language-specific content
-    // For Kannada: use manual translation if available, otherwise show English
-    const meaning = currentLanguage === 'kn' && details.meaningKn ? details.meaningKn : details.meaning;
-    const meaningDetails = currentLanguage === 'kn' && details.meaningDetailsKn ? details.meaningDetailsKn : details.meaningDetails;
-    const commentary = currentLanguage === 'kn' && details.commentaryKn ? details.commentaryKn : details.commentary;
+    // For Kannada and Telugu: use manual translation if available, otherwise show English
+    let meaning, meaningDetails, commentary;
+    if (currentLanguage === 'kn') {
+        meaning = details.meaningKn || details.meaning;
+        meaningDetails = details.meaningDetailsKn || details.meaningDetails;
+        commentary = details.commentaryKn || details.commentary;
+    } else if (currentLanguage === 'te') {
+        meaning = details.meaningTe || details.meaning;
+        meaningDetails = details.meaningDetailsTe || details.meaningDetails;
+        commentary = details.commentaryTe || details.commentary;
+    } else {
+        meaning = details.meaning;
+        meaningDetails = details.meaningDetails;
+        commentary = details.commentary;
+    }
     
     // Transliterate text based on selected language
     const sutraText = currentLanguage !== 'sa' ? transliterateText(sutra.sutra_text, currentLanguage) : sutra.sutra_text;
