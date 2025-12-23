@@ -458,18 +458,45 @@ function toggleSutraList() {
 
 // Search sutras
 function searchSutras() {
-    const searchTerm = searchInput.value.toLowerCase();
+    const searchTerm = searchInput.value.trim();
 
     if (searchTerm === '') {
         filterSutras();
         return;
     }
 
+    // Normalize search term (remove zero-width characters and normalize Unicode)
+    const normalizedSearchTerm = searchTerm
+        .replace(/[\u200B-\u200D\uFEFF]/g, '') // Remove zero-width characters
+        .normalize('NFC'); // Normalize Unicode to composed form
+
     const searchResults = allSutras.filter(sutra => {
+        // Remove ॐ symbols and normalize text for cleaner search
+        const cleanSutraText = sutra.sutra_text
+            .replace(/ॐ/g, '')
+            .replace(/[\u200B-\u200D\uFEFF]/g, '')
+            .normalize('NFC')
+            .trim();
+        const cleanAdhikarana = sutra.adhikarana
+            .replace(/ॐ/g, '')
+            .replace(/[\u200B-\u200D\uFEFF]/g, '')
+            .normalize('NFC')
+            .trim();
+        
+        // Also search in transliterated text if in non-Sanskrit language
+        let transliteratedSutraText = cleanSutraText;
+        let transliteratedAdhikarana = cleanAdhikarana;
+        if (currentLanguage !== 'sa') {
+            transliteratedSutraText = transliterateText(cleanSutraText, currentLanguage);
+            transliteratedAdhikarana = transliterateText(cleanAdhikarana, currentLanguage);
+        }
+        
         return (
-            sutra.sutra_text.toLowerCase().includes(searchTerm) ||
-            sutra.adhikarana.toLowerCase().includes(searchTerm) ||
-            sutra.sutra_number.toString().includes(searchTerm)
+            cleanSutraText.includes(normalizedSearchTerm) ||
+            cleanAdhikarana.includes(normalizedSearchTerm) ||
+            transliteratedSutraText.includes(normalizedSearchTerm) ||
+            transliteratedAdhikarana.includes(normalizedSearchTerm) ||
+            sutra.sutra_number.toString().includes(normalizedSearchTerm)
         );
     });
 
