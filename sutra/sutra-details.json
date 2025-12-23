@@ -1,13 +1,29 @@
 {
   "1.1.1": {
     "meaning": "Now, therefore, the inquiry into Brahman",
+    "meaningKn": "ಈಗ, ಆದ್ದರಿಂದ, ಬ್ರಹ್ಮನ ವಿಚಾರಣೆ",
+    "meaningTe": "ఇప్పుడు, కాబట్టి, బ్రహ్మ విచారణ",
     "meaningDetails": [
       "This is the opening sutra of Brahma Sutras.",
       "'Atha' (now) indicates the auspicious beginning and qualification of the student.",
       "'Ato' (therefore) implies that the student has completed the study of Vedas and karma-kanda.",
       "'Brahma-jijnasa' means the desire to know Brahman through systematic inquiry."
     ],
+    "meaningDetailsKn": [
+      "ಇದು ಬ್ರಹ್ಮಸೂತ್ರಗಳ ಆರಂಭಿಕ ಸೂತ್ರ.",
+      "'ಅಥ' (ಈಗ) ಶುಭಾರಂಭ ಮತ್ತು ವಿದ್ಯಾರ್ಥಿಯ ಅರ್ಹತೆಯನ್ನು ಸೂಚಿಸುತ್ತದೆ.",
+      "'ಅತಃ' (ಆದ್ದರಿಂದ) ವಿದ್ಯಾರ್ಥಿಯು ವೇದಗಳು ಮತ್ತು ಕರ್ಮಕಾಂಡದ ಅಧ್ಯಯನವನ್ನು ಪೂರ್ಣಗೊಳಿಸಿದ್ದಾನೆ ಎಂದು ಸೂಚಿಸುತ್ತದೆ.",
+      "'ಬ್ರಹ್ಮಜಿಜ್ಞಾಸಾ' ಎಂದರೆ ವ್ಯವಸ್ಥಿತ ವಿಚಾರಣೆಯ ಮೂಲಕ ಬ್ರಹ್ಮನನ್ನು ತಿಳಿಯುವ ಬಯಕೆ."
+    ],
+    "meaningDetailsTe": [
+      "ఇది ബ్రహ్మసూత్రాల ప్రారంభ సూత్రం.",
+      "'అథ' (ఇప్పుడు) శుభారంభం మరియు విద్యార్థి యోగ్యతను సూచిస్తుంది.",
+      "'అతః' (కాబట్టి) విద్యార్థి వేదాలు మరియు కర్మకాండ అధ్యయనాన్ని పూర్తి చేసినట్లు సూచిస్తుంది.",
+      "'బ్రహ్మజిజ్ఞాసా' అంటే క్రమబద్ధమైన విచారణ ద్వారా బ్రహ్మను తెలుసుకోవాలనే కోరిక."
+    ],
     "commentary": "According to Madhva's Dvaita Vedanta interpretation, this sutra establishes the supreme importance of knowing Brahman as distinct from Jiva and Prakriti. The inquiry must be undertaken with proper qualification (adhikara) including discrimination (viveka), dispassion (vairagya), and the six virtues (shatsampat).",
+    "commentaryKn": "ಮಧ್ವರ ದ್ವೈತ ವೇದಾಂತ ವ್ಯಾಖ್ಯಾನದ ಪ್ರಕಾರ, ಈ ಸೂತ್ರವು ಜೀವ ಮತ್ತು ಪ್ರಕೃತಿಯಿಂದ ಭಿನ್ನವಾಗಿರುವ ಬ್ರಹ್ಮನನ್ನು ತಿಳಿಯುವ ಪರಮ ಮಹತ್ವವನ್ನು ಸ್ಥಾಪಿಸುತ್ತದೆ. ವಿವೇಕ, ವೈರಾಗ್ಯ ಮತ್ತು ಷಟ್ಸಂಪತ್ತು ಸೇರಿದಂತೆ ಸರಿಯಾದ ಅರ್ಹತೆ (ಅಧಿಕಾರ) ಯೊಂದಿಗೆ ವಿಚಾರಣೆಯನ್ನು ಕೈಗೊಳ್ಳಬೇಕು.",
+    "commentaryTe": "మధ్వుల దృష్టితో ద్వైత వేదాంత వ్యాఖ్యానం ప్రకారం, ఈ సూత్రం జీవ మరియు ప్రకృతి నుండి భిన్నమైన బ్రహ్మను తెలుసుకోవడం యొక్క పరమ ప్రాముఖ్యతను స్థాపిస్తుంది. వివేక, వైరాగ్య మరియు షట్‌సంపత్తు సహా సరైన అర్హత (అధికార) తో విచారణను చేపట్టాలి.",
     "references": [
       "Anu-Vyakhyana by Madhvacharya",
       "Brahma-Sutra-Bhashya by Madhvacharya"
@@ -15,13 +31,29 @@
   },
   "1.1.2": {
     "meaning": "Brahman is that from which the origin, sustenance, and dissolution of this universe proceed",
+    "meaningKn": "ಬ್ರಹ್ಮನು ಈ ವಿಶ್ವದ ಉತ್ಪತ್ತಿ, ಸ್ಥಿತಿ ಮತ್ತು ಲಯಗಳು ನಡೆಯುವ ಮೂಲ",
+    "meaningTe": "బ్రహ్మ అనేది ఈ విశ్వం యొక్క ఉత్పత్తి, స్థితి మరియు లయ జరిగే మూలం",
     "meaningDetails": [
       "'Janma' refers to the creation of the universe.",
       "'Adi' includes sustenance (sthiti) and dissolution (laya).",
       "'Asya' refers to this perceivable universe.",
       "'Yatah' means 'from which' - indicating Brahman as the material and efficient cause."
     ],
+    "meaningDetailsKn": [
+      "'ಜನ್ಮ' ವಿಶ್ವದ ಸೃಷ್ಟಿಯನ್ನು ಸೂಚಿಸುತ್ತದೆ.",
+      "'ಆದಿ' ಸ್ಥಿತಿ ಮತ್ತು ಲಯವನ್ನು ಒಳಗೊಂಡಿದೆ.",
+      "'ಅಸ್ಯ' ಈ ಗ್ರಹಿಸಬಹುದಾದ ವಿಶ್ವವನ್ನು ಸೂಚಿಸುತ್ತದೆ.",
+      "'ಯತಃ' ಎಂದರೆ 'ಯಾವುದರಿಂದ' - ಬ್ರಹ್ಮನನ್ನು ಉಪಾದಾನ ಮತ್ತು ನಿಮಿತ್ತ ಕಾರಣವೆಂದು ಸೂಚಿಸುತ್ತದೆ."
+    ],
+    "meaningDetailsTe": [
+      "'జన్మ' విశ్వం యొక్క సృష్టిని సూచిస్తుంది.",
+      "'ఆది' స్థితి మరియు లయను కలిగి ఉంటుంది.",
+      "'అస్య' ఈ గ్రహించదగిన విశ్వాన్ని సూచిస్తుంది.",
+      "'యతః' అంటే 'దేని నుండి' - బ్రహ్మను ఉపాదాన మరియు నిమిత్త కారణంగా సూచిస్తుంది."
+    ],
     "commentary": "Madhva emphasizes that Brahman is both the efficient (nimitta) and material (upadana) cause of the universe. However, unlike Advaita, Dvaita maintains that the world is real (not illusory) and Brahman creates it through His own inherent power (shakti) without undergoing any modification.",
+    "commentaryKn": "ಬ್ರಹ್ಮನು ವಿಶ್ವದ ನಿಮಿತ್ತ ಮತ್ತು ಉಪಾದಾನ ಕಾರಣ ಎರಡೂ ಆಗಿದ್ದಾನೆ ಎಂದು ಮಧ್ವನು ಒತ್ತಿ ಹೇಳುತ್ತಾನೆ. ಆದರೆ, ಅದ್ವೈತಕ್ಕಿಂತ ಭಿನ್ನವಾಗಿ, ದ್ವೈತವು ಜಗತ್ತು ನಿಜವಾದುದು (ಮಾಯೆಯಲ್ಲ) ಎಂದು ಮತ್ತು ಬ್ರಹ್ಮನು ತನ್ನ ಅಂತರ್ಗತ ಶಕ್ತಿಯ ಮೂಲಕ ಯಾವುದೇ ಮಾರ್ಪಾಡಿಗೆ ಒಳಗಾಗದೆ ಅದನ್ನು ಸೃಷ್ಟಿಸುತ್ತಾನೆ ಎಂದು ಸಮರ್ಥಿಸುತ್ತದೆ.",
+    "commentaryTe": "బ్రహ్మ విశ్వానికి నిమిత్త మరియు ఉపాదాన కారణాలు రెండూ అని మధ్వాచార్యులు నొక్కి చెప్తారు. అయితే, అద్వైతం కాకుండా, ద్వైతం ప్రపంచం నిజమైనది (భ్రాంతి కాదు) అని మరియు బ్రహ్మ తన స్వంత అంతర్గత శక్తి ద్వారా ఎటువంటి మార్పుకు లోనుకాకుండా దానిని సృష్టిస్తాడని నిర్వహిస్తుంది.",
     "references": [
       "Chandogya Upanishad 6.2.1",
       "Taittiriya Upanishad 3.1"
@@ -29,13 +61,29 @@
   },
   "1.1.3": {
     "meaning": "Because the scriptures are the source of knowledge about Brahman",
+    "meaningKn": "ಏಕೆಂದರೆ ಶಾಸ್ತ್ರಗಳು ಬ್ರಹ್ಮನ ಬಗ್ಗೆ ಜ್ಞಾನದ ಮೂಲವಾಗಿವೆ",
+    "meaningTe": "ఎందుకంటే శాస్త్రాలు బ్రహ్మ గురించి జ్ఞానానికి మూలం",
     "meaningDetails": [
       "'Shastra' refers to the Vedas and Upanishads.",
       "'Yonitva' means being the source or means of knowledge.",
       "Brahman cannot be known through perception or inference alone.",
       "Only the scriptures (shabda pramana) can reveal the nature of Brahman."
     ],
+    "meaningDetailsKn": [
+      "'ಶಾಸ್ತ್ರ' ವೇದಗಳು ಮತ್ತು ಉಪನಿಷತ್ತುಗಳನ್ನು ಸೂಚಿಸುತ್ತದೆ.",
+      "'ಯೋನಿತ್ವ' ಎಂದರೆ ಜ್ಞಾನದ ಮೂಲ ಅಥವಾ ಸಾಧನವಾಗಿರುವುದು.",
+      "ಬ್ರಹ್ಮನನ್ನು ಕೇವಲ ಪ್ರತ್ಯಕ್ಷ ಅಥವಾ ಅನುಮಾನದ ಮೂಲಕ ತಿಳಿಯಲು ಸಾಧ್ಯವಿಲ್ಲ.",
+      "ಶಾಸ್ತ್ರಗಳು (ಶಬ್ದ ಪ್ರಮಾಣ) ಮಾತ್ರ ಬ್ರಹ್ಮನ ಸ್ವರೂಪವನ್ನು ಬಹಿರಂಗಪಡಿಸಬಹುದು."
+    ],
+    "meaningDetailsTe": [
+      "'శాస్త్ర' వేదాలు మరియు ఉపనిషత్తులను సూచిస్తుంది.",
+      "'యోనిత్వ' అంటే జ్ఞానానికి మూలం లేదా సాధనం అని అర్థం.",
+      "బ్రహ్మను కేవలం ప్రత్యక్షం లేదా అనుమానం ద్వారా మాత్రమే తెలుసుకోలేము.",
+      "శాస్త్రాలు (శబ్ద ప్రమాణ) మాత్రమే బ్రహ్మ యొక్క స్వరూపాన్ని వెల్లడిస్తాయి."
+    ],
     "commentary": "Madhva asserts that while reasoning and logic support scriptural knowledge, the Vedas remain the primary and authoritative source (pramana) for knowing Brahman. The scriptures are eternal (nitya) and free from defects.",
+    "commentaryKn": "ತರ್ಕ ಮತ್ತು ಯುಕ್ತಿಯು ಶಾಸ್ತ್ರೀಯ ಜ್ಞಾನವನ್ನು ಬೆಂಬಲಿಸಿದರೂ, ವೇದಗಳು ಬ್ರಹ್ಮನನ್ನು ತಿಳಿಯಲು ಪ್ರಾಥಮಿಕ ಮತ್ತು ಅಧಿಕೃತ ಮೂಲವಾಗಿ (ಪ್ರಮಾಣ) ಉಳಿದಿವೆ ಎಂದು ಮಧ್ವನು ಪ್ರತಿಪಾದಿಸುತ್ತಾನೆ. ಶಾಸ್ತ್ರಗಳು ನಿತ್ಯವಾಗಿದ್ದು ದೋಷಗಳಿಂದ ಮುಕ್ತವಾಗಿವೆ.",
+    "commentaryTe": "తర్కం మరియు హేతువు శాస్త్రీయ జ్ఞానానికి మద్దతు ఇస్తున్నప్పటికీ, బ్రహ్మను తెలుసుకోవడానికి వేదాలు ప్రాథమిక మరియు అధికారిక మూలం (ప్రమాణం) అని మధ్వాచార్యులు చెబుతారు. శాస్త్రాలు నిత్యమైనవి మరియు దోషాలు లేనివి.",
     "references": []
   }
 }
