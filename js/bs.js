@@ -7,6 +7,7 @@ let currentSpeech = null; // Track current speech synthesis
 let currentAudio = null; // Track current audio element
 let isSpeaking = false;
 let currentLanguage = 'sa'; // Default language (Sanskrit)
+let currentSutra = null; // Track current sutra in detail view
 
 // Language translations
 const languages = {
@@ -15,7 +16,7 @@ const languages = {
         adhyaya: 'अध्यायः:',
         pada: 'पादः:',
         adhikarana: 'अधिकरणम्:',
-        allTopics: 'All Topics',
+        allTopics: 'सर्वम्',
         searchPlaceholder: 'Search sutras...',
         vedantaPhilosophy: 'वेदान्त दर्शनम्',
         infoText: 'The Brahma Sutras (ब्रह्मसूत्राणि), also known as Vedanta Sutras, are foundational texts of Vedanta philosophy composed by Sage Badarayana (Vyasa). This presentation follows <strong>Madhvacharya\'s Dvaita (Dualistic) Vedanta</strong> interpretation.',
@@ -167,10 +168,15 @@ function onLanguageChange() {
     localStorage.setItem('vedantaLanguage', currentLanguage);
     updateUILanguage();
     
+    // Refresh adhikarana dropdown in both views
+    populateAdhikaranaDropdown();
+    
     // Refresh current view
     if (currentView === 'list') {
-        populateAdhikaranaDropdown();
         filterSutras();
+    } else if (currentView === 'detail' && currentSutra) {
+        // Refresh detail view with new language
+        showSutraDetail(currentSutra);
     }
 }
 
@@ -513,14 +519,23 @@ function createSutraLink(sutra, index) {
 // Show detailed view of a sutra
 function showSutraDetail(sutra) {
     currentView = 'detail';
+    currentSutra = sutra; // Store current sutra
     sutraList.style.display = 'none';
     sutraDetail.style.display = 'block';
     
-    // Hide heading controls in detail view
+    // Hide heading controls and search in detail view
     const headingControls = document.querySelector('.heading-controls');
     if (headingControls) {
         headingControls.style.display = 'none';
     }
+    if (searchInput) {
+        searchInput.style.display = 'none';
+    }
+    
+    // Disable dropdowns in detail view
+    if (adhyayaSelect) adhyayaSelect.disabled = true;
+    if (padaSelect) padaSelect.disabled = true;
+    if (adhikaranaSelect) adhikaranaSelect.disabled = true;
     
     // Stop any playing speech when switching views
     stopSpeech();
@@ -638,14 +653,26 @@ function showSutraDetail(sutra) {
 // Show list view
 function showListView() {
     currentView = 'list';
+    currentSutra = null; // Clear current sutra
     sutraDetail.style.display = 'none';
     sutraList.style.display = 'flex';
     
-    // Show heading controls in list view
+    // Show heading controls and search in list view
     const headingControls = document.querySelector('.heading-controls');
     if (headingControls) {
         headingControls.style.display = 'flex';
     }
+    if (searchInput) {
+        searchInput.style.display = 'block';
+    }
+    
+    // Enable dropdowns in list view
+    if (adhyayaSelect) adhyayaSelect.disabled = false;
+    if (padaSelect) padaSelect.disabled = false;
+    if (adhikaranaSelect) adhikaranaSelect.disabled = false;
+    
+    // Refresh the list with current language
+    displaySutras(filteredSutras);
     
     stopSpeech(); // Stop any playing audio
 }
