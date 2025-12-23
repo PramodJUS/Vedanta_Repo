@@ -6,76 +6,8 @@ let currentView = 'list'; // 'list' or 'detail'
 let currentSpeech = null; // Track current speech synthesis
 let currentAudio = null; // Track current audio element
 let isSpeaking = false;
-let currentLanguage = 'sa'; // Default language (Sanskrit)
-
-// Language translations
-const languages = {
-    sa: {
-        title: 'Brahma Sutras with Madhvacharya\'s Dvaita Vedanta Commentary',
-        adhyaya: 'अध्यायः:',
-        pada: 'पादः:',
-        adhikarana: 'अधिकरणम्:',
-        allTopics: 'All Topics',
-        searchPlaceholder: 'Search sutras...',
-        vedantaPhilosophy: 'वेदान्त दर्शनम्',
-        infoText: 'The Brahma Sutras (ब्रह्मसूत्राणि), also known as Vedanta Sutras, are foundational texts of Vedanta philosophy composed by Sage Badarayana (Vyasa). This presentation follows <strong>Madhvacharya\'s Dvaita (Dualistic) Vedanta</strong> interpretation.',
-        dvaitaPrinciples: 'द्वैत वेदान्त सिद्धान्ताः',
-        backToList: '← Back to List',
-        meaning: 'अर्थः (Meaning)',
-        commentary: 'द्वैत वेदान्त व्याख्या (Dvaita Vedanta Commentary)',
-        references: 'References:',
-        loading: 'Loading sutras...',
-        noResults: 'No sutras found for the selected criteria.',
-        footer: 'Based on Madhvacharya\'s Brahma Sutra Bhashya | For educational purposes',
-        sutraLabel: 'Sutra',
-        adhyayaNames: {
-            '1': 'प्रथमाध्यायः',
-            '2': 'द्वितीयाध्यायः',
-            '3': 'तृतीयाध्यायः',
-            '4': 'चतुर्थाध्यायः'
-        },
-        padaNames: {
-            '1': 'प्रथमः पादः',
-            '2': 'द्वितीयः पादः',
-            '3': 'तृतीयः पादः',
-            '4': 'चतुर्थः पादः'
-        },
-        adhyayaOptions: {
-            '1': 'प्रथमः (Samanvaya - Harmony)',
-            '2': 'द्वितीयः (Avirodha - Non-Conflict)',
-            '3': 'तृतीयः (Sadhana - Means)',
-            '4': 'चतुर्थः (Phala - Result)'
-        },
-        padaOptions: {
-            '1': 'प्रथमः',
-            '2': 'द्वितीयः',
-            '3': 'तृतीयः',
-            '4': 'चतुर्थः'
-        }
-    },
-    kn: {
-        // Only actual Kannada UI translations (not Sanskrit transliterations)
-        title: 'ಮಧ್ವಾಚಾರ್ಯರ ದ್ವೈತ ವೇದಾಂತ ವ್ಯಾಖ್ಯಾನದೊಂದಿಗೆ ಬ್ರಹ್ಮಸೂತ್ರಗಳು',
-        allTopics: 'ಎಲ್ಲಾ ವಿಷಯಗಳು',
-        searchPlaceholder: 'ಸೂತ್ರಗಳನ್ನು ಹುಡುಕಿ...',
-        infoText: 'ಬ್ರಹ್ಮಸೂತ್ರಗಳು (ब्रह्मसूत्राणि), ವೇದಾಂತ ಸೂತ್ರಗಳು ಎಂದೂ ಕರೆಯಲ್ಪಡುತ್ತವೆ, ಇವು ಮಹರ್ಷಿ ಬಾದರಾಯಣರು (ವ್ಯಾಸರು) ರಚಿಸಿದ ವೇದಾಂತ ತತ್ತ್ವಶಾಸ್ತ್ರದ ಮೂಲಗ್ರಂಥಗಳು. ಈ ಪ್ರಸ್ತುತಿಯು <strong>ಮಧ್ವಾಚಾರ್ಯರ ದ್ವೈತ ವೇದಾಂತ</strong> ವ್ಯಾಖ್ಯಾನವನ್ನು ಅನುಸರಿಸುತ್ತದೆ.',
-        backToList: '← ಪಟ್ಟಿಗೆ ಹಿಂತಿರುಗಿ',
-        references: 'ಉಲ್ಲೇಖಗಳು:',
-        loading: 'ಸೂತ್ರಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ...',
-        noResults: 'ಆಯ್ದ ಮಾನದಂಡಕ್ಕಾಗಿ ಯಾವುದೇ ಸೂತ್ರಗಳು ಕಂಡುಬಂದಿಲ್ಲ.',
-        footer: 'ಮಧ್ವಾಚಾರ್ಯರ ಬ್ರಹ್ಮಸೂತ್ರ ಭಾಷ್ಯವನ್ನು ಆಧರಿಸಿ | ಶೈಕ್ಷಣಿಕ ಉದ್ದೇಶಗಳಿಗಾಗಿ',
-        // Kannada explanations for adhyaya/pada options
-        adhyayaExplanations: {
-            '1': 'ಸಮನ್ವಯ',
-            '2': 'ಅವಿರೋಧ',
-            '3': 'ಸಾಧನ',
-            '4': 'ಫಲ'
-        }
-    }
-};
 
 // DOM Elements
-const languageSelect = document.getElementById('language');
 const adhyayaSelect = document.getElementById('adhyaya');
 const padaSelect = document.getElementById('pada');
 const adhikaranaSelect = document.getElementById('adhikarana');
@@ -90,16 +22,8 @@ const collapseIcon = document.getElementById('collapseIcon');
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
-    // Load saved language preference
-    const savedLanguage = localStorage.getItem('vedantaLanguage') || 'sa';
-    currentLanguage = savedLanguage;
-    if (languageSelect) {
-        languageSelect.value = savedLanguage;
-    }
-    
     loadSutras();
     setupEventListeners();
-    updateUILanguage();
     
     // Load voices for speech synthesis
     if ('speechSynthesis' in window) {
@@ -124,9 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Setup event listeners
 function setupEventListeners() {
-    if (languageSelect) {
-        languageSelect.addEventListener('change', onLanguageChange);
-    }
     adhyayaSelect.addEventListener('change', onAdhyayaChange);
     padaSelect.addEventListener('change', onPadaChange);
     adhikaranaSelect.addEventListener('change', filterSutras);
@@ -161,149 +82,7 @@ function setupEventListeners() {
     }
 }
 
-// Handle language change
-function onLanguageChange() {
-    currentLanguage = languageSelect.value;
-    localStorage.setItem('vedantaLanguage', currentLanguage);
-    updateUILanguage();
-    
-    // Refresh current view
-    if (currentView === 'list') {
-        populateAdhikaranaDropdown();
-        filterSutras();
-    }
-}
-
-// Get language-specific text (with transliteration for Sanskrit terms)
-function getLocalizedText(key, targetLang = currentLanguage) {
-    const baseLang = languages['sa'];
-    const langOverrides = languages[targetLang];
-    
-    // If key exists in language-specific overrides, use it
-    if (langOverrides && langOverrides[key]) {
-        return langOverrides[key];
-    }
-    
-    // Otherwise, transliterate from Sanskrit
-    if (baseLang[key]) {
-        return targetLang !== 'sa' ? transliterateText(baseLang[key], targetLang) : baseLang[key];
-    }
-    
-    return '';
-}
-
-// Update all UI text based on selected language
-function updateUILanguage() {
-    const lang = languages[currentLanguage];
-    const baseLang = languages['sa'];
-    
-    // Update page title and subtitle
-    const subtitle = document.querySelector('.subtitle');
-    if (subtitle) {
-        subtitle.textContent = lang.title || baseLang.title;
-    }
-    
-    // Update navigation labels (transliterate Sanskrit terms)
-    const adhyayaLabel = document.querySelector('.adhyaya-selector label');
-    if (adhyayaLabel) adhyayaLabel.textContent = getLocalizedText('adhyaya');
-    
-    const padaLabel = document.querySelector('.pada-selector label');
-    if (padaLabel) padaLabel.textContent = getLocalizedText('pada');
-    
-    const adhikaranaLabel = document.querySelector('.adhikarana-selector label');
-    if (adhikaranaLabel) adhikaranaLabel.textContent = getLocalizedText('adhikarana');
-    
-    // Update search placeholder
-    if (searchInput) {
-        searchInput.placeholder = lang.searchPlaceholder || baseLang.searchPlaceholder;
-    }
-    
-    // Update adhyaya options (transliterate + add Kannada explanation if available)
-    if (adhyayaSelect) {
-        const selectedValue = adhyayaSelect.value;
-        adhyayaSelect.innerHTML = '';
-        Object.keys(baseLang.adhyayaOptions).forEach(key => {
-            const option = document.createElement('option');
-            option.value = key;
-            const baseOption = baseLang.adhyayaOptions[key];
-            if (currentLanguage !== 'sa') {
-                // Extract Sanskrit part and English part
-                const match = baseOption.match(/^(.+?)\s*\((.+)\)$/);
-                if (match) {
-                    const sanskritPart = transliterateText(match[1], currentLanguage);
-                    const explanation = lang.adhyayaExplanations?.[key] || match[2];
-                    option.textContent = `${sanskritPart} (${explanation})`;
-                } else {
-                    option.textContent = transliterateText(baseOption, currentLanguage);
-                }
-            } else {
-                option.textContent = baseOption;
-            }
-            adhyayaSelect.appendChild(option);
-        });
-        adhyayaSelect.value = selectedValue;
-    }
-    
-    // Update pada options (transliterate)
-    if (padaSelect) {
-        const selectedValue = padaSelect.value;
-        padaSelect.innerHTML = '';
-        Object.keys(baseLang.padaOptions).forEach(key => {
-            const option = document.createElement('option');
-            option.value = key;
-            option.textContent = currentLanguage !== 'sa' ? transliterateText(baseLang.padaOptions[key], currentLanguage) : baseLang.padaOptions[key];
-            padaSelect.appendChild(option);
-        });
-        padaSelect.value = selectedValue;
-    }
-    
-    // Update info panel
-    const infoPanelH2 = document.querySelector('.info-panel h2');
-    if (infoPanelH2) infoPanelH2.textContent = getLocalizedText('vedantaPhilosophy');
-    
-    const infoText = document.querySelector('.info-text');
-    if (infoText) infoText.innerHTML = lang.infoText || baseLang.infoText;
-    
-    const philosophyBoxH3 = document.querySelector('.philosophy-box h3');
-    if (philosophyBoxH3) philosophyBoxH3.textContent = getLocalizedText('dvaitaPrinciples');
-    
-    // Update philosophy box list items (transliterate Sanskrit terms)
-    const philosophyItems = document.querySelectorAll('.philosophy-box li');
-    const sanskritTerms = [
-        'पञ्चभेद:',
-        'स्वतन्त्र-परतन्त्र:',
-        'विष्णु-सर्वोत्तमता:',
-        'तत्त्ववाद:'
-    ];
-    const englishDescriptions = [
-        'Five-fold eternal difference',
-        'Independent Brahman, dependent jīva',
-        'Supremacy of Vishnu',
-        'Realism - differences are real'
-    ];
-    
-    philosophyItems.forEach((item, index) => {
-        if (index < sanskritTerms.length) {
-            const transliteratedTerm = currentLanguage !== 'sa' ? 
-                transliterateText(sanskritTerms[index], currentLanguage) : 
-                sanskritTerms[index];
-            item.innerHTML = `<strong>${transliteratedTerm}</strong> ${englishDescriptions[index]}`;
-        }
-    });
-    
-    // Update back button
-    if (backButton) {
-        backButton.textContent = lang.backToList || baseLang.backToList;
-    }
-    
-    // Update footer
-    const footer = document.querySelector('footer p');
-    if (footer) {
-        footer.textContent = lang.footer || baseLang.footer;
-    }
-}
-
-// Load sutras from CSV and JSON
+// Load sutras from CSV file
 async function loadSutras() {
     try {
         showLoading();
@@ -388,8 +167,6 @@ function onPadaChange() {
 function populateAdhikaranaDropdown() {
     const selectedAdhyaya = adhyayaSelect.value;
     const selectedPada = padaSelect.value;
-    const lang = languages[currentLanguage];
-    const baseLang = languages['sa'];
     
     // Get unique adhikaranas for the selected adhyaya and pada
     const adhikaranas = [...new Set(
@@ -399,11 +176,11 @@ function populateAdhikaranaDropdown() {
     )];
     
     // Clear and populate adhikarana dropdown
-    adhikaranaSelect.innerHTML = `<option value="all">${lang.allTopics || baseLang.allTopics}</option><option disabled>──────────</option>`;
+    adhikaranaSelect.innerHTML = '<option value="all">सर्वाणि (All Topics)</option><option disabled>──────────</option>';
     adhikaranas.forEach(adhikarana => {
         const option = document.createElement('option');
         option.value = adhikarana;
-        option.textContent = currentLanguage !== 'sa' ? transliterateText(adhikarana, currentLanguage) : adhikarana;
+        option.textContent = adhikarana;
         adhikaranaSelect.appendChild(option);
     });
 }
@@ -427,17 +204,32 @@ function filterSutras() {
 
 // Update section heading with Sanskrit names
 function updateSectionHeading(adhyaya, pada) {
-    const baseLang = languages['sa'];
-    const adhyayaName = currentLanguage !== 'sa' ? 
-                        transliterateText(baseLang.adhyayaNames[adhyaya], currentLanguage) : 
-                        baseLang.adhyayaNames[adhyaya];
-    const padaName = currentLanguage !== 'sa' ? 
-                     transliterateText(baseLang.padaNames[pada], currentLanguage) : 
-                     baseLang.padaNames[pada];
-    sectionTitle.textContent = `${adhyayaName}, ${padaName}`;
+    const adhyayaNames = {
+        '1': 'प्रथमाध्यायः',
+        '2': 'द्वितीयाध्यायः',
+        '3': 'तृतीयाध्यायः',
+        '4': 'चतुर्थाध्यायः'
+    };
+    
+    const padaNames = {
+        '1': 'प्रथमः पादः',
+        '2': 'द्वितीयः पादः',
+        '3': 'तृतीयः पादः',
+        '4': 'चतुर्थः पादः'
+    };
+    
+    const selectedAdhikarana = adhikaranaSelect.value;
+    let headingText = `${adhyayaNames[adhyaya]} ${padaNames[pada]}`;
+    
+    // Add adhikarana to heading if a specific one is selected
+    if (selectedAdhikarana !== 'all') {
+        headingText += ` - <span class="adhikarana-name">${selectedAdhikarana}</span>`;
+    }
+    
+    sectionTitle.innerHTML = headingText;
 }
 
-// Toggle sutra list visibility
+// Toggle sutra list collapse/expand
 function toggleSutraList() {
     if (currentView !== 'list') return; // Only toggle in list view
     
@@ -491,19 +283,16 @@ function displaySutras(sutras) {
 
 // Create a clickable sutra link
 function createSutraLink(sutra, index) {
-    const sutraText = currentLanguage !== 'sa' ? transliterateText(sutra.sutra_text, currentLanguage) : sutra.sutra_text;
-    const adhikaranaText = currentLanguage !== 'sa' ? transliterateText(sutra.adhikarana, currentLanguage) : sutra.adhikarana;
-    
     return `
         <a href="#" class="sutra-link" data-index="${index}">
             <div class="sutra-link-number">
                 ${sutra.adhyaya}.${sutra.pada}.${sutra.sutra_number}
             </div>
             <div class="sutra-link-text">
-                ${sutraText}
+                ${sutra.sutra_text}
             </div>
             <div class="sutra-link-adhikarana">
-                ${adhikaranaText}
+                ${sutra.adhikarana}
             </div>
             <div class="arrow">→</div>
         </a>
@@ -529,30 +318,14 @@ function showSutraDetail(sutra) {
     const sutraKey = `${sutra.adhyaya}.${sutra.pada}.${sutra.sutra_number}`;
     const details = sutraDetails[sutraKey] || {};
     
-    const lang = languages[currentLanguage] || languages['sa'];
-    const baseLang = languages['sa'];
-    
-    // Get language-specific content
-    // For Kannada: use manual translation if available, otherwise show English
-    const meaning = currentLanguage === 'kn' && details.meaningKn ? details.meaningKn : details.meaning;
-    const meaningDetails = currentLanguage === 'kn' && details.meaningDetailsKn ? details.meaningDetailsKn : details.meaningDetails;
-    const commentary = currentLanguage === 'kn' && details.commentaryKn ? details.commentaryKn : details.commentary;
-    
-    // Transliterate text based on selected language
-    const sutraText = currentLanguage !== 'sa' ? transliterateText(sutra.sutra_text, currentLanguage) : sutra.sutra_text;
-    const adhikaranaText = currentLanguage !== 'sa' ? transliterateText(sutra.adhikarana, currentLanguage) : sutra.adhikarana;
-    
     // Build meaning section
-    const meaningLabel = currentLanguage !== 'sa' ? 
-                         transliterateText('अर्थः', currentLanguage) + ' (Meaning)' : 
-                         baseLang.meaning;
-    let meaningHTML = `<h3>${meaningLabel}</h3>`;
-    if (meaning) {
+    let meaningHTML = '<h3>अर्थः (Meaning)</h3>';
+    if (details.meaning) {
         meaningHTML += `<div class="audio-controls"><button class="audio-btn" id="meaningAudio" title="Play meaning">🔊</button></div>`;
-        meaningHTML += `<p class="main-meaning">${meaning}</p>`;
-        if (meaningDetails && meaningDetails.length > 0) {
+        meaningHTML += `<p class="main-meaning">${details.meaning}</p>`;
+        if (details.meaningDetails && details.meaningDetails.length > 0) {
             meaningHTML += '<ul class="meaning-details">';
-            meaningDetails.forEach(detail => {
+            details.meaningDetails.forEach(detail => {
                 meaningHTML += `<li>${detail}</li>`;
             });
             meaningHTML += '</ul>';
@@ -562,16 +335,12 @@ function showSutraDetail(sutra) {
     }
     
     // Build commentary section
-    const commentaryLabel = currentLanguage !== 'sa' ? 
-                           transliterateText('द्वैत वेदान्त व्याख्या', currentLanguage) + ' (Dvaita Vedanta Commentary)' : 
-                           baseLang.commentary;
-    const referencesLabel = lang.references || baseLang.references;
-    let commentaryHTML = `<h3>${commentaryLabel}</h3>`;
-    if (commentary) {
+    let commentaryHTML = '<h3>द्वैत वेदान्त व्याख्या (Dvaita Vedanta Commentary)</h3>';
+    if (details.commentary) {
         commentaryHTML += `<div class="audio-controls"><button class="audio-btn" id="commentaryAudio" title="Play commentary">🔊</button></div>`;
-        commentaryHTML += `<p>${commentary}</p>`;
+        commentaryHTML += `<p>${details.commentary}</p>`;
         if (details.references && details.references.length > 0) {
-            commentaryHTML += `<div class="references"><strong>${referencesLabel}</strong> `;
+            commentaryHTML += '<div class="references"><strong>References:</strong> ';
             commentaryHTML += details.references.join(', ');
             commentaryHTML += '</div>';
         }
@@ -579,24 +348,18 @@ function showSutraDetail(sutra) {
         commentaryHTML += '<p class="placeholder">The Madhva commentary on this sutra comes here</p>';
     }
     
-    const sutraLabel = currentLanguage !== 'sa' ? 
-                       transliterateText('सूत्रम्', currentLanguage) : 
-                       baseLang.sutraLabel;
     detailContent.innerHTML = `
         <div class="detail-header">
             <div class="detail-number">
-                ${sutra.adhyaya}.${sutra.pada}.${sutra.sutra_number}
+                Sutra ${sutra.adhyaya}.${sutra.pada}.${sutra.sutra_number}
             </div>
             <div class="detail-adhikarana">
-                ${adhikaranaText}
+                ${sutra.adhikarana}
             </div>
         </div>
-        <div class="detail-sutra">
-            <h3>${sutraLabel}</h3>
-            <div class="audio-controls">
-                <button class="audio-btn" id="sutraAudio" title="Play sutra">🔊</button>
-            </div>
-            <p class="sutra-text">${sutraText}</p>
+        <div class="detail-sutra-text">
+            ${sutra.sutra_text}
+            <button class="audio-btn audio-btn-large" id="sutraAudio" title="Play sutra">🔊</button>
         </div>
         <div class="detail-meaning">
             ${meaningHTML}
@@ -652,9 +415,7 @@ function showListView() {
 
 // Show loading message
 function showLoading() {
-    const lang = languages[currentLanguage];
-    const baseLang = languages['sa'];
-    sutraList.innerHTML = `<div class="loading">${lang.loading || baseLang.loading}</div>`;
+    sutraList.innerHTML = '<div class="loading">Loading sutras...</div>';
 }
 
 // Show error message
@@ -664,9 +425,7 @@ function showError(message) {
 
 // Show no results message
 function showNoResults() {
-    const lang = languages[currentLanguage];
-    const baseLang = languages['sa'];
-    sutraList.innerHTML = `<div class="no-results">${lang.noResults || baseLang.noResults}</div>`;
+    sutraList.innerHTML = '<div class="no-results">No sutras found for the selected criteria.</div>';
 }
 
 // Debounce function for search

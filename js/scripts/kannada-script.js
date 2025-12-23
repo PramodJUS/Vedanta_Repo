@@ -1,0 +1,40 @@
+// Kannada script mapping and rules
+SCRIPT_MAPPINGS.kn = {
+    mapping: {
+        'ॐ': 'ಓಂ',
+        'अ': 'ಅ', 'आ': 'ಆ', 'इ': 'ಇ', 'ई': 'ಈ', 'उ': 'ಉ', 'ऊ': 'ಊ',
+        'ऋ': 'ಋ', 'ॠ': 'ೠ', 'ऌ': 'ಌ', 'ए': 'ಏ', 'ऐ': 'ಐ', 'ओ': 'ಓ', 'औ': 'ಔ',
+        'क': 'ಕ', 'ख': 'ಖ', 'ग': 'ಗ', 'घ': 'ಘ', 'ङ': 'ಙ',
+        'च': 'ಚ', 'छ': 'ಛ', 'ज': 'ಜ', 'झ': 'ಝ', 'ञ': 'ಞ',
+        'ट': 'ಟ', 'ठ': 'ಠ', 'ड': 'ಡ', 'ढ': 'ಢ', 'ण': 'ಣ',
+        'त': 'ತ', 'थ': 'ಥ', 'द': 'ದ', 'ध': 'ಧ', 'न': 'ನ',
+        'प': 'ಪ', 'फ': 'ಫ', 'ब': 'ಬ', 'भ': 'ಭ', 'म': 'ಮ',
+        'य': 'ಯ', 'र': 'ರ', 'ल': 'ಲ', 'व': 'ವ',
+        'श': 'ಶ', 'ष': 'ಷ', 'स': 'ಸ', 'ह': 'ಹ', 'ळ': 'ಳ',
+        'ा': 'ಾ', 'ि': 'ಿ', 'ी': 'ೀ', 'ु': 'ು', 'ू': 'ೂ',
+        'ृ': 'ೃ', 'ॄ': 'ೄ', 'ॢ': 'ೢ', 'े': 'ೇ', 'ै': 'ೈ',
+        'ो': 'ೋ', 'ौ': 'ೌ', '्': '್', 'ं': 'ಂ', 'ः': 'ಃ',
+        'ँ': 'ँ', 'ऽ': 'ಽ',
+    },
+    
+    // Special character combinations
+    specialCombinations: {
+        'क्ष': 'ಕ್ಷ',
+        'ज्ञ': 'ಜ್ಞ',
+        'श्र': 'ಶ್ರ'
+    },
+    
+    // Anusvara normalization rules
+    anusvaraNormalization: {
+        enabled: true,
+        anusvara: 'ಂ',  // The anusvara character for this script
+        nasalsWithHalant: ['ಙ್', 'ಞ್', 'ಣ್', 'ನ್', 'ಮ್'],
+        // Consonants where compound form should be kept (not converted to anusvara)
+        compoundConsonants: ['ಙ', 'ಞ', 'ಣ', 'ನ', 'ಮ', 'ಯ', 'ರ', 'ಲ', 'ವ'],
+        allConsonants: ['ಕ', 'ಖ', 'ಗ', 'ಘ', 'ಙ', 'ಚ', 'ಛ', 'ಜ', 'ಝ', 'ಞ', 'ಟ', 'ಠ', 'ಡ', 'ಢ', 'ಣ', 
+                       'ತ', 'ಥ', 'ದ', 'ಧ', 'ನ', 'ಪ', 'ಫ', 'ಬ', 'ಭ', 'ಮ', 'ಯ', 'ರ', 'ಲ', 'ವ', 
+                       'ಶ', 'ಷ', 'ಸ', 'ಹ', 'ಳ'],
+        // Convert final nasal consonants with halant to anusvara
+        finalNasalToAnusvara: true
+    }
+};

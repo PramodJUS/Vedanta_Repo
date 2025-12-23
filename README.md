@@ -8,20 +8,32 @@ A comprehensive web-based resource for studying Vedanta philosophy, specifically
 vedanta/
 ├── index.html              # Main HTML page
 ├── css/
-│   └── bs.css    # Styles for the application
+│   └── bs.css             # Styles for the application
 ├── js/
-│   └── bs.js     # JavaScript for data loading and interactivity
+│   ├── bs.js              # Main application logic
+│   ├── transliterate.js   # Generic transliteration engine
+│   └── scripts/
+│       └── kannada-script.js  # Kannada script configuration
 ├── sutra/
-│   └── bs.csv    # CSV data with sutras and explanations
+│   ├── bs.csv             # CSV data with all 136 sutras
+│   ├── sutra-details.json # Extended details (meanings, commentary)
+│   └── audio/             # Audio files for sutra recitation
 └── README.md              # This file
 ```
 
 ## Features
 
-- **Interactive Navigation**: Browse sutras by Adhyaya (chapter) and Pada (section)
-- **Search Functionality**: Search across Sanskrit text, translations, and explanations
+- **Multi-Language Support**: View sutras in Sanskrit (Devanagari) or Kannada script
+- **Dynamic Transliteration**: Real-time script conversion with intelligent rules
+  - Anusvara normalization for proper compound letters
+  - Special character combinations (क्ष, ज्ञ, श्र)
+  - Final nasal to anusvara conversion
+- **Interactive Navigation**: Browse sutras by Adhyaya (chapter), Pada (section), and Adhikarana (topic)
+- **Audio Playback**: Listen to sutra recitations
+- **Text-to-Speech**: Hear pronunciations for any sutra
 - **Responsive Design**: Works on desktop and mobile devices
 - **Dvaita Vedanta Focus**: All explanations follow Madhvacharya's dualistic interpretation
+- **Extensible Architecture**: Easy to add new languages (Tamil, Telugu, etc.)
 
 ## Running the Application
 
@@ -46,8 +58,11 @@ Install the "Live Server" extension and right-click on `index.html` > "Open with
 
 ## Current Status
 
-- ✅ First 30 sutras of Adhyaya 1, Pada 1 completed
-- 🔄 Remaining 525 sutras to be added (555 total in Brahma Sutras)
+- ✅ All 136 sutras of Adhyaya 1 completed (across 4 Padas)
+- ✅ Sanskrit-Kannada transliteration system implemented
+- ✅ Audio playback and text-to-speech integrated
+- 🔄 Extended meanings and commentary being added
+- 🔄 Remaining Adhyayas 2-4 to be added (419 sutras remaining)
 
 ## Dvaita Vedanta Philosophy
 
@@ -55,14 +70,27 @@ This project presents sutras according to **Madhvacharya's Dvaita (Dualistic) Ve
 
 - **पञ्चभेद (Five-fold Difference)**: Eternal distinctions between God-soul, God-matter, soul-soul, soul-matter, and matter-matter
 - **स्वतन्त्र-परतन्त्र**: Brahman (Vishnu) is independent; souls and matter are dependent
-- **विष्णु-सर्वोत्तमता**: Vishnu is the Supreme Being
-- **तत्त्ववाद**: Realism - the world and differences are real, not illusory
+- *Transliteration System
+
+The application uses a modular transliteration architecture:
+
+- **Generic Engine** (`transliterate.js`): Language-agnostic transliteration logic
+- **Script Configurations** (`scripts/*.js`): Language-specific mappings and rules
+- **Adding New Languages**: Create a new file `scripts/{language}-script.js` with character mappings
+
+### Supported Languages
+- **Sanskrit (sa)**: Default Devanagari script
+- **Kannada (kn)**: Full transliteration with smart anusvara handling
 
 ## Future Enhancements
 
-- Add remaining sutras for all 4 Adhyayas
-- Include Sanskrit word-by-word analysis
+- Add remaining sutras for Adhyayas 2-4
+- Add Tamil and Telugu script support
+- Include Sanskrit word-by-word analysis (pada-viccheda)
 - Add cross-references to Upanishads
+- Complete detailed meanings and commentary for all sutras
+- Bookmark and favorites functionality
+- Offline support with service workerso Upanishads
 - Multi-commentary support (Shankara's Advaita, Ramanuja's Vishishtadvaita)
 - Audio pronunciation guide
 - Bookmark functionality
