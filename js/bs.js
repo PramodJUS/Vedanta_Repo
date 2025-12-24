@@ -8,7 +8,7 @@ let currentAudio = null; // Track current audio element
 let isSpeaking = false;
 let currentLanguage = 'sa'; // Default language (Sanskrit)
 let currentSutra = null; // Track current sutra in detail view
-let selectedVyakhyanas = [1, 2, 3, 4, 5]; // Default: all vyakhyanas selected
+let selectedVyakhyanaKeys = new Set(); // Track selected vyakhyana KEY NAMES, not positions
 let openVyakhyanas = new Set(); // Track which vyakhyanas are currently open/expanded
 
 // Translation lookup table for common Sanskrit terms
@@ -506,34 +506,56 @@ function setupEventListeners() {
 }
 
 // Update selected vyakhyanas based on checkboxes
-function updateSelectedVyakhyanas() {
+function updateSelectedVyakhyanas(skipRerender = false) {
     const checkboxes = document.querySelectorAll('#vyakhyanaDropdownContent input[type="checkbox"]:not(#vyakhyana-checkbox-all)');
-    selectedVyakhyanas = Array.from(checkboxes)
-        .filter(cb => cb.checked)
-        .map(cb => parseInt(cb.value));
+    
+    // Clear and rebuild selected keys set
+    selectedVyakhyanaKeys.clear();
+    checkboxes.forEach(cb => {
+        if (cb.checked) {
+            selectedVyakhyanaKeys.add(cb.dataset.key);
+        }
+    });
     
     // Update button text
     const selectedText = document.getElementById('vyakhyanaSelectedText');
     if (selectedText) {
-        const totalAvailable = checkboxes.length; // Total available for current sutra
+        const totalAvailable = checkboxes.length;
         
-        if (selectedVyakhyanas.length === totalAvailable && totalAvailable > 0) {
+        if (selectedVyakhyanaKeys.size === totalAvailable && totalAvailable > 0) {
             const allText = getTranslatedText('सर्वम्', currentLanguage);
             selectedText.textContent = allText;
-        } else if (selectedVyakhyanas.length === 0) {
+        } else if (selectedVyakhyanaKeys.size === 0) {
             const noneText = currentLanguage === 'en' ? 'None Selected' : 
                             transliterateText('न किमपि', currentLanguage);
             selectedText.textContent = noneText;
         } else {
-            const devanagariNums = ['१', '२', '३', '४', '५'];
-            const nums = selectedVyakhyanas.map(n => transliterateText(devanagariNums[n-1], currentLanguage)).join(', ');
-            const vyakhyanaText = getTranslatedText('व्याख्यान', currentLanguage);
-            selectedText.textContent = `${vyakhyanaText} ${nums}`;
+            selectedText.textContent = `${selectedVyakhyanaKeys.size} selected`;
         }
     }
     
     // Save to localStorage
-    localStorage.setItem('selectedVyakhyanas', JSON.stringify(selectedVyakhyanas));
+    localStorage.setItem('selectedVyakhyanaKeys', JSON.stringify(Array.from(selectedVyakhyanaKeys)));
+    
+    // Update visibility of vyakhyana sections without full re-render
+    if (!skipRerender && currentView === 'detail') {
+        updateVyakhyanaVisibility();
+    }
+}
+
+// Update visibility of vyakhyana sections based on selection
+function updateVyakhyanaVisibility() {
+    // Get all commentary items
+    const commentaryItems = document.querySelectorAll('.commentary-item');
+    
+    commentaryItems.forEach((item) => {
+        const vyakhyanaKey = item.dataset.key;
+        if (selectedVyakhyanaKeys.has(vyakhyanaKey)) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
 }
 
 // Handle language change
@@ -767,14 +789,25 @@ function updateVyakhyanaDropdownForSutra(availableVyakhyanas) {
     const dropdownContent = document.getElementById('vyakhyanaDropdownContent');
     if (!dropdownContent) return;
     
-    // Select all available vyakhyanas for the new sutra (store just numbers for selection)
-    selectedVyakhyanas = availableVyakhyanas.map(v => v.num);
+    const availableKeys = availableVyakhyanas.map(v => v.key);
+    
+    // Keep only selections that are still available in the new sutra
+    const validKeys = Array.from(selectedVyakhyanaKeys).filter(key => availableKeys.includes(key));
+    selectedVyakhyanaKeys = new Set(validKeys);
+    
+    // If nothing is selected (e.g., first time or all were filtered out), select all
+    if (selectedVyakhyanaKeys.size === 0) {
+        selectedVyakhyanaKeys = new Set(availableKeys);
+    }
     
     // Rebuild the dropdown with only available vyakhyanas
     const allText = getTranslatedText('सर्वम्', currentLanguage);
     
+    // Check if all are selected
+    const allSelected = availableKeys.every(key => selectedVyakhyanaKeys.has(key));
+    
     // Add "All" checkbox first with grey background class
-    let checkboxesHTML = `<label for="vyakhyana-checkbox-all" class="all-checkbox"><input type="checkbox" id="vyakhyana-checkbox-all" value="all" checked> ${allText}</label>`;
+    let checkboxesHTML = `<label for="vyakhyana-checkbox-all" class="all-checkbox"><input type="checkbox" id="vyakhyana-checkbox-all" value="all" ${allSelected ? 'checked' : ''}> ${allText}</label>`;
     
     // Add individual vyakhyana checkboxes with actual names
     checkboxesHTML += availableVyakhyanas.map(item => {
@@ -782,7 +815,8 @@ function updateVyakhyanaDropdownForSutra(availableVyakhyanas) {
         const labelText = currentLanguage !== 'sa' ? 
                          transliterateText(item.key, currentLanguage) : 
                          item.key;
-        return `<label for="${checkboxId}"><input type="checkbox" id="${checkboxId}" value="${item.num}" checked> ${labelText}</label>`;
+        const isChecked = selectedVyakhyanaKeys.has(item.key);
+        return `<label for="${checkboxId}"><input type="checkbox" id="${checkboxId}" value="${item.num}" data-key="${item.key}" ${isChecked ? 'checked' : ''}> ${labelText}</label>`;
     }).join('');
     
     dropdownContent.innerHTML = checkboxesHTML;
@@ -810,8 +844,8 @@ function updateVyakhyanaDropdownForSutra(availableVyakhyanas) {
         });
     });
     
-    // Update the button text to reflect the current selection
-    updateSelectedVyakhyanas();
+    // Update the button text to reflect the current selection (skip rerender during setup)
+    updateSelectedVyakhyanas(true);
 }
 
 // Get language-specific text (with transliteration for Sanskrit terms)
@@ -1435,6 +1469,8 @@ function showSutraDetail(sutra) {
         num: index + 1,
         key: key
     }));
+    
+    // Render ALL available vyakhyanas, then control visibility with CSS
     let additionalCommentariesHTML = `
         <div class="commentary-items">
             ${availableVyakhyanas2
@@ -1490,7 +1526,7 @@ function showSutraDetail(sutra) {
                 }
                 
                 return `
-                    <div class="commentary-item">
+                    <div class="commentary-item" data-key="${vyakhyaKey}">
                         <div class="commentary-header" onclick="toggleCommentary(${num}, '${vyakhyaKey}')">
                             <span class="commentary-title">${titleText}</span>
                             <span class="commentary-toggle" id="toggle-${num}">▼</span>
@@ -1516,6 +1552,11 @@ function showSutraDetail(sutra) {
     
     // Update navigation button states after rendering
     updateNavigationButtons();
+    
+    // Apply vyakhyana visibility based on selection
+    setTimeout(() => {
+        updateVyakhyanaVisibility();
+    }, 0);
     
     // Restore previously open vyakhyanas
     setTimeout(() => {
