@@ -1,0 +1,3 @@
+[submodule "transliterate-library"]
+	path = transliterate-library
+	url = https://github.com/PramodJUS/transliterate-library.git
