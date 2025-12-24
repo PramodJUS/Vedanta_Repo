@@ -473,42 +473,62 @@ function cleanupEventListeners() {
 **Evolution**:
 1. **Initial**: Position-based (1, 2, 3...) - brittle, breaks when order changes
 2. **Improved**: Name-based (actual key names) - stable across changes
-3. **Final**: Hybrid approach with bidirectional mapping
+3. **Final**: Name-based tracking with position mapping for DOM access
+
+**Critical Issue Solved**:
+When tracking by position (e.g., selecting vyakhyana #2), the system would incorrectly maintain that position across different sutras. If sutra 1.1.1 has "तत्वप्रकाशः" at position 2, and sutra 1.1.3 has "व्यख्यानम्-२" at position 2, selecting the first would incorrectly show the second.
+
+**Solution**: Track by actual key names, not positions.
 
 **Implementation**:
 ```javascript
-// Store state by name (stable)
-const openSections = new Set(['भाष्यम्', 'तत्वप्रकाशः']);
+// Store state by name (stable across navigation)
+const selectedVyakhyanaKeys = new Set(['तत्वप्रकाशः', 'भाष्यम्']);
 
 // When rendering new content
 function renderSections(data) {
-    // Get available keys in current context
-    const availableKeys = detectContentSections(data);
+    // Detect available sections dynamically
+    const availableSections = detectContentSections(data); // [{num: 1, key: 'भाष्यम्'}, ...]
     
-    // Map name → position for DOM access
-    const keyToPosition = new Map();
-    availableKeys.forEach((key, index) => {
-        keyToPosition.set(key, index + 1);
-    });
+    // Build HTML with data-key attribute for tracking
+    const html = availableSections.map(section => `
+        <div class="section-item" data-key="${section.key}">
+            <input type="checkbox" 
+                   value="${section.num}" 
+                   data-key="${section.key}"
+                   ${selectedVyakhyanaKeys.has(section.key) ? 'checked' : ''}>
+            ${section.displayName}
+        </div>
+    `).join('');
     
-    // Restore state using mapping
-    openSections.forEach(keyName => {
-        if (keyToPosition.has(keyName)) {
-            const position = keyToPosition.get(keyName);
-            const element = document.getElementById(`section-${position}`);
-            if (element) {
-                element.style.display = 'block';
+    // When user changes selection
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+            if (cb.checked) {
+                selectedVyakhyanaKeys.add(cb.dataset.key);
+            } else {
+                selectedVyakhyanaKeys.delete(cb.dataset.key);
             }
-        }
+        });
+    });
+}
+
+// Filter/show content based on key names
+function updateVisibility() {
+    document.querySelectorAll('.section-item').forEach(item => {
+        const key = item.dataset.key;
+        item.style.display = selectedVyakhyanaKeys.has(key) ? 'block' : 'none';
     });
 }
 ```
 
 **Why This Matters**:
 - Position changes when filtering/sorting
-- Different items may have different sections
+- Different items may have different sections with different names
+- "तत्वप्रकाशः" selected in one sutra stays selected in others
+- "व्यख्यानम्-२" is a different entity and won't be incorrectly selected
 - State must survive content updates
-- User experience: remembered preferences persist
+- User experience: remembered preferences persist accurately
 
 ---
 
@@ -574,6 +594,74 @@ function updateDropdown(availableItems) {
     background-color: #d8d8d8;
 }
 ```
+
+---
+
+### 7. Selection State Persistence with "All Mode" Tracking
+
+**Challenge**: Maintain selection state across navigation while properly handling "select all" scenarios
+
+**Key Concept**: Track both individual selections AND whether "all mode" is active
+
+**Implementation**:
+```javascript
+// Global state
+let selectedVyakhyanaKeys = new Set(); // Individual key names
+let selectAllVyakhyanas = true; // Whether "All" mode is active
+
+// Update selection when user changes checkboxes
+function updateSelectedVyakhyanas(skipRerender = false) {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]:not(#all)');
+    
+    // Rebuild selected keys
+    selectedVyakhyanaKeys.clear();
+    checkboxes.forEach(cb => {
+        if (cb.checked) {
+            selectedVyakhyanaKeys.add(cb.dataset.key);
+        }
+    });
+    
+    // Detect if all are selected
+    const totalAvailable = checkboxes.length;
+    selectAllVyakhyanas = (selectedVyakhyanaKeys.size === totalAvailable && totalAvailable > 0);
+    
+    // Persist to localStorage
+    localStorage.setItem('selectedVyakhyanaKeys', JSON.stringify(Array.from(selectedVyakhyanaKeys)));
+    localStorage.setItem('selectAllVyakhyanas', selectAllVyakhyanas);
+}
+
+// When navigating to new content
+function updateDropdownForNewContent(availableKeys) {
+    // If "All" mode is active, select everything
+    if (selectAllVyakhyanas) {
+        selectedVyakhyanaKeys = new Set(availableKeys);
+    } else {
+        // Keep only valid selections
+        const validKeys = Array.from(selectedVyakhyanaKeys).filter(key => 
+            availableKeys.includes(key)
+        );
+        selectedVyakhyanaKeys = new Set(validKeys);
+        
+        // If nothing remains, activate "All" mode
+        if (selectedVyakhyanaKeys.size === 0) {
+            selectedVyakhyanaKeys = new Set(availableKeys);
+            selectAllVyakhyanas = true;
+        }
+    }
+}
+```
+
+**Use Cases**:
+- User selects specific items → Navigate → Only those items stay selected
+- User clicks "All" → Navigate → All available items in new view are selected
+- User deselects some items → "All" mode is deactivated
+- User manually selects all items → "All" mode is activated
+
+**Benefits**:
+- Intuitive behavior: "All" means all in every context
+- Partial selections persist correctly by key name
+- Graceful handling when selected items don't exist in new context
+- State restoration works seamlessly across page reloads
 
 ---
 
