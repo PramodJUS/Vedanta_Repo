@@ -19,16 +19,89 @@ header {
     padding: 2rem 0;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     position: relative;
+    transition: all 0.3s ease;
+    overflow: visible;
+    max-height: 400px;
+}
+
+header.header-collapsed {
+    max-height: 50px;
+    padding: 0.5rem 0;
+}
+
+header.header-collapsed .header-logo,
+header.header-collapsed .language-selector-top,
+header.header-collapsed .header-content,
+header.header-collapsed .nav-controls {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.header-toggle-btn {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    border-radius: 8px 8px 0 0;
+    z-index: 100;
+    transition: all 0.3s ease;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.header-toggle-btn:hover {
+    background: linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.2));
+    transform: translateX(-50%) scale(1.05);
+}
+
+header.header-collapsed .header-toggle-btn {
+    bottom: auto;
+    top: 5px;
+}
+
+.header-logo {
+    position: absolute;
+    top: 1rem;
+    left: 2rem;
+    z-index: 10;
+    transition: opacity 0.3s ease;
+}
+
+.header-logo img {
+    height: 200px;
+    width: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.header-logo img:hover {
+    transform: scale(1.05);
 }
 
 .language-selector-top {
     position: absolute;
+    transition: opacity 0.3s ease;
     top: 1rem;
     right: 2rem;
     display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    z-index: 10001;
+}
+
+.language-dropdown {
+    display: flex;
     align-items: center;
     gap: 10px;
-    z-index: 10;
 }
 
 .language-selector-top label {
@@ -51,6 +124,103 @@ header {
 .language-selector-top select:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     background: white;
+}
+
+/* Vyakhyana Selector with Dropdown Checkboxes */
+.vyakhyana-selector {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.vyakhyana-selector label {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.dropdown-checkbox {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-btn {
+    padding: 6px 10px;
+    border-radius: 5px;
+    border: none;
+    background: rgba(255, 255, 255, 0.95);
+    color: #333;
+    font-size: 0.95rem;
+    cursor: pointer;
+    min-width: 150px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.dropdown-btn:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background: white;
+}
+
+.dropdown-arrow {
+    font-size: 0.8rem;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 180px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    z-index: 10000;
+    margin-top: 5px;
+    max-height: 300px;
+    overflow-y: auto;
+    right: 0;
+}
+
+.dropdown-content.show {
+    display: block;
+}
+
+.dropdown-content label {
+    display: block;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-weight: normal;
+    font-size: 0.9rem;
+    color: #333;
+    background-color: white;
+}
+
+.dropdown-content label.all-checkbox {
+    background-color: #e8e8e8;
+}
+
+.dropdown-content label:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown-content label.all-checkbox:hover {
+    background-color: #d8d8d8;
+}
+
+.dropdown-content label:first-child {
+    border-radius: 5px 5px 0 0;
+}
+
+.dropdown-content label:last-child {
+    border-radius: 0 0 5px 5px;
+}
+
+.dropdown-content input[type="checkbox"] {
+    margin-right: 10px;
+    cursor: pointer;
 }
 
 .header-content {
@@ -89,6 +259,40 @@ header {
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+.sutra-navigation-header {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.nav-header-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    min-width: 120px;
+}
+
+.nav-header-btn:disabled {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.4);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.nav-header-btn:not(:disabled):hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .translation-status {
@@ -152,10 +356,17 @@ header {
     display: grid;
     grid-template-columns: 300px 1fr;
     gap: 30px;
+    transition: grid-template-columns 0.3s ease;
+}
+
+.container:has(.info-panel.collapsed) {
+    grid-template-columns: 0px 1fr;
+    gap: 0px;
 }
 
 .content-area {
     min-height: 400px;
+    transition: all 0.3s ease;
 }
 
 /* Section Heading */
@@ -309,6 +520,51 @@ header {
     height: fit-content;
     position: sticky;
     top: 20px;
+    transition: transform 0.3s ease, margin 0.3s ease;
+}
+
+.info-panel.collapsed {
+    transform: translateX(-100%);
+    margin-left: -100%;
+}
+
+.panel-toggle-btn {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 40px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px 0 0 8px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: -2px 0 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.panel-toggle-btn:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    transform: scale(1.05);
+}
+
+.info-panel.collapsed .panel-toggle-btn {
+    left: 0;
+}
+
+.info-panel-content {
+    transition: opacity 0.3s ease;
+}
+
+.info-panel.collapsed .info-panel-content {
+    opacity: 0;
+    pointer-events: none;
 }
 
 .info-panel h2 {
@@ -351,6 +607,141 @@ header {
 
 .philosophy-box strong {
     color: #667eea;
+}
+
+/* Sutra Info Panel (Detail View) */
+.sutra-info-panel {
+    text-align: center;
+}
+
+.sutra-info-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #667eea;
+    margin-bottom: 1rem;
+}
+
+.sutra-header-with-audio {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+.sutra-info-panel h3 {
+    color: #764ba2;
+    margin-bottom: 0;
+    font-size: 1.3rem;
+}
+
+.info-audio-round-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+.info-audio-round-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.5);
+}
+
+.adhikarana-label {
+    color: #764ba2;
+    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.sutra-info-text {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    color: #333;
+}
+
+.sutra-info-adhikarana {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 12px;
+    background: #e8f4f8;
+    border-radius: 6px;
+    border-left: 3px solid #667eea;
+    color: #555;
+    line-height: 1.6;
+}
+
+.sutra-info-adhikarana strong {
+    color: #764ba2;
+}
+
+.sutra-info-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.info-back-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    background: #f8f9fa;
+    color: #667eea;
+    border: 2px solid #667eea;
+}
+
+.info-back-btn:hover {
+    background: #667eea;
+    color: white;
+}
+
+.sutra-navigation {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.nav-btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    flex: 1;
+}
+
+.nav-btn:disabled {
+    background: #e0e0e0;
+    color: #999;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.nav-btn:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
 }
 
 /* Sutra List */
@@ -602,6 +993,69 @@ header {
     font-size: 1.05rem;
     color: #444;
     line-height: 1.9;
+}
+
+/* Additional Commentaries (Collapsible) */
+.additional-commentaries {
+    margin-top: 2rem;
+    padding: 20px 0;
+}
+
+.additional-commentaries h3 {
+    color: #667eea;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #667eea;
+}
+
+.commentary-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.commentary-item {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.commentary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    color: #333;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.3s ease;
+}
+
+.commentary-header:hover {
+    color: #667eea;
+}
+
+.commentary-title {
+    font-weight: 600;
+    font-size: 1.05rem;
+}
+
+.commentary-toggle {
+    font-size: 0.9rem;
+    color: #667eea;
+    transition: transform 0.3s ease;
+}
+
+.commentary-content {
+    padding: 10px 0 15px 20px;
+    border-left: 3px solid #667eea;
+    margin-left: 10px;
+}
+
+.commentary-content p {
+    margin: 0;
+    color: #666;
+    font-style: italic;
+    line-height: 1.6;
 }
 
 /* Footer */
