@@ -9,6 +9,7 @@ let isSpeaking = false;
 let currentLanguage = 'sa'; // Default language (Sanskrit)
 let currentSutra = null; // Track current sutra in detail view
 let selectedVyakhyanaKeys = new Set(); // Track selected vyakhyana KEY NAMES, not positions
+let selectAllVyakhyanas = true; // Track if "All" is selected (default: true)
 let openVyakhyanas = new Set(); // Track which vyakhyanas are currently open/expanded
 
 // Translation lookup table for common Sanskrit terms
@@ -517,12 +518,14 @@ function updateSelectedVyakhyanas(skipRerender = false) {
         }
     });
     
+    // Check if all are selected
+    const totalAvailable = checkboxes.length;
+    selectAllVyakhyanas = (selectedVyakhyanaKeys.size === totalAvailable && totalAvailable > 0);
+    
     // Update button text
     const selectedText = document.getElementById('vyakhyanaSelectedText');
     if (selectedText) {
-        const totalAvailable = checkboxes.length;
-        
-        if (selectedVyakhyanaKeys.size === totalAvailable && totalAvailable > 0) {
+        if (selectAllVyakhyanas) {
             const allText = getTranslatedText('सर्वम्', currentLanguage);
             selectedText.textContent = allText;
         } else if (selectedVyakhyanaKeys.size === 0) {
@@ -536,6 +539,7 @@ function updateSelectedVyakhyanas(skipRerender = false) {
     
     // Save to localStorage
     localStorage.setItem('selectedVyakhyanaKeys', JSON.stringify(Array.from(selectedVyakhyanaKeys)));
+    localStorage.setItem('selectAllVyakhyanas', selectAllVyakhyanas);
     
     // Update visibility of vyakhyana sections without full re-render
     if (!skipRerender && currentView === 'detail') {
@@ -791,13 +795,19 @@ function updateVyakhyanaDropdownForSutra(availableVyakhyanas) {
     
     const availableKeys = availableVyakhyanas.map(v => v.key);
     
-    // Keep only selections that are still available in the new sutra
-    const validKeys = Array.from(selectedVyakhyanaKeys).filter(key => availableKeys.includes(key));
-    selectedVyakhyanaKeys = new Set(validKeys);
-    
-    // If nothing is selected (e.g., first time or all were filtered out), select all
-    if (selectedVyakhyanaKeys.size === 0) {
+    // If "All" mode is active, select all available vyakhyanas
+    if (selectAllVyakhyanas) {
         selectedVyakhyanaKeys = new Set(availableKeys);
+    } else {
+        // Keep only selections that are still available in the new sutra
+        const validKeys = Array.from(selectedVyakhyanaKeys).filter(key => availableKeys.includes(key));
+        selectedVyakhyanaKeys = new Set(validKeys);
+        
+        // If nothing is selected, select all
+        if (selectedVyakhyanaKeys.size === 0) {
+            selectedVyakhyanaKeys = new Set(availableKeys);
+            selectAllVyakhyanas = true;
+        }
     }
     
     // Rebuild the dropdown with only available vyakhyanas
