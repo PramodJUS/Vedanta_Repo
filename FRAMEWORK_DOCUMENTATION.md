@@ -665,7 +665,281 @@ function updateDropdownForNewContent(availableKeys) {
 
 ---
 
-## Reusable Framework Patterns
+### 7. Auto-Hide Headers with Overlay System
+
+#### Features:
+- **Global Toggle Control**: User-configurable checkbox in toolbar
+- **Smart Overlay**: Headers appear as transparent overlay on hover
+- **Position-Sticky Implementation**: Header stays accessible while scrolling content
+- **Conditional Hiding**: Only applies when explicitly enabled by user
+- **LocalStorage Persistence**: Remembers user preference across sessions
+- **Non-Intrusive Hover**: Overlay doesn't shift content below
+
+#### Implementation Pattern:
+```javascript
+// Global state with localStorage persistence
+let autoHideHeaders = localStorage.getItem('autoHideHeaders') === 'true';
+
+// Apply auto-hide class when toggling commentary
+function toggleCommentary(num, vyakhyanaKey) {
+    const item = content.closest('.commentary-item');
+    
+    if (content.style.display === 'none') {
+        item.classList.add('open');
+        if (autoHideHeaders) {
+            item.classList.add('auto-hide-enabled');
+        }
+    } else {
+        item.classList.remove('open', 'auto-hide-enabled');
+    }
+}
+
+// Global toggle function
+function toggleAutoHide(checked) {
+    autoHideHeaders = checked;
+    localStorage.setItem('autoHideHeaders', autoHideHeaders);
+    
+    // Update all currently open sections
+    document.querySelectorAll('.commentary-item.open').forEach(item => {
+        if (autoHideHeaders) {
+            item.classList.add('auto-hide-enabled');
+        } else {
+            item.classList.remove('auto-hide-enabled');
+        }
+    });
+}
+```
+
+#### CSS Overlay Pattern:
+```css
+/* Position header absolutely for overlay effect */
+.commentary-item.open.auto-hide-enabled .commentary-header {
+    position: absolute;
+    top: 0;
+    left: 10px;
+    right: 0;
+    z-index: 100;
+    min-height: 35px;
+    padding: 0 10px 0 0;
+    opacity: 0;
+    background: transparent;
+    transition: all 0.2s ease;
+    pointer-events: auto;
+}
+
+/* Hide child elements */
+.commentary-item.open.auto-hide-enabled .commentary-header > * {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+/* Show on hover with semi-transparent background */
+.commentary-item.open.auto-hide-enabled .commentary-header:hover {
+    opacity: 1;
+    padding: 6px 10px 6px 0;
+    background: rgba(230, 255, 230, 0.85);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+.commentary-item.open.auto-hide-enabled .commentary-header:hover > * {
+    opacity: 1;
+}
+```
+
+**Key Benefits**:
+- Content doesn't jump when header appears
+- User can scroll and access header without interruption
+- Clear visual feedback with greenish transparent background
+- Works independently for each section
+- Fully optional user preference
+
+---
+
+### 8. Context-Aware Pagination Behavior
+
+#### Features:
+- **Dual Pagination Controls**: Top (in header) and bottom (in content)
+- **Smart Scrolling**: Only bottom controls trigger scroll-to-top
+- **Focus Preservation**: Top controls maintain current scroll position
+- **Consistent State**: Both controls stay synchronized
+- **Optional Scroll Parameter**: Single function handles both behaviors
+
+#### Implementation:
+```javascript
+function navigateVyakhyanaPage(sutraNum, vyakhyaKey, direction, event, shouldScroll = false) {
+    // ... pagination logic ...
+    
+    // Update content
+    contentElement.innerHTML = pages[newPage].replace(/<PB>/g, '');
+    
+    // Sync all controls (top and bottom)
+    updatePaginationControls(newPage, totalPages);
+    
+    // Scroll only if requested (from bottom controls)
+    if (shouldScroll && commentaryItem) {
+        commentaryItem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+// Top controls - no scroll
+<button onclick="navigateVyakhyanaPage(${num}, '${key}', -1, event)">
+
+// Bottom controls - with scroll
+<button onclick="navigateVyakhyanaPage(${num}, '${key}', -1, event, true)">
+```
+
+**User Experience**:
+- User navigating from auto-hide header → stays in reading position
+- User navigating from bottom → scrolls to top to see new content
+- Radio buttons work same way as arrow buttons
+- Consistent, predictable behavior
+
+---
+
+### 9. Sticky Resize Handles with Auto-Hide
+
+#### Features:
+- **Position Sticky**: Handle stays at top of scrollable content
+- **Auto-Hide on Default**: Hidden until user hovers
+- **Visual Feedback**: Gradient intensifies on hover
+- **High Z-Index**: Always accessible above content
+- **Smooth Transitions**: 0.2s opacity fade
+
+#### Implementation:
+```css
+.resize-handle-top {
+    height: 12px;
+    width: 100%;
+    background: linear-gradient(
+        to bottom, 
+        transparent 30%, 
+        #4CAF50 50%, 
+        transparent 70%
+    );
+    cursor: ns-resize;
+    position: sticky;
+    top: 0;
+    left: 0;
+    opacity: 0;  /* Hidden by default */
+    transition: opacity 0.2s;
+    z-index: 150;
+}
+
+.resize-handle-top:hover {
+    opacity: 1;
+    background: linear-gradient(
+        to bottom, 
+        transparent 20%, 
+        #4CAF50 50%, 
+        transparent 80%
+    );
+}
+```
+
+**Benefits**:
+- Non-intrusive: Only shows when needed
+- Always accessible: Sticky positioning keeps it at viewport top
+- Clear affordance: Color and cursor indicate draggability
+- Clean UI: Doesn't clutter interface when not in use
+
+---
+
+### 10. Pagination Boundary Protection
+
+#### Challenge:
+Navigation between different content items can cause pagination state to become invalid if the new content has fewer pages than the current page index.
+
+#### Solution:
+```javascript
+// Split content into pages
+const pages = splitTextIntoPages(commentaryText, CHARS_PER_PAGE);
+const totalPages = pages.length;
+const paginationKey = `${num}-${vyakhyaKey}`;
+
+// Initialize pagination state
+if (!vyakhyanaPagination[paginationKey]) {
+    vyakhyanaPagination[paginationKey] = 0;
+}
+
+// Ensure currentPage is within bounds
+let currentPage = vyakhyanaPagination[paginationKey];
+if (currentPage >= totalPages) {
+    currentPage = 0;
+    vyakhyanaPagination[paginationKey] = 0;
+}
+
+// Now safe to access pages[currentPage]
+contentElement.innerHTML = pages[currentPage].replace(/<PB>/g, '');
+```
+
+**Why This Matters**:
+- Prevents `Cannot read properties of undefined (reading 'replace')` errors
+- Gracefully handles content structure changes
+- Resets to first page when navigating to shorter content
+- Maintains pagination state within valid bounds
+
+---
+
+### 11. Dynamic Watermark System
+
+#### Features:
+- **Author-Based**: Automatically loads watermark based on commentary author
+- **No CSS Needed**: Watermark applied via JavaScript and inline styles
+- **Low Opacity**: Subtle background (0.08) doesn't interfere with reading
+- **Absolute Positioning**: Overlays content without affecting layout
+- **Conditional Loading**: Only appears when author metadata exists
+
+#### Implementation:
+```javascript
+// Get author from metadata
+const author = vyakhyaData && vyakhyaData.author ? 
+               vyakhyaData.author.toLowerCase() : '';
+
+// Create watermark div with inline background-image
+const watermarkDiv = author ? 
+    `<div class="watermark" style="background-image: url('images/${author}.jpg');"></div>` : 
+    '';
+
+// Include in rendered HTML
+return `
+    <div class="commentary-content">
+        ${watermarkDiv}
+        <p class="commentary-text">${content}</p>
+    </div>
+`;
+```
+
+```css
+.commentary-content .watermark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.08;
+    z-index: 0;
+    pointer-events: none;
+}
+```
+
+**Adding New Authors**:
+1. Add author name to JSON metadata: `"author": "AuthorName"`
+2. Place image at: `images/authorname.jpg` (lowercase)
+3. Watermark appears automatically
+
+**Benefits**:
+- No CSS rules needed per author
+- Scalable to any number of authors
+- Consistent opacity and positioning
+- Simple image-based system
+
+---
+
+## Critical Technical Implementation Areas
 
 ### Pattern 1: Content Auto-Discovery
 **Use Case**: Detect and process content sections with unknown structure
@@ -1172,12 +1446,17 @@ const app = new MultiLanguageContentApp({
 - Always capture state before navigation
 - Use setTimeout for DOM-dependent operations
 - Persist critical state to localStorage/sessionStorage
+- **Validate state bounds**: Always check array/object access is within valid range
+- **Class-based state**: Use CSS classes (`auto-hide-enabled`, `open`) to represent state
+- **Centralized toggles**: Global functions that update all affected elements
 
 ### 2. Event Handling
 - Use event delegation for dynamic content
 - Clean up listeners when removing elements
 - Debounce frequent operations (search, filter)
 - Use setTimeout(0) for post-render operations
+- **stopPropagation**: Prevent events bubbling to parent handlers
+- **Conditional parameters**: Pass behavior flags (`shouldScroll`) for context-aware actions
 
 ### 3. Performance
 - Cache DOM queries in variables
@@ -1185,6 +1464,9 @@ const app = new MultiLanguageContentApp({
 - Minimize reflows/repaints
 - Lazy load content when possible
 - Use CSS transforms for animations
+- **Position sticky**: Better performance than scroll listeners
+- **CSS transitions**: Smoother than JavaScript animations
+- **Opacity changes**: More performant than display toggle for hover effects
 
 ### 4. Maintainability
 - Use configuration objects for flexibility
@@ -1192,12 +1474,26 @@ const app = new MultiLanguageContentApp({
 - Document state changes
 - Use meaningful variable names
 - Keep functions focused and small
+- **Single source of truth**: One function with parameters vs multiple similar functions
+- **localStorage keys**: Consistent naming pattern for persisted state
+- **Inline documentation**: Comment why, not what
 
 ### 5. Error Handling
 - Validate data structure before processing
 - Provide fallbacks for missing translations
 - Handle missing DOM elements gracefully
 - Log errors for debugging
+- **Boundary checks**: Validate pagination indices before array access
+- **Null coalescing**: Use `data?.property` or default values
+- **Try-catch for async**: Wrap fetch/async operations in error handlers
+
+### 6. UI/UX Patterns
+- **Progressive disclosure**: Hide complexity until needed (auto-hide)
+- **Visual feedback**: Clear hover states and transitions
+- **Consistent behavior**: Same controls work the same way everywhere
+- **Smart defaults**: Off for intrusive features, on for helpful ones
+- **Context-aware actions**: Different behavior based on user location (top vs bottom pagination)
+- **Overlay vs reflow**: Use overlays to avoid content jumping
 
 ---
 
@@ -1205,21 +1501,120 @@ const app = new MultiLanguageContentApp({
 
 When adapting this framework for a new project:
 
+**Core Setup**
 - [ ] Define your content structure and required properties
 - [ ] Create exclude list for metadata keys
 - [ ] Set up language mapping for your supported languages
 - [ ] Configure transliteration if needed
 - [ ] Define what constitutes a "section" in your data
+
+**State Management**
 - [ ] Determine state that needs persistence
-- [ ] Design your multi-view structure
+- [ ] Identify which state should use Sets vs Arrays vs Objects
+- [ ] Plan localStorage schema for user preferences
+- [ ] Define boundary conditions for pagination/navigation
+
+**UI Components**
+- [ ] Design your multi-view structure (list/detail)
 - [ ] Set up navigation requirements
 - [ ] Configure filtering/search needs
+- [ ] Decide on auto-hide/overlay features
+- [ ] Plan resize/drag-to-adjust interfaces
 - [ ] Customize UI components and styling
-- [ ] Test with edge cases (empty data, missing translations, etc.)
-- [ ] Optimize for your specific performance needs
+
+**User Experience**
+- [ ] Define smart defaults for all toggleable features
+- [ ] Determine context-aware behaviors (e.g., scroll vs no-scroll)
+- [ ] Plan hover states and visual feedback
+- [ ] Design responsive layouts for different screen sizes
+- [ ] Configure transition timings and animation smoothness
+
+**Performance & Optimization**
+- [ ] Identify DOM-heavy operations to optimize
+- [ ] Plan lazy loading strategy
+- [ ] Use position:sticky vs scroll listeners
+- [ ] Minimize reflows with overlay patterns
+
+**Data & Content**
+- [ ] Set up dynamic watermark/background system
+- [ ] Configure pagination chunking (CHARS_PER_PAGE)
+- [ ] Plan for missing translations/fallbacks
+- [ ] Define metadata structure (authors, categories, etc.)
+
+**Testing & Edge Cases**
+- [ ] Test with empty data
+- [ ] Test with missing translations
+- [ ] Test pagination at boundaries
+- [ ] Test navigation at first/last items
+- [ ] Test state restoration after page reload
+- [ ] Test with very long/short content
+- [ ] Test rapid state changes (debouncing)
+- [ ] Verify localStorage quota handling
+
+**Accessibility & Polish**
+- [ ] Keyboard navigation support
+- [ ] Screen reader compatibility
+- [ ] Focus management
+- [ ] Loading states
+- [ ] Error messages
+- [ ] Mobile touch interactions
+
+---
+
+## Key Technical Achievements
+
+### 1. Zero Content Jumping
+Achieved through overlay patterns and absolute positioning:
+- Auto-hide headers use `position: absolute` with overlay
+- Content below stays in place during hover
+- Sticky resize handles use `position: sticky`
+- No reflow/repaint when showing hidden elements
+
+### 2. Context-Aware Behavior
+Single functions with smart parameter handling:
+- `navigateVyakhyanaPage(num, key, direction, event, shouldScroll = false)`
+- Same function, different behavior based on call site
+- Cleaner than duplicating logic in separate functions
+- Easy to extend with additional context flags
+
+### 3. State Synchronization
+Keeping multiple UI elements in sync:
+- Top and bottom pagination controls
+- "All" checkbox with individual checkboxes
+- Open/closed state with visual indicators
+- LocalStorage with in-memory state
+
+### 4. Progressive Enhancement
+Features that enhance without breaking:
+- Auto-hide is opt-in, not forced
+- Resize handles appear only when needed
+- Pagination only shows when content is long enough
+- Watermarks only load when author exists
+
+### 5. Performance-First CSS
+Using modern CSS features for smooth UX:
+- `position: sticky` instead of scroll listeners
+- CSS transitions instead of JavaScript animations
+- `opacity` changes instead of `display` toggles
+- Hardware-accelerated properties (transform, opacity)
+
+### 6. Fail-Safe Error Handling
+Graceful degradation at every level:
+- Pagination boundary checks prevent crashes
+- Missing translations fall back to alternatives
+- Invalid localStorage values use sensible defaults
+- Null checks before accessing nested properties
 
 ---
 
 ## Conclusion
 
-This framework provides a robust foundation for building multi-language content applications with complex state management and dynamic content detection. All patterns are designed to be reusable and adaptable to different project requirements while maintaining clean, maintainable code.
+This framework provides a robust foundation for building multi-language content applications with complex state management, dynamic content detection, and sophisticated UI interactions. All patterns are designed to be:
+
+- **Reusable**: Adapt to different projects with minimal changes
+- **Maintainable**: Clean code with clear patterns and documentation
+- **Performant**: Optimized for smooth user experience
+- **Resilient**: Graceful handling of edge cases and errors
+- **User-Centric**: Features that enhance UX without intrusion
+
+The implementation demonstrates that vanilla JavaScript can deliver framework-quality features when architected thoughtfully, with proper state management, performance optimization, and attention to user experience details.
