@@ -14,6 +14,8 @@ let openVyakhyanas = new Set(); // Track which vyakhyanas are currently open/exp
 let vyakhyanaFontSize = parseInt(localStorage.getItem('vyakhyanaFontSize')) || 130; // Default 130%
 let vyakhyanaPagination = {}; // Track current page for each vyakhyana: {sutraNum-vyakhyaKey: currentPage}
 const CHARS_PER_PAGE = 2000; // Characters per page for pagination
+// Default false - only true if explicitly set to 'true' in localStorage
+let autoHideHeaders = localStorage.getItem('autoHideHeaders') === 'true';
 
 // Translation lookup table for common Sanskrit terms
 const translationLookup = {
@@ -516,6 +518,7 @@ function setupVyakhyanaFontControls() {
     const decreaseBtn = document.getElementById('decreaseVyakhyanaFontBtn');
     const resetBtn = document.getElementById('resetVyakhyanaFontBtn');
     const increaseBtn = document.getElementById('increaseVyakhyanaFontBtn');
+    const autoHideCheckbox = document.getElementById('autoHideCheckbox');
     
     if (decreaseBtn) {
         decreaseBtn.addEventListener('click', () => {
@@ -538,6 +541,15 @@ function setupVyakhyanaFontControls() {
             vyakhyanaFontSize = Math.min(180, vyakhyanaFontSize + 10); // Max 180%
             applyVyakhyanaFontSize();
             localStorage.setItem('vyakhyanaFontSize', vyakhyanaFontSize);
+        });
+    }
+    
+    if (autoHideCheckbox) {
+        // Set initial state from localStorage
+        autoHideCheckbox.checked = autoHideHeaders;
+        
+        autoHideCheckbox.addEventListener('change', (e) => {
+            toggleAutoHide(e.target.checked);
         });
     }
 }
@@ -721,7 +733,7 @@ function splitTextIntoPages(text, charsPerPage) {
     return autoSplitSection(text);
 }
 
-function navigateVyakhyanaPage(sutraNum, vyakhyaKey, direction, event) {
+function navigateVyakhyanaPage(sutraNum, vyakhyaKey, direction, event, shouldScroll = false) {
     // Stop event from bubbling up to header and triggering toggle
     if (event) {
         event.stopPropagation();
@@ -774,13 +786,13 @@ function navigateVyakhyanaPage(sutraNum, vyakhyaKey, direction, event) {
         radio.checked = index === newPage;
     });
     
-    // Scroll to top of vyakhyana
-    if (commentaryItem) {
+    // Scroll to top of vyakhyana only if requested (from bottom controls)
+    if (shouldScroll && commentaryItem) {
         commentaryItem.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 }
 
-function selectVyakhyanaPage(sutraNum, vyakhyaKey, pageIndex, event) {
+function selectVyakhyanaPage(sutraNum, vyakhyaKey, pageIndex, event, shouldScroll = false) {
     // Stop event from bubbling up to header and triggering toggle
     if (event) {
         event.stopPropagation();
@@ -828,8 +840,8 @@ function selectVyakhyanaPage(sutraNum, vyakhyaKey, pageIndex, event) {
         radio.checked = index === pageIndex;
     });
     
-    // Scroll to top of vyakhyana
-    if (commentaryItem) {
+    // Scroll to top of vyakhyana only if requested (from bottom controls)
+    if (shouldScroll && commentaryItem) {
         commentaryItem.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 }
@@ -1907,7 +1919,12 @@ function showSutraDetail(sutra) {
                     vyakhyanaPagination[paginationKey] = 0;
                 }
                 
-                const currentPage = vyakhyanaPagination[paginationKey];
+                // Ensure currentPage is within bounds
+                let currentPage = vyakhyanaPagination[paginationKey];
+                if (currentPage >= totalPages) {
+                    currentPage = 0;
+                    vyakhyanaPagination[paginationKey] = 0;
+                }
                 
                 // Generate radio buttons for pages if more than one page
                 let radioButtons = '';
@@ -1924,7 +1941,7 @@ function showSutraDetail(sutra) {
                 if (totalPages > 1) {
                     bottomRadioButtons = '<div class="page-radio-group" onclick="event.stopPropagation()">';
                     for (let i = 0; i < totalPages; i++) {
-                        bottomRadioButtons += `<input type="radio" class="page-radio" name="page-bottom-${paginationKey}" ${i === currentPage ? 'checked' : ''} onchange="selectVyakhyanaPage(${num}, '${vyakhyaKey}', ${i}, event)" onclick="event.stopPropagation()" style="border-color: #0066cc; --checked-bg: #0066cc;">`;
+                        bottomRadioButtons += `<input type="radio" class="page-radio" name="page-bottom-${paginationKey}" ${i === currentPage ? 'checked' : ''} onchange="selectVyakhyanaPage(${num}, '${vyakhyaKey}', ${i}, event, true)" onclick="event.stopPropagation()" style="border-color: #0066cc; --checked-bg: #0066cc;">`;
                     }
                     bottomRadioButtons += '</div>';
                 }
@@ -1942,15 +1959,18 @@ function showSutraDetail(sutra) {
                         <span class="commentary-title" onclick="toggleCommentary(${num}, '${vyakhyaKey}')" style="cursor: pointer;">${titleText}</span>
                         ${bottomRadioButtons}
                         <div class="pagination-controls" onclick="event.stopPropagation()">
-                            <button class="pagination-prev" onclick="navigateVyakhyanaPage(${num}, '${vyakhyaKey}', -1, event)" ${currentPage === 0 ? 'disabled' : ''} style="opacity: ${currentPage === 0 ? '0.3' : '1'}; color: #0066cc; border-color: #0066cc;">‹</button>
+                            <button class="pagination-prev" onclick="navigateVyakhyanaPage(${num}, '${vyakhyaKey}', -1, event, true)" ${currentPage === 0 ? 'disabled' : ''} style="opacity: ${currentPage === 0 ? '0.3' : '1'}; color: #0066cc; border-color: #0066cc;">‹</button>
                             <span class="pagination-info" style="color: #0066cc;">${currentPage + 1} / ${totalPages}</span>
-                            <button class="pagination-next" onclick="navigateVyakhyanaPage(${num}, '${vyakhyaKey}', 1, event)" ${currentPage === totalPages - 1 ? 'disabled' : ''} style="opacity: ${currentPage === totalPages - 1 ? '0.3' : '1'}; color: #0066cc; border-color: #0066cc;">›</button>
+                            <button class="pagination-next" onclick="navigateVyakhyanaPage(${num}, '${vyakhyaKey}', 1, event, true)" ${currentPage === totalPages - 1 ? 'disabled' : ''} style="opacity: ${currentPage === totalPages - 1 ? '0.3' : '1'}; color: #0066cc; border-color: #0066cc;">›</button>
                         </div>
                     </div>
                 ` : '';
                 
                 // Add watermark div if author exists
                 const watermarkDiv = author ? `<div class="watermark" style="background-image: url('images/${author}.jpg');"></div>` : '';
+                
+                // Add resize handle only if not the first vyakhyana
+                const resizeHandleTop = num > 1 ? `<div class="resize-handle-top" onmousedown="startResizeTop(event, ${num})"></div>` : '';
                 
                 return `
                     <div class="commentary-item" data-key="${vyakhyaKey}" ${authorAttr} data-pagination-key="${paginationKey}">
@@ -1961,9 +1981,11 @@ function showSutraDetail(sutra) {
                             <span class="commentary-toggle" id="toggle-${num}">▼</span>
                         </div>
                         <div class="commentary-content" id="commentary-${num}" style="display: none;">
+                            ${resizeHandleTop}
                             ${watermarkDiv}
                             <p class="commentary-text" data-pages='${JSON.stringify(pages)}'>${pages[currentPage].replace(/<PB>/g, '')}</p>
                             ${bottomPaginationControls}
+                            <div class="resize-handle" onmousedown="startResize(event, ${num})"></div>
                         </div>
                     </div>
                 `;
@@ -2493,14 +2515,107 @@ function stopSequentialPlayback() {
 function toggleCommentary(num, vyakhyanaKey) {
     const content = document.getElementById(`commentary-${num}`);
     const toggle = document.getElementById(`toggle-${num}`);
+    const item = content.closest('.commentary-item');
     
     if (content.style.display === 'none') {
         content.style.display = 'block';
         toggle.textContent = '▲';
         openVyakhyanas.add(vyakhyanaKey);
+        item.classList.add('open');
+        // Apply auto-hide class if enabled
+        if (autoHideHeaders) {
+            item.classList.add('auto-hide-enabled');
+        }
     } else {
         content.style.display = 'none';
         toggle.textContent = '▼';
         openVyakhyanas.delete(vyakhyanaKey);
+        item.classList.remove('open');
+        item.classList.remove('auto-hide-enabled');
     }
+}
+
+// Toggle auto-hide setting globally
+function toggleAutoHide(checked) {
+    autoHideHeaders = checked;
+    localStorage.setItem('autoHideHeaders', autoHideHeaders);
+    
+    // Update all open vyakhyanas
+    document.querySelectorAll('.commentary-item.open').forEach(item => {
+        if (autoHideHeaders) {
+            item.classList.add('auto-hide-enabled');
+        } else {
+            item.classList.remove('auto-hide-enabled');
+        }
+    });
+}
+
+// Resize functionality for vyakhyana windows
+let resizingElement = null;
+let startY = 0;
+let startHeight = 0;
+
+function startResize(event, num) {
+    event.stopPropagation();
+    resizingElement = document.getElementById(`commentary-${num}`);
+    startY = event.clientY;
+    startHeight = resizingElement.offsetHeight;
+    
+    document.addEventListener('mousemove', handleResize);
+    document.addEventListener('mouseup', stopResize);
+    document.body.style.userSelect = 'none';
+}
+
+function handleResize(event) {
+    if (!resizingElement) return;
+    
+    const deltaY = event.clientY - startY;
+    const newHeight = Math.max(100, startHeight + deltaY); // Minimum height of 100px
+    resizingElement.style.height = newHeight + 'px';
+    resizingElement.style.maxHeight = newHeight + 'px';
+}
+
+function stopResize() {
+    resizingElement = null;
+    document.removeEventListener('mousemove', handleResize);
+    document.removeEventListener('mouseup', stopResize);
+    document.body.style.userSelect = '';
+}
+
+// Top resize handle - affects previous vyakhyana window
+function startResizeTop(event, num) {
+    event.stopPropagation();
+    
+    // Find the previous vyakhyana window
+    const currentElement = document.getElementById(`commentary-${num}`);
+    const previousNum = num - 1;
+    
+    if (previousNum >= 1) {
+        const previousElement = document.getElementById(`commentary-${previousNum}`);
+        if (previousElement && previousElement.style.display !== 'none') {
+            resizingElement = previousElement;
+            startY = event.clientY;
+            startHeight = resizingElement.offsetHeight;
+            
+            document.addEventListener('mousemove', handleResizeTop);
+            document.addEventListener('mouseup', stopResizeTop);
+            document.body.style.userSelect = 'none';
+        }
+    }
+}
+
+function handleResizeTop(event) {
+    if (!resizingElement) return;
+    
+    const deltaY = event.clientY - startY;
+    const newHeight = Math.max(100, startHeight + deltaY); // Minimum height of 100px
+    resizingElement.style.height = newHeight + 'px';
+    resizingElement.style.maxHeight = newHeight + 'px';
+}
+
+function stopResizeTop() {
+    resizingElement = null;
+    document.removeEventListener('mousemove', handleResizeTop);
+    document.removeEventListener('mouseup', stopResizeTop);
+    document.body.style.userSelect = '';
 }

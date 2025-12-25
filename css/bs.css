@@ -136,6 +136,13 @@ header.header-collapsed .header-toggle-btn {
 /* Vyakhyana Font Control */
 .vyakhyana-font-control {
     display: inline-flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.vyakhyana-font-control .font-control-row {
+    display: inline-flex;
     align-items: center;
     gap: 10px;
 }
@@ -143,6 +150,25 @@ header.header-collapsed .header-toggle-btn {
 .vyakhyana-font-control label {
     font-weight: 600;
     font-size: 0.95rem;
+}
+
+.vyakhyana-font-control .auto-hide-global-checkbox {
+    font-weight: normal;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.vyakhyana-font-control .auto-hide-global-checkbox input[type="checkbox"] {
+    cursor: pointer;
+    width: 14px;
+    height: 14px;
+}
+
+.vyakhyana-font-control .auto-hide-global-checkbox span {
+    user-select: none;
 }
 
 .vyakhyana-font-control .font-size-buttons {
@@ -1059,13 +1085,14 @@ header.header-collapsed .header-toggle-btn {
 
 .commentary-item {
     border-bottom: 1px solid #e0e0e0;
+    position: relative;
 }
 
 .commentary-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 0;
+    padding: 6px 0;
     color: #333;
     cursor: pointer;
     user-select: none;
@@ -1076,17 +1103,58 @@ header.header-collapsed .header-toggle-btn {
     color: #667eea;
 }
 
+/* Hide header space when vyakhyana is open, show on hover near top (only when auto-hide enabled) */
+.commentary-item.open.auto-hide-enabled .commentary-header {
+    position: absolute;
+    top: 0;
+    left: 10px;
+    right: 0;
+    z-index: 100;
+    min-height: 35px;
+    overflow: visible;
+    padding: 0 10px 0 0;
+    opacity: 0;
+    background: transparent;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    pointer-events: auto;
+}
+
+.commentary-item.open.auto-hide-enabled .commentary-header > * {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.commentary-item.open.auto-hide-enabled .commentary-header:hover {
+    opacity: 1;
+    min-height: auto;
+    padding: 6px 10px 6px 0;
+    background: rgba(230, 255, 230, 0.85);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+.commentary-item.open.auto-hide-enabled .commentary-header:hover > * {
+    opacity: 1;
+}
+
 .commentary-title {
-    font-weight: 700;
-    font-size: 1.3rem;
+    font-weight: 600;
+    font-size: 1.15rem;
     color: #0066cc;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
 }
 
 .page-radio-group {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    margin-left: 15px;
+    gap: 3px;
+    margin-left: 8px;
 }
 
 .bottom-pagination {
@@ -1105,9 +1173,9 @@ header.header-collapsed .header-toggle-btn {
 
 .page-radio {
     appearance: none;
-    width: 14px;
-    height: 14px;
-    border: 2px solid;
+    width: 10px;
+    height: 10px;
+    border: 1.5px solid;
     border-radius: 50%;
     cursor: pointer;
     position: relative;
@@ -1129,8 +1197,8 @@ header.header-collapsed .header-toggle-btn {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
     background-color: white;
     border-radius: 50%;
 }
@@ -1138,9 +1206,9 @@ header.header-collapsed .header-toggle-btn {
 .pagination-controls {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
     margin-left: auto;
-    margin-right: 15px;
+    margin-right: 8px;
 }
 
 .pagination-prev,
@@ -1148,11 +1216,11 @@ header.header-collapsed .header-toggle-btn {
     background: #e6f2ff;
     color: white;
     border: none;
-    width: 28px;
-    height: 28px;
-    border-radius: 4px;
+    width: 22px;
+    height: 22px;
+    border-radius: 3px;
     cursor: pointer;
-    font-size: 1.2rem;
+    font-size: 0.95rem;
     font-weight: bold;
     display: flex;
     align-items: center;
@@ -1175,23 +1243,31 @@ header.header-collapsed .header-toggle-btn {
 }
 
 .pagination-info {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     color: #666;
     font-weight: 600;
-    min-width: 50px;
+    min-width: 40px;
     text-align: center;
 }
 
 .commentary-toggle {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #667eea;
     transition: transform 0.3s ease;
 }
 
 .commentary-content {
-    padding: 10px 0 15px 20px;
-    border-left: 3px solid #667eea;
+    padding: 15px 0 15px 20px;
+    border-left: 1px solid #667eea;
     margin-left: 10px;
+    overflow-y: auto;
+    max-height: 600px;
+    position: relative;
+}
+
+/* Add padding-top when auto-hide is enabled to create hover zone */
+.commentary-item.open.auto-hide-enabled .commentary-content {
+    padding-top: 15px;
 }
 
 .commentary-content p {
@@ -1206,6 +1282,33 @@ header.header-collapsed .header-toggle-btn {
     display: block;
     content: "";
     margin-top: 0.5em;
+}
+
+/* Resize handle for vyakhyana windows */
+.resize-handle {
+    display: none;
+}
+
+.resize-handle:hover {
+    display: none;
+}
+
+.resize-handle-top {
+    height: 12px;
+    width: 100%;
+    background: linear-gradient(to bottom, transparent 30%, #4CAF50 50%, transparent 70%);
+    cursor: ns-resize;
+    position: sticky;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 150;
+}
+
+.resize-handle-top:hover {
+    opacity: 1;
+    background: linear-gradient(to bottom, transparent 20%, #4CAF50 50%, transparent 80%);
 }
 
 /* Author-based watermark */
