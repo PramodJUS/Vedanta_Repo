@@ -1607,6 +1607,228 @@ Graceful degradation at every level:
 
 ---
 
+## Section 12: Footer Timestamp with Build Automation
+
+### Overview
+Automated version tracking system that displays last update timestamp in the footer without relying on server-side headers (GitHub Pages compatible).
+
+### Implementation
+
+#### HTML Structure
+```html
+<footer>
+    <p>Based on Madhvacharya's Brahma Sutra Bhashya | For educational purposes</p>
+    <p class="last-updated" id="lastUpdated">
+        Updated on: <span id="updateDate">Loading...</span>
+    </p>
+</footer>
+```
+
+#### CSS Positioning
+```css
+footer {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    text-align: center;
+    padding: 20px;
+    margin-top: auto;
+    position: relative; /* For absolute child positioning */
+}
+
+footer .last-updated {
+    position: absolute;
+    bottom: 10px;
+    right: 20px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
+footer .last-updated span {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+}
+```
+
+#### JavaScript Display Function
+```javascript
+async function updateLastModifiedDate() {
+    const updateDateElement = document.getElementById('updateDate');
+    if (!updateDateElement) return;
+    
+    // Hard-coded version date - updated by build script
+    const VERSION_DATE = '2025-12-25T23:04:00+05:30';
+    
+    try {
+        const versionDate = new Date(VERSION_DATE);
+        updateDateElement.textContent = versionDate.toLocaleString('en-IN', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } catch (error) {
+        console.error('Error formatting version date:', error);
+        // Fallback display
+        updateDateElement.textContent = 'Dec 25, 2025, 11:04 PM';
+    }
+}
+
+// Call on page load
+document.addEventListener('DOMContentLoaded', () => {
+    updateLastModifiedDate();
+    // ... other initialization
+});
+```
+
+#### Build Script (PowerShell)
+**File: `update-version.ps1`**
+```powershell
+# Update version date in bs.js
+$jsFile = "js\bs.js"
+$currentDateTime = Get-Date -Format "yyyy-MM-ddTHH:mm:sszzz"
+$displayDateTime = Get-Date -Format "MMM dd, yyyy, h:mm tt"
+
+Write-Host "Updating version date to: $displayDateTime" -ForegroundColor Green
+
+# Read the file content
+$content = Get-Content $jsFile -Raw
+
+# Update the VERSION_DATE line using regex
+$content = $content -replace "const VERSION_DATE = '[^']+';", "const VERSION_DATE = '$currentDateTime';"
+
+# Write back to file
+Set-Content $jsFile -Value $content -NoNewline
+
+Write-Host "Version date updated successfully!" -ForegroundColor Green
+Write-Host "Don't forget to commit and push the changes." -ForegroundColor Yellow
+```
+
+### Usage Workflow
+
+**Before Each Deployment:**
+```powershell
+# 1. Run the update script
+powershell -ExecutionPolicy Bypass -File update-version.ps1
+
+# 2. Stage and commit changes
+git add .
+git commit -m "Your commit message"
+
+# 3. Push to repository
+git push origin branch-name
+```
+
+### Design Decisions
+
+#### Why Hard-Coded Constant vs Server Headers?
+1. **GitHub Pages Limitation**: Doesn't reliably send `Last-Modified` headers
+2. **Simplicity**: No async fetch calls, instant display
+3. **Reliability**: Works in all deployment environments
+4. **Performance**: No network requests needed
+
+#### Why Build Script vs Manual Updates?
+1. **Automation**: Eliminates human error
+2. **Consistency**: Same format every time
+3. **Integration**: Fits naturally into git workflow
+4. **Reminder**: Script displays confirmation message
+
+#### Why PowerShell Script?
+1. **Cross-Platform**: Works on Windows (primary development environment)
+2. **Simple**: Regex replacement in 11 lines
+3. **No Dependencies**: Uses built-in PowerShell features
+4. **Readable**: Easy to understand and modify
+
+### Display Format
+- **Locale**: `en-IN` (Indian English)
+- **Date Format**: "Dec 25, 2025"
+- **Time Format**: "11:04 PM" (12-hour with AM/PM)
+- **Full Example**: "Dec 25, 2025, 11:04 PM"
+
+### Error Handling
+```javascript
+try {
+    const versionDate = new Date(VERSION_DATE);
+    updateDateElement.textContent = versionDate.toLocaleString('en-IN', {...});
+} catch (error) {
+    console.error('Error formatting version date:', error);
+    // Fallback to static display if date parsing fails
+    updateDateElement.textContent = 'Dec 25, 2025, 11:04 PM';
+}
+```
+
+### Best Practices
+
+1. **Run Before Every Commit**: Make it part of your pre-commit routine
+2. **Verify Changes**: Check that VERSION_DATE was updated in bs.js
+3. **Commit Included Files**: Ensure updated bs.js is in the commit
+4. **Meaningful Commit Messages**: Describe what changed, not just "update version"
+5. **Test Locally**: Verify footer displays correctly before pushing
+
+### Alternative Approaches Considered
+
+#### Approach 1: Fetch Last-Modified Headers
+```javascript
+// NOT USED - Doesn't work on GitHub Pages
+const response = await fetch('js/bs.js');
+const lastModified = response.headers.get('Last-Modified');
+```
+**Why Not**: GitHub Pages doesn't send reliable Last-Modified headers
+
+#### Approach 2: Manual VERSION_DATE Updates
+```javascript
+// Manual update required before each deployment
+const VERSION_DATE = '2025-12-25T23:04:00+05:30';
+```
+**Why Not**: Easy to forget, prone to human error
+
+#### Approach 3: Git Pre-Commit Hook ❌
+```bash
+#!/usr/bin/env pwsh
+# Pre-commit hook to auto-update version
+```
+**Why Not**: Windows Git doesn't execute PowerShell hooks reliably
+
+### Adaptation for Other Projects
+
+**For npm-based projects:**
+```json
+{
+  "scripts": {
+    "version": "node update-version.js",
+    "precommit": "npm run version && git add ."
+  }
+}
+```
+
+**For Python projects:**
+```python
+# update_version.py
+import re
+from datetime import datetime
+
+with open('app.js', 'r') as f:
+    content = f.read()
+
+now = datetime.now().isoformat()
+content = re.sub(r"VERSION_DATE = '[^']+'", f"VERSION_DATE = '{now}'", content)
+
+with open('app.js', 'w') as f:
+    f.write(content)
+```
+
+**For deployment pipelines (CI/CD):**
+```yaml
+# .github/workflows/deploy.yml
+- name: Update version
+  run: |
+    sed -i "s/VERSION_DATE = '.*'/VERSION_DATE = '$(date -Iseconds)'/" js/app.js
+    git add js/app.js
+```
+
+---
+
 ## Conclusion
 
 This framework provides a robust foundation for building multi-language content applications with complex state management, dynamic content detection, and sophisticated UI interactions. All patterns are designed to be:
