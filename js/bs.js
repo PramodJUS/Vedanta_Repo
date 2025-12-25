@@ -2637,7 +2637,8 @@ async function updateLastModifiedDate() {
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
-            timeZone: 'Asia/Kolkata'
+            timeZone: 'Asia/Kolkata',
+            timeZoneName: 'short'
         });
     } catch (error) {
         updateDateElement.textContent = 'Dec 25, 2024, 6:30 PM';
