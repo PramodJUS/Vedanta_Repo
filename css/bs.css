@@ -1342,7 +1342,23 @@ footer {
     text-align: center;
     padding: 1.5rem;
     margin-top: 3rem;
+    position: relative;
 }
+
+footer .last-updated {
+    position: absolute;
+    bottom: 10px;
+    right: 20px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
+footer .last-updated span {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+}
+
 
 /* Responsive Design */
 @media (max-width: 1024px) {

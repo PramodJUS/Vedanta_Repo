@@ -385,6 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupVyakhyanaFontControls();
     applyVyakhyanaFontSize();
     updateUILanguage();
+    updateLastModifiedDate();
     
     // Load voices for speech synthesis
     if ('speechSynthesis' in window) {
@@ -2618,4 +2619,26 @@ function stopResizeTop() {
     document.removeEventListener('mousemove', handleResizeTop);
     document.removeEventListener('mouseup', stopResizeTop);
     document.body.style.userSelect = '';
+}
+
+// Update last modified date in footer
+async function updateLastModifiedDate() {
+    const updateDateElement = document.getElementById('updateDate');
+    if (!updateDateElement) return;
+    
+    // Hard-coded version date - update this when deploying new version
+    const VERSION_DATE = '2025-12-25T23:04:52+05:30'; // ISO format with timezone
+    
+    try {
+        const versionDate = new Date(VERSION_DATE);
+        updateDateElement.textContent = versionDate.toLocaleString('en-IN', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } catch (error) {
+        updateDateElement.textContent = 'Dec 25, 2024, 6:30 PM';
+    }
 }
