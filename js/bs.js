@@ -11,6 +11,9 @@ let currentSutra = null; // Track current sutra in detail view
 let selectedVyakhyanaKeys = new Set(); // Track selected vyakhyana KEY NAMES, not positions
 let selectAllVyakhyanas = true; // Track if "All" is selected (default: true)
 let openVyakhyanas = new Set(); // Track which vyakhyanas are currently open/expanded
+let vyakhyanaFontSize = parseInt(localStorage.getItem('vyakhyanaFontSize')) || 130; // Default 130%
+let vyakhyanaPagination = {}; // Track current page for each vyakhyana: {sutraNum-vyakhyaKey: currentPage}
+const CHARS_PER_PAGE = 2000; // Characters per page for pagination
 
 // Translation lookup table for common Sanskrit terms
 const translationLookup = {
@@ -377,6 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     loadSutras();
     setupEventListeners();
+    setupVyakhyanaFontControls();
+    applyVyakhyanaFontSize();
     updateUILanguage();
     
     // Load voices for speech synthesis
@@ -503,6 +508,329 @@ function setupEventListeners() {
                 }
             });
         });
+    }
+}
+
+// Vyakhyana font size controls
+function setupVyakhyanaFontControls() {
+    const decreaseBtn = document.getElementById('decreaseVyakhyanaFontBtn');
+    const resetBtn = document.getElementById('resetVyakhyanaFontBtn');
+    const increaseBtn = document.getElementById('increaseVyakhyanaFontBtn');
+    
+    if (decreaseBtn) {
+        decreaseBtn.addEventListener('click', () => {
+            vyakhyanaFontSize = Math.max(80, vyakhyanaFontSize - 10); // Min 80%
+            applyVyakhyanaFontSize();
+            localStorage.setItem('vyakhyanaFontSize', vyakhyanaFontSize);
+        });
+    }
+    
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            vyakhyanaFontSize = 130; // Reset to 130%
+            applyVyakhyanaFontSize();
+            localStorage.setItem('vyakhyanaFontSize', vyakhyanaFontSize);
+        });
+    }
+    
+    if (increaseBtn) {
+        increaseBtn.addEventListener('click', () => {
+            vyakhyanaFontSize = Math.min(180, vyakhyanaFontSize + 10); // Max 180%
+            applyVyakhyanaFontSize();
+            localStorage.setItem('vyakhyanaFontSize', vyakhyanaFontSize);
+        });
+    }
+}
+
+function applyVyakhyanaFontSize() {
+    // Apply font size to all commentary content
+    const commentaryItems = document.querySelectorAll('.commentary-item');
+    commentaryItems.forEach(item => {
+        item.style.fontSize = `${vyakhyanaFontSize}%`;
+        
+        // Prevent copying of vyakhyana content
+        item.addEventListener('copy', (e) => {
+            e.preventDefault();
+            return false;
+        });
+    });
+}
+
+function splitTextIntoPages(text, charsPerPage) {
+    if (!text || text.length <= charsPerPage) {
+        return [text];
+    }
+    
+    const pageBreakMarker = '<PB>';
+    const isSanskrit = text.includes('॥') || text.includes('।');
+    
+    // Helper function to split a section using automatic logic
+    function autoSplitSection(sectionText) {
+        const sectionPages = [];
+        let currentPos = 0;
+        
+        while (currentPos < sectionText.length) {
+            let endPos = currentPos + charsPerPage;
+            
+            if (endPos < sectionText.length) {
+                let bestBreak = -1;
+                
+                if (isSanskrit) {
+                    // For Sanskrit text, look for danda marks
+                    const searchStart = Math.max(currentPos, endPos - 500);
+                    const searchEnd = Math.min(endPos + 100, sectionText.length);
+                    
+                    let lastDoubleDanda = -1;
+                    let lastSingleDanda = -1;
+                    
+                    for (let i = searchStart; i < searchEnd; i++) {
+                        if (sectionText[i] === '॥') {
+                            lastDoubleDanda = i + 1;
+                        } else if (sectionText[i] === '।') {
+                            lastSingleDanda = i + 1;
+                        }
+                    }
+                    
+                    if (lastDoubleDanda !== -1 && lastDoubleDanda >= endPos - 500 && lastDoubleDanda <= endPos + 100) {
+                        bestBreak = lastDoubleDanda;
+                    } else if (lastSingleDanda !== -1 && lastSingleDanda >= endPos - 500 && lastSingleDanda <= endPos + 100) {
+                        bestBreak = lastSingleDanda;
+                    }
+                } else {
+                    // For translations
+                    const searchStart = Math.max(currentPos, endPos - 500);
+                    const searchEnd = Math.min(endPos + 100, sectionText.length);
+                    
+                    let lastDoubleBr = -1;
+                    let pos = searchStart;
+                    while (pos < searchEnd) {
+                        const doubleBrPos = sectionText.indexOf('<br><br>', pos);
+                        if (doubleBrPos !== -1 && doubleBrPos < searchEnd) {
+                            lastDoubleBr = doubleBrPos + 8;
+                            pos = doubleBrPos + 8;
+                        } else {
+                            break;
+                        }
+                    }
+                    
+                    if (lastDoubleBr !== -1 && lastDoubleBr >= endPos - 500 && lastDoubleBr <= endPos + 100) {
+                        bestBreak = lastDoubleBr;
+                    } else {
+                        let lastBr = -1;
+                        pos = searchStart;
+                        while (pos < searchEnd) {
+                            const brPos = sectionText.indexOf('<br>', pos);
+                            if (brPos !== -1 && brPos < searchEnd) {
+                                lastBr = brPos + 4;
+                                pos = brPos + 4;
+                            } else {
+                                break;
+                            }
+                        }
+                        
+                        if (lastBr !== -1 && lastBr >= endPos - 500 && lastBr <= endPos + 100) {
+                            bestBreak = lastBr;
+                        } else {
+                            for (let i = Math.min(endPos + 50, sectionText.length) - 1; i >= Math.max(currentPos, endPos - 400); i--) {
+                                if (sectionText[i] === '.') {
+                                    bestBreak = i + 1;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                if (bestBreak !== -1) {
+                    endPos = bestBreak;
+                } else {
+                    let breakPos = sectionText.lastIndexOf('<br><br>', endPos);
+                    if (breakPos > currentPos && breakPos > endPos - 500) {
+                        endPos = breakPos + 8;
+                    } else {
+                        breakPos = sectionText.lastIndexOf('<br>', endPos);
+                        if (breakPos > currentPos && breakPos > endPos - 300) {
+                            endPos = breakPos + 4;
+                        } else {
+                            breakPos = sectionText.lastIndexOf(' ', endPos);
+                            if (breakPos > currentPos) {
+                                endPos = breakPos + 1;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            sectionPages.push(sectionText.substring(currentPos, endPos));
+            currentPos = endPos;
+        }
+        
+        return sectionPages;
+    }
+    
+    // Find all <PB> markers
+    const pbPositions = [];
+    let searchPos = 0;
+    while (searchPos < text.length) {
+        const pbPos = text.indexOf(pageBreakMarker, searchPos);
+        if (pbPos !== -1) {
+            pbPositions.push(pbPos + pageBreakMarker.length);
+            searchPos = pbPos + pageBreakMarker.length;
+        } else {
+            break;
+        }
+    }
+    
+    // If there are <PB> markers, split text into sections at <PB> positions
+    // Then auto-split each section if it's longer than charsPerPage
+    const pages = [];
+    
+    if (pbPositions.length > 0) {
+        let currentPos = 0;
+        
+        // Process each section between <PB> markers
+        for (let i = 0; i < pbPositions.length; i++) {
+            const sectionText = text.substring(currentPos, pbPositions[i]);
+            
+            // If this section is longer than charsPerPage, auto-split it
+            if (sectionText.length > charsPerPage) {
+                const subPages = autoSplitSection(sectionText);
+                pages.push(...subPages);
+            } else {
+                pages.push(sectionText);
+            }
+            
+            currentPos = pbPositions[i];
+        }
+        
+        // Process remaining text after last <PB>
+        if (currentPos < text.length) {
+            const sectionText = text.substring(currentPos);
+            if (sectionText.length > charsPerPage) {
+                const subPages = autoSplitSection(sectionText);
+                pages.push(...subPages);
+            } else {
+                pages.push(sectionText);
+            }
+        }
+        
+        return pages;
+    }
+    
+    // No <PB> markers - use automatic pagination
+    return autoSplitSection(text);
+}
+
+function navigateVyakhyanaPage(sutraNum, vyakhyaKey, direction, event) {
+    // Stop event from bubbling up to header and triggering toggle
+    if (event) {
+        event.stopPropagation();
+    }
+    
+    const paginationKey = `${sutraNum}-${vyakhyaKey}`;
+    const currentPage = vyakhyanaPagination[paginationKey] || 0;
+    const commentaryItem = document.querySelector(`[data-pagination-key="${paginationKey}"]`);
+    const contentElement = commentaryItem?.querySelector('.commentary-text');
+    const paginationInfos = document.querySelectorAll(`[data-pagination-key="${paginationKey}"] .pagination-info`);
+    const prevBtns = document.querySelectorAll(`[data-pagination-key="${paginationKey}"] .pagination-prev`);
+    const nextBtns = document.querySelectorAll(`[data-pagination-key="${paginationKey}"] .pagination-next`);
+    
+    if (!contentElement) return;
+    
+    const pages = JSON.parse(contentElement.getAttribute('data-pages'));
+    const totalPages = pages.length;
+    
+    let newPage = currentPage + direction;
+    if (newPage < 0) newPage = 0;
+    if (newPage >= totalPages) newPage = totalPages - 1;
+    
+    vyakhyanaPagination[paginationKey] = newPage;
+    
+    // Update content
+    contentElement.innerHTML = pages[newPage].replace(/<PB>/g, '');
+    
+    // Update all pagination info displays
+    paginationInfos.forEach(info => {
+        info.textContent = `${newPage + 1} / ${totalPages}`;
+    });
+    
+    // Update all button states
+    prevBtns.forEach(btn => {
+        btn.disabled = newPage === 0;
+        btn.style.opacity = newPage === 0 ? '0.3' : '1';
+    });
+    nextBtns.forEach(btn => {
+        btn.disabled = newPage === totalPages - 1;
+        btn.style.opacity = newPage === totalPages - 1 ? '0.3' : '1';
+    });
+    
+    // Update both top and bottom radio button selections
+    const topRadios = document.querySelectorAll(`input[name="page-top-${paginationKey}"]`);
+    const bottomRadios = document.querySelectorAll(`input[name="page-bottom-${paginationKey}"]`);
+    topRadios.forEach((radio, index) => {
+        radio.checked = index === newPage;
+    });
+    bottomRadios.forEach((radio, index) => {
+        radio.checked = index === newPage;
+    });
+    
+    // Scroll to top of vyakhyana
+    if (commentaryItem) {
+        commentaryItem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+function selectVyakhyanaPage(sutraNum, vyakhyaKey, pageIndex, event) {
+    // Stop event from bubbling up to header and triggering toggle
+    if (event) {
+        event.stopPropagation();
+    }
+    
+    const paginationKey = `${sutraNum}-${vyakhyaKey}`;
+    const commentaryItem = document.querySelector(`[data-pagination-key="${paginationKey}"]`);
+    const contentElement = commentaryItem?.querySelector('.commentary-text');
+    const paginationInfos = document.querySelectorAll(`[data-pagination-key="${paginationKey}"] .pagination-info`);
+    const prevBtns = document.querySelectorAll(`[data-pagination-key="${paginationKey}"] .pagination-prev`);
+    const nextBtns = document.querySelectorAll(`[data-pagination-key="${paginationKey}"] .pagination-next`);
+    
+    if (!contentElement) return;
+    
+    const pages = JSON.parse(contentElement.getAttribute('data-pages'));
+    const totalPages = pages.length;
+    
+    vyakhyanaPagination[paginationKey] = pageIndex;
+    
+    // Update content
+    contentElement.innerHTML = pages[pageIndex].replace(/<PB>/g, '');
+    
+    // Update all pagination info displays
+    paginationInfos.forEach(info => {
+        info.textContent = `${pageIndex + 1} / ${totalPages}`;
+    });
+    
+    // Update all button states
+    prevBtns.forEach(btn => {
+        btn.disabled = pageIndex === 0;
+        btn.style.opacity = pageIndex === 0 ? '0.3' : '1';
+    });
+    nextBtns.forEach(btn => {
+        btn.disabled = pageIndex === totalPages - 1;
+        btn.style.opacity = pageIndex === totalPages - 1 ? '0.3' : '1';
+    });
+    
+    // Update both top and bottom radio button selections
+    const topRadios = document.querySelectorAll(`input[name="page-top-${paginationKey}"]`);
+    const bottomRadios = document.querySelectorAll(`input[name="page-bottom-${paginationKey}"]`);
+    topRadios.forEach((radio, index) => {
+        radio.checked = index === pageIndex;
+    });
+    bottomRadios.forEach((radio, index) => {
+        radio.checked = index === pageIndex;
+    });
+    
+    // Scroll to top of vyakhyana
+    if (commentaryItem) {
+        commentaryItem.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 }
 
@@ -1364,6 +1692,12 @@ function showSutraDetail(sutra) {
         vyakhyanaSelector.style.display = 'inline-flex';
     }
     
+    // Show vyakhyana font control in detail view
+    const vyakhyanaFontControl = document.getElementById('vyakhyanaFontControl');
+    if (vyakhyanaFontControl) {
+        vyakhyanaFontControl.style.display = 'inline-flex';
+    }
+    
     // Disable dropdowns in detail view
     if (adhyayaSelect) adhyayaSelect.disabled = true;
     if (padaSelect) padaSelect.disabled = true;
@@ -1480,6 +1814,17 @@ function showSutraDetail(sutra) {
         key: key
     }));
     
+    // VIBGYOR color pattern for vyakhyanas
+    const vibgyorColors = [
+        '#8B00FF', // Violet
+        '#4B0082', // Indigo
+        '#0066CC', // Blue
+        '#008000', // Green
+        '#FFD700', // Yellow
+        '#FF8C00', // Orange
+        '#FF0000'  // Red
+    ];
+    
     // Render ALL available vyakhyanas, then control visibility with CSS
     let additionalCommentariesHTML = `
         <div class="commentary-items">
@@ -1487,6 +1832,8 @@ function showSutraDetail(sutra) {
                 .map(item => {
                 const num = item.num;
                 const vyakhyaKey = item.key;
+                const colorIndex = (num - 1) % vibgyorColors.length;
+                const vyakhyanaColor = vibgyorColors[colorIndex];
                 // Display the actual key name from JSON (transliterated if needed)
                 const titleText = currentLanguage !== 'sa' ? 
                                  transliterateText(vyakhyaKey, currentLanguage) : 
@@ -1533,16 +1880,90 @@ function showSutraDetail(sutra) {
                                         transliterateText(`अत्र व्याख्यान ${numPart} भविष्यति`, currentLanguage) : 
                                         `अत्र व्याख्यान ${numPart} भविष्यति`;
                     }
+                    
+                    // Ensure commentaryText is not empty
+                    if (!commentaryText || commentaryText.trim() === '') {
+                        commentaryText = vyakhyaData['moola'] || `Content for ${vyakhyaKey}`;
+                    }
+                    
+                    // Convert line break escape sequences to HTML br tags
+                    // First handle double line breaks (paragraph breaks) with extra spacing
+                    commentaryText = commentaryText.replace(/\\r\\n\\r\\n|\\n\\n|\\r\\r/g, '<br><br>');
+                    // Then handle single line breaks
+                    commentaryText = commentaryText.replace(/\\r\\n|\\n|\\r/g, '<br>');
                 }
                 
+                // Get author for watermark
+                const author = vyakhyaData && vyakhyaData.author ? vyakhyaData.author.toLowerCase() : '';
+                const authorAttr = author ? `data-author="${author}"` : '';
+                
+                // Split content into pages
+                const pages = splitTextIntoPages(commentaryText, CHARS_PER_PAGE);
+                const totalPages = pages.length;
+                const paginationKey = `${num}-${vyakhyaKey}`;
+                
+                // Initialize pagination state
+                if (!vyakhyanaPagination[paginationKey]) {
+                    vyakhyanaPagination[paginationKey] = 0;
+                }
+                
+                const currentPage = vyakhyanaPagination[paginationKey];
+                
+                // Generate radio buttons for pages if more than one page
+                let radioButtons = '';
+                if (totalPages > 1) {
+                    radioButtons = '<div class="page-radio-group" onclick="event.stopPropagation()">';
+                    for (let i = 0; i < totalPages; i++) {
+                        radioButtons += `<input type="radio" class="page-radio" name="page-top-${paginationKey}" ${i === currentPage ? 'checked' : ''} onchange="selectVyakhyanaPage(${num}, '${vyakhyaKey}', ${i}, event)" onclick="event.stopPropagation()" style="border-color: #0066cc; --checked-bg: #0066cc;">`;
+                    }
+                    radioButtons += '</div>';
+                }
+                
+                // Generate bottom pagination controls
+                let bottomRadioButtons = '';
+                if (totalPages > 1) {
+                    bottomRadioButtons = '<div class="page-radio-group" onclick="event.stopPropagation()">';
+                    for (let i = 0; i < totalPages; i++) {
+                        bottomRadioButtons += `<input type="radio" class="page-radio" name="page-bottom-${paginationKey}" ${i === currentPage ? 'checked' : ''} onchange="selectVyakhyanaPage(${num}, '${vyakhyaKey}', ${i}, event)" onclick="event.stopPropagation()" style="border-color: #0066cc; --checked-bg: #0066cc;">`;
+                    }
+                    bottomRadioButtons += '</div>';
+                }
+                
+                const paginationControls = totalPages > 1 ? `
+                    <div class="pagination-controls" onclick="event.stopPropagation()">
+                        <button class="pagination-prev" onclick="navigateVyakhyanaPage(${num}, '${vyakhyaKey}', -1, event)" ${currentPage === 0 ? 'disabled' : ''} style="opacity: ${currentPage === 0 ? '0.3' : '1'}; color: #0066cc; border-color: #0066cc;">‹</button>
+                        <span class="pagination-info" style="color: #0066cc;">${currentPage + 1} / ${totalPages}</span>
+                        <button class="pagination-next" onclick="navigateVyakhyanaPage(${num}, '${vyakhyaKey}', 1, event)" ${currentPage === totalPages - 1 ? 'disabled' : ''} style="opacity: ${currentPage === totalPages - 1 ? '0.3' : '1'}; color: #0066cc; border-color: #0066cc;">›</button>
+                    </div>
+                ` : '';
+                
+                const bottomPaginationControls = totalPages > 1 ? `
+                    <div class="bottom-pagination">
+                        <span class="commentary-title" onclick="toggleCommentary(${num}, '${vyakhyaKey}')" style="cursor: pointer;">${titleText}</span>
+                        ${bottomRadioButtons}
+                        <div class="pagination-controls" onclick="event.stopPropagation()">
+                            <button class="pagination-prev" onclick="navigateVyakhyanaPage(${num}, '${vyakhyaKey}', -1, event)" ${currentPage === 0 ? 'disabled' : ''} style="opacity: ${currentPage === 0 ? '0.3' : '1'}; color: #0066cc; border-color: #0066cc;">‹</button>
+                            <span class="pagination-info" style="color: #0066cc;">${currentPage + 1} / ${totalPages}</span>
+                            <button class="pagination-next" onclick="navigateVyakhyanaPage(${num}, '${vyakhyaKey}', 1, event)" ${currentPage === totalPages - 1 ? 'disabled' : ''} style="opacity: ${currentPage === totalPages - 1 ? '0.3' : '1'}; color: #0066cc; border-color: #0066cc;">›</button>
+                        </div>
+                    </div>
+                ` : '';
+                
+                // Add watermark div if author exists
+                const watermarkDiv = author ? `<div class="watermark" style="background-image: url('images/${author}.jpg');"></div>` : '';
+                
                 return `
-                    <div class="commentary-item" data-key="${vyakhyaKey}">
+                    <div class="commentary-item" data-key="${vyakhyaKey}" ${authorAttr} data-pagination-key="${paginationKey}">
                         <div class="commentary-header" onclick="toggleCommentary(${num}, '${vyakhyaKey}')">
                             <span class="commentary-title">${titleText}</span>
+                            ${radioButtons}
+                            ${paginationControls}
                             <span class="commentary-toggle" id="toggle-${num}">▼</span>
                         </div>
                         <div class="commentary-content" id="commentary-${num}" style="display: none;">
-                            <p>${commentaryText}</p>
+                            ${watermarkDiv}
+                            <p class="commentary-text" data-pages='${JSON.stringify(pages)}'>${pages[currentPage].replace(/<PB>/g, '')}</p>
+                            ${bottomPaginationControls}
                         </div>
                     </div>
                 `;
@@ -1565,7 +1986,8 @@ function showSutraDetail(sutra) {
     
     // Apply vyakhyana visibility based on selection
     setTimeout(() => {
-        updateVyakhyanaVisibility();
+        // Force update of selected vyakhyanas from dropdown to ensure sync
+        updateSelectedVyakhyanas(false); // This will update visibility as well
     }, 0);
     
     // Restore previously open vyakhyanas
@@ -1592,6 +2014,9 @@ function showSutraDetail(sutra) {
                 }
             }
         });
+        
+        // Apply vyakhyana font size after rendering
+        applyVyakhyanaFontSize();
     }, 0);
     
     // Add event listeners for audio buttons
@@ -1671,6 +2096,12 @@ function showListView() {
     const vyakhyanaSelector = document.getElementById('vyakhyanaSelector');
     if (vyakhyanaSelector) {
         vyakhyanaSelector.style.display = 'none';
+    }
+    
+    // Hide vyakhyana font control in list view
+    const vyakhyanaFontControl = document.getElementById('vyakhyanaFontControl');
+    if (vyakhyanaFontControl) {
+        vyakhyanaFontControl.style.display = 'none';
     }
     
     // Enable dropdowns in list view
