@@ -2334,6 +2334,11 @@ function searchInVyakhyanaWithPratika(vyakhyanaNum, vyakhyaKey, searchTerm) {
     });
     
     if (results.count > 0 && results.matches.length > 0) {
+        // Save original text BEFORE applying highlights
+        const storageKey = `vyakhyana_${vyakhyaKey}_page${currentPage}_original`;
+        sessionStorage.setItem(storageKey, originalText);
+        console.log('Saved original text to:', storageKey);
+        
         // Highlight the matches in CURRENT page only
         const highlightedText = sanskritSearcher.highlightMatches(originalText, results.matches);
         console.log(`✓ Highlighted ${results.count} match(es) with pratika grahana on page ${currentPage + 1}`);
@@ -2901,6 +2906,47 @@ async function updateLastModifiedDate() {
     }
 }
 
+// Clear all cross-reference highlights and restore original text
+function clearCrossReferenceHighlights() {
+    console.log('=== clearCrossReferenceHighlights START ===');
+    
+    const allVyakhyanaItems = document.querySelectorAll('.commentary-item');
+    console.log('Found', allVyakhyanaItems.length, 'commentary items to clear');
+    
+    allVyakhyanaItems.forEach(item => {
+        const vyakhyanaNum = item.dataset.vyakhyanaNum;
+        const vyakhyaKey = item.dataset.vyakhyaKey;
+        const textElem = item.querySelector('.commentary-text');
+        
+        if (!textElem) {
+            console.log('No text element found for vyakhyana', vyakhyanaNum);
+            return;
+        }
+        
+        // Get the storage key for this vyakhyana
+        const currentPage = window.vyakhyanaStates?.[vyakhyanaNum]?.currentPage || 0;
+        const storageKey = `vyakhyana_${vyakhyaKey}_page${currentPage}_original`;
+        
+        // Restore original text from storage
+        const originalText = sessionStorage.getItem(storageKey);
+        
+        if (originalText) {
+            console.log('Restoring original text for vyakhyana', vyakhyanaNum, 'page', currentPage + 1);
+            textElem.innerHTML = originalText;
+        } else {
+            console.log('No original text found in storage for', storageKey);
+        }
+        
+        // Clear search box
+        const searchBox = item.querySelector('.vyakhyana-search-box input');
+        if (searchBox) {
+            searchBox.value = '';
+        }
+    });
+    
+    console.log('=== clearCrossReferenceHighlights END ===');
+}
+
 // Cross-reference highlighting: Select text in one vyakhyana to search in others
 function setupCrossReferenceHighlighting() {
     let selectionTimeout;
@@ -2978,7 +3024,9 @@ function setupCrossReferenceHighlighting() {
                     console.log('Selection not in vyakhyana text div');
                 }
             } else {
-                console.log('Selected text too short or empty');
+                // Selection is empty or too short - clear all cross-reference highlights
+                console.log('Selection cleared - removing cross-reference highlights');
+                clearCrossReferenceHighlights();
             }
         }, 300);
     });
