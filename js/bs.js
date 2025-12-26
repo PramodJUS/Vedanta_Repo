@@ -360,6 +360,108 @@ const previousHeaderBtn = document.getElementById('previousSutraHeaderBtn');
 const nextHeaderBtn = document.getElementById('nextSutraHeaderBtn');
 const collapseIcon = document.getElementById('collapseIcon');
 
+// Function to reverse transliterate text back to Devanagari
+/**
+ * Reverse transliterate text from current script (Kannada/Telugu/etc) back to Devanagari
+ * This is used for cross-reference search when user selects transliterated text
+ * 
+ * Flow:
+ * 1. User selects ನಾರಾಯಣೇತಿ (Kannada)
+ * 2. Reverse transliterate to नारायणेति (Devanagari)
+ * 3. Generate pratika grahana variations in Devanagari
+ * 4. Forward transliterate search term back to Kannada
+ * 5. Search in data-pages (which contains Kannada text)
+ */
+function reverseTransliterateIfNeeded(text) {
+    // Check if text contains non-Devanagari Indic scripts
+    const hasKannada = /[\u0C80-\u0CFF]/.test(text);
+    const hasTelugu = /[\u0C00-\u0C7F]/.test(text);
+    const hasDevanagari = /[\u0900-\u097F]/.test(text);
+    
+    // If already Devanagari, return as-is
+    if (hasDevanagari && !hasKannada && !hasTelugu) {
+        console.log('Text is already in Devanagari');
+        return text;
+    }
+    
+    // Determine source language
+    let sourceLang = null;
+    if (hasKannada) sourceLang = 'kn';
+    else if (hasTelugu) sourceLang = 'te';
+    else if (currentLanguage !== 'sa' && currentLanguage !== 'en') {
+        sourceLang = currentLanguage;
+    }
+    
+    if (!sourceLang) {
+        console.log('Unable to determine source language');
+        return text;
+    }
+    
+    console.log('Reverse transliterating from', sourceLang, 'to Devanagari');
+    
+    // Get the script mapping for the source language
+    const scriptConfig = SCRIPT_MAPPINGS[sourceLang];
+    if (!scriptConfig || !scriptConfig.mapping) {
+        console.warn('No mapping found for', sourceLang);
+        return text;
+    }
+    
+    // Create reverse mapping (target -> source)
+    const reverseMapping = {};
+    for (const [devanagari, transliterated] of Object.entries(scriptConfig.mapping)) {
+        if (transliterated) {
+            reverseMapping[transliterated] = devanagari;
+        }
+    }
+    
+    // Sort by length (longest first) to avoid partial matches
+    const sortedKeys = Object.keys(reverseMapping).sort((a, b) => b.length - a.length);
+    
+    let result = text;
+    for (const translitChar of sortedKeys) {
+        const devaChar = reverseMapping[translitChar];
+        result = result.split(translitChar).join(devaChar);
+    }
+    
+    console.log('Reverse transliteration result:', result);
+    return result;
+}
+
+// Function to make words ending with इति (iti quotation marker) bold - indicates pratika grahana (quotations)
+function makePratikaGrahanaBold(text, vyakhyanaNum = null) {
+    // Skip pratika grahana formatting for first vyakhyana (bhashya - source text)
+    if (vyakhyanaNum === 1 || vyakhyanaNum === '1') {
+        return text;
+    }
+    
+    // CRITICAL: Normalize text to NFC (Normalized Form Composed) to prevent vowel splitting
+    // This ensures combining characters (vowel marks) stay attached to base characters
+    text = text.normalize('NFC');
+    
+    // Match pratika grahana quotation patterns in multiple Indic scripts
+    // Valid इति sandhi patterns:
+    // 1. Compound forms (no space): ेति, मिति, ानीति, ोति
+    //    Examples: नारायणेति, ज्ञेयमिति, रामानीति
+    // 2. Word (without visarga, without punctuation) + space + इति
+    //    Examples: राम इति, वने इति, द्वौ इति (visarga already dropped in text)
+    // INVALID:
+    //    - विशेषतः इति (visarga + space + इति - no sandhi)
+    //    - सम्बन्ध॥ इति (punctuation breaks sandhi)
+    // Devanagari: \u0900-\u097F, Kannada: \u0C80-\u0CFF, Telugu: \u0C00-\u0C7F, Tamil: \u0B80-\u0BFF
+    const pattern = /(^|[\s\n\r।॥,;'"()[\]{}<>\/\\])((?:[\u0900-\u097F\u0C80-\u0CFF\u0C00-\u0C7F\u0B80-\u0BFF]+(?:ेति|मिति|ानीति|ोति|ಮಿತಿ|ೇತಿ|మిति|ేతి))|(?:[\u0900-\u097F\u0C80-\u0CFF\u0C00-\u0C7F\u0B80-\u0BFF]+(?<![ःं।॥])\s+(?:इति|ಇತಿ|ఇతి)))(?=[\s\n\r।॥,;'"()[\]{}<>\/\\]|$)/gu;
+    
+    const result = text.replace(pattern, (match, before, word) => {
+        console.log('Pratika Grahana found:', word);
+        // Normalize the word again to ensure no splitting
+        const normalizedWord = word.normalize('NFC');
+        // Make it bold
+        return `${before}<span class="pratika-grahana-bold">${normalizedWord}</span>`;
+    });
+    
+    // Normalize result again to ensure consistency
+    return result.normalize('NFC');
+}
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
     // Load saved language preference
@@ -761,11 +863,9 @@ function navigateVyakhyanaPage(sutraNum, vyakhyaKey, direction, event, shouldScr
     
     vyakhyanaPagination[paginationKey] = newPage;
     
-    // Update content
-    contentElement.innerHTML = pages[newPage].replace(/<PB>/g, '');
-    
-    // Reapply search if there's an active search term
-    const searchKey = `${sutraNum}-${vyakhyaKey}`;
+    // Update content with pratika grahana bold formatting
+    const vyakhyanaNum = contentElement.closest('.commentary-item')?.dataset.vyakhyanaNum;
+    contentElement.innerHTML = makePratikaGrahanaBold(pages[newPage].replace(/<PB>/g, ''), vyakhyanaNum);
     const activeSearchTerm = vyakhyanaSearchTerms[searchKey];
     console.log('🔄 Page navigation - checking for active search:');
     console.log('  Search key:', searchKey);
@@ -777,7 +877,7 @@ function navigateVyakhyanaPage(sutraNum, vyakhyaKey, direction, event, shouldScr
         console.log('  Search results:', results);
         if (results && results.count > 0 && results.matches.length > 0) {
             const highlightedText = sanskritSearcher.highlightMatches(pages[newPage], results.matches);
-            contentElement.innerHTML = highlightedText.replace(/<PB>/g, '');
+            contentElement.innerHTML = makePratikaGrahanaBold(highlightedText.replace(/<PB>/g, ''));
             console.log('  ✓ Highlights applied!', results.count, 'matches');
         } else {
             console.log('  ✗ No matches on this page');
@@ -835,8 +935,8 @@ function selectVyakhyanaPage(sutraNum, vyakhyaKey, pageIndex, event, shouldScrol
     
     vyakhyanaPagination[paginationKey] = pageIndex;
     
-    // Update content
-    contentElement.innerHTML = pages[pageIndex].replace(/<PB>/g, '');
+    // Update content with pratika grahana bold formatting
+    contentElement.innerHTML = makePratikaGrahanaBold(pages[pageIndex].replace(/<PB>/g, ''));
     
     // Reapply search if there's an active search term
     const searchKey = `${sutraNum}-${vyakhyaKey}`;
@@ -847,10 +947,11 @@ function selectVyakhyanaPage(sutraNum, vyakhyaKey, pageIndex, event, shouldScrol
     console.log('  All stored searches:', vyakhyanaSearchTerms);
     if (activeSearchTerm && sanskritSearcher) {
         console.log('  ✓ Reapplying search for:', activeSearchTerm);
-        const results = sanskritSearcher.directSearch(pages[pageIndex], activeSearchTerm);
+        const results = sanskritSearcher.search(activeSearchTerm, pages[pageIndex]);
         console.log('  Search results on new page:', results.count, 'matches');
-        if (results.count > 0) {
-            contentElement.innerHTML = results.highlightedText.replace(/<PB>/g, '');
+        if (results.count > 0 && results.matches.length > 0) {
+            const highlightedText = sanskritSearcher.highlightMatches(pages[pageIndex], results.matches);
+            contentElement.innerHTML = makePratikaGrahanaBold(highlightedText.replace(/<PB>/g, ''));
             console.log('  ✓ Highlights applied!');
         } else {
             console.log('  ✗ No matches on this page');
@@ -948,6 +1049,11 @@ function updateVyakhyanaVisibility() {
 function onLanguageChange() {
     currentLanguage = languageSelect.value;
     localStorage.setItem('vedantaLanguage', currentLanguage);
+    
+    // CRITICAL: Clear sessionStorage when changing languages
+    // This removes cached text from previous language
+    sessionStorage.clear();
+    
     updateUILanguage();
     
     // Update vyakhyana dropdown labels
@@ -1374,9 +1480,10 @@ async function loadSutras() {
         const csvText = await csvResponse.text();
         allSutras = parseCSV(csvText);
         
-        // Load JSON details
+        // Load JSON details with cache-busting
         try {
-            const jsonResponse = await fetch('sutra/sutra-details.json');
+            const timestamp = new Date().getTime();
+            const jsonResponse = await fetch(`sutra/sutra-details.json?v=${timestamp}`);
             sutraDetails = await jsonResponse.json();
         } catch (jsonError) {
             console.warn('Sutra details JSON not found, using placeholders:', jsonError);
@@ -2009,7 +2116,9 @@ function showSutraDetail(sutra) {
                 ` : '';
                 
                 // Add watermark div if author exists
-                const watermarkDiv = author ? `<div class="watermark" style="background-image: url('images/${author}.jpg');"></div>` : '';
+                // Normalize author name to lowercase for image filename
+                const authorImageName = author ? author.toLowerCase() : '';
+                const watermarkDiv = authorImageName ? `<div class="watermark" style="background-image: url('images/${authorImageName}.jpg');"></div>` : '';
                 
                 // Add resize handle only if not the first vyakhyana
                 const resizeHandleTop = num > 1 ? `<div class="resize-handle-top" onmousedown="startResizeTop(event, ${num})"></div>` : '';
@@ -2040,7 +2149,7 @@ function showSutraDetail(sutra) {
                         <div class="commentary-content" id="commentary-${num}" style="display: none;">
                             ${resizeHandleTop}
                             ${watermarkDiv}
-                            <p class="commentary-text" data-pages='${JSON.stringify(pages)}'>${pages[currentPage].replace(/<PB>/g, '')}</p>
+                            <p class="commentary-text" data-pages="${JSON.stringify(pages).replace(/"/g, '&quot;')}">${makePratikaGrahanaBold(pages[currentPage].replace(/<PB>/g, ''), num)}</p>
                             ${bottomPaginationControls}
                             <div class="resize-handle" onmousedown="startResize(event, ${num})"></div>
                         </div>
@@ -2222,7 +2331,7 @@ function searchInVyakhyana(vyakhyanaNum, vyakhyaKey, searchTerm) {
     // If search is cleared, restore original current page
     if (!searchTerm || searchTerm.trim() === '') {
         console.log('Search cleared, restoring original page', currentPage + 1);
-        textElem.innerHTML = originalText;
+        textElem.innerHTML = makePratikaGrahanaBold(originalText);
         console.log('=== searchInVyakhyana END (cleared) ===');
         return;
     }
@@ -2248,10 +2357,10 @@ function searchInVyakhyana(vyakhyanaNum, vyakhyaKey, searchTerm) {
         // Highlight the matches in CURRENT page only
         const highlightedText = sanskritSearcher.highlightMatches(originalText, results.matches);
         console.log(`✓ Highlighted ${results.count} match(es) on page ${currentPage + 1}`);
-        textElem.innerHTML = highlightedText;
+        textElem.innerHTML = makePratikaGrahanaBold(highlightedText);
     } else {
         console.log('No matches found on current page');
-        textElem.innerHTML = originalText;
+        textElem.innerHTML = makePratikaGrahanaBold(originalText);
     }
     
     console.log('=== searchInVyakhyana END ===');
@@ -2262,9 +2371,9 @@ function searchInVyakhyana(vyakhyanaNum, vyakhyaKey, searchTerm) {
  * Used for cross-reference highlighting between commentaries
  * Finds both direct matches AND Sanskrit quotation patterns (word + iti)
  */
-function searchInVyakhyanaWithPratika(vyakhyanaNum, vyakhyaKey, searchTerm) {
+function searchInVyakhyanaWithPratika(vyakhyanaNum, vyakhyaKey, searchTerm, isPratikaGrahana = false) {
     console.log('=== searchInVyakhyanaWithPratika START ===');
-    console.log('Called with:', {vyakhyanaNum, vyakhyaKey, searchTerm});
+    console.log('Called with:', {vyakhyanaNum, vyakhyaKey, searchTerm, isPratikaGrahana});
     
     // Store or clear the search term
     const searchKey = `${vyakhyanaNum}-${vyakhyaKey}`;
@@ -2323,15 +2432,50 @@ function searchInVyakhyanaWithPratika(vyakhyanaNum, vyakhyaKey, searchTerm) {
         return;
     }
     
-    // Use pratika grahana search for cross-reference highlighting
-    console.log(`Searching with pratika grahana for "${searchTerm}" in page ${currentPage + 1}...`);
-    const results = sanskritSearcher.searchWithPratikaGrahana(searchTerm, originalText);
+    // Transliterate search term to match the current language in data-pages
+    const transliteratedSearchTerm = transliterateText(searchTerm, currentLanguage);
+    console.log(`Search term transliterated to ${currentLanguage}:`, transliteratedSearchTerm);
     
-    console.log('Pratika grahana results:', {
-        count: results.count,
-        matches: results.matches.length,
-        currentPage: currentPage + 1
-    });
+    console.log('========================================');
+    console.log('SEARCH MODE DETECTION:');
+    console.log('Search term:', searchTerm);
+    console.log('Is Pratika Grahana (इति pattern):', isPratikaGrahana);
+    
+    let results;
+    
+    if (isPratikaGrahana) {
+        // इति pattern detected → Generate all case variations and search each
+        console.log(`PRATIKA GRAHANA mode: Generating case variations for stem "${searchTerm}"...`);
+        
+        // Generate all case ending variations from stem
+        const variations = sanskritSearcher.generatePratikaGrahanaVariations(searchTerm);
+        console.log('Generated variations:', variations);
+        
+        // Search for each variation using simple string search
+        results = { matches: [], count: 0, searchTerm: searchTerm };
+        variations.forEach(variant => {
+            const variantResults = sanskritSearcher.search(variant, originalText);
+            variantResults.matches.forEach(match => {
+                // Avoid duplicates at same position
+                const isDuplicate = results.matches.some(m => m.position === match.position);
+                if (!isDuplicate) {
+                    match.pratikaVariant = variant; // Tag which variation matched
+                    results.matches.push(match);
+                }
+            });
+        });
+        results.matches.sort((a, b) => a.position - b.position);
+        results.count = results.matches.length;
+    } else {
+        // No इति → Simple string search with phonetic variants (ं↔म्)
+        console.log(`STRING SEARCH mode for "${searchTerm}"...`);
+        results = sanskritSearcher.search(searchTerm, originalText);
+    }
+    
+    console.log('========================================');
+    console.log('SEARCH RESULTS:');
+    console.log('Search mode:', isPratikaGrahana ? 'PRATIKA GRAHANA' : 'STRING SEARCH');
+    console.log('Total matches:', results.count);
     
     if (results.count > 0 && results.matches.length > 0) {
         // Save original text BEFORE applying highlights
@@ -2342,10 +2486,10 @@ function searchInVyakhyanaWithPratika(vyakhyanaNum, vyakhyaKey, searchTerm) {
         // Highlight the matches in CURRENT page only
         const highlightedText = sanskritSearcher.highlightMatches(originalText, results.matches);
         console.log(`✓ Highlighted ${results.count} match(es) with pratika grahana on page ${currentPage + 1}`);
-        textElem.innerHTML = highlightedText;
+        textElem.innerHTML = makePratikaGrahanaBold(highlightedText);
     } else {
         console.log('No matches found on current page');
-        textElem.innerHTML = originalText;
+        textElem.innerHTML = makePratikaGrahanaBold(originalText);
     }
     
     console.log('=== searchInVyakhyanaWithPratika END ===');
@@ -2924,7 +3068,7 @@ function clearCrossReferenceHighlights() {
         
         if (originalText) {
             console.log('Restoring original text for vyakhyana', vyakhyanaNum, 'page', currentPage + 1);
-            textElem.innerHTML = originalText;
+            textElem.innerHTML = makePratikaGrahanaBold(originalText);
         } else {
             console.log('No original text found in storage for', storageKey);
         }
@@ -2986,6 +3130,48 @@ function setupCrossReferenceHighlighting() {
                     
                     console.log('Text selected in vyakhyana', sourceVyakhyanaNum, ':', selectedText);
                     
+                    // CRITICAL: Reverse transliterate to Devanagari if needed
+                    // The data-pages contains Devanagari, so search must be in Devanagari
+                    const searchTerm = reverseTransliterateIfNeeded(selectedText);
+                    console.log('Search term (after reverse transliteration):', searchTerm);
+                    
+                    // Determine search mode based on इति patterns
+                    let displayTerm = searchTerm;
+                    let isPratikaGrahana = false;
+                    
+                    // Check for इति quotation patterns → Pratika grahana mode
+                    if (searchTerm.endsWith('मिति')) {
+                        // Remove मिति (म् + इति) to get the stem (e.g., ज्ञेयमिति → ज्ञेयम्)
+                        displayTerm = searchTerm.slice(0, -4) + 'म्';
+                        displayTerm = displayTerm.normalize('NFC');
+                        isPratikaGrahana = true;
+                        console.log('Pratika grahana मिति detected: stem =', displayTerm);
+                    } else if (searchTerm.endsWith('ेति') || searchTerm.endsWith('ानीति') || searchTerm.endsWith('ोति')) {
+                        // Remove इति patterns to get the stem
+                        if (searchTerm.endsWith('ानीति')) {
+                            displayTerm = searchTerm.slice(0, -5).normalize('NFC');
+                        } else if (searchTerm.endsWith('ेति') || searchTerm.endsWith('ोति')) {
+                            displayTerm = searchTerm.slice(0, -3).normalize('NFC');
+                        }
+                        isPratikaGrahana = true;
+                        console.log('Pratika grahana इति pattern detected: stem =', displayTerm);
+                    } else if (searchTerm.match(/(?:^|[^अ-ह])इति$/)) {
+                        // Standalone इति at the end
+                        displayTerm = searchTerm.slice(0, -2).normalize('NFC');
+                        isPratikaGrahana = true;
+                        console.log('Pratika grahana standalone इति detected: stem =', displayTerm);
+                    } else {
+                        // No इति pattern → Simple string search with phonetic variants only
+                        displayTerm = searchTerm;
+                        isPratikaGrahana = false;
+                        console.log('No इति pattern: using simple string search for:', displayTerm);
+                    }
+                    
+                    // CRITICAL: Transliterate displayTerm to current language for search box
+                    // Search box should show Kannada/Telugu/etc. if that's the current language
+                    const displayTermInCurrentLang = transliterateText(displayTerm, currentLanguage);
+                    console.log('Display term in', currentLanguage, ':', displayTermInCurrentLang);
+                    
                     // Search in all OTHER vyakhyanas
                     const allVyakhyanaItems = document.querySelectorAll('.commentary-item');
                     console.log('Found', allVyakhyanaItems.length, 'commentary items');
@@ -3003,11 +3189,18 @@ function setupCrossReferenceHighlighting() {
                         const searchBox = item.querySelector('.vyakhyana-search-box input');
                         if (searchBox) {
                             console.log('Auto-searching in vyakhyana', vyakhyanaNum);
-                            searchBox.value = selectedText;
+                            // Show transliterated stem in search box (matches current language)
+                            searchBox.value = displayTermInCurrentLang.normalize('NFC');
                             
-                            // Trigger search with pratika grahana for cross-reference
-                            console.log('Calling searchInVyakhyanaWithPratika with:', vyakhyanaNum, vyakhyaKey, selectedText);
-                            searchInVyakhyanaWithPratika(vyakhyanaNum, vyakhyaKey, selectedText);
+                            // Trigger appropriate search based on mode
+                            // isPratikaGrahana flag determines whether to use pratika grahana or simple search
+                            console.log('Calling search with:', {
+                                vyakhyanaNum, 
+                                vyakhyaKey, 
+                                displayTerm, 
+                                isPratikaGrahana
+                            });
+                            searchInVyakhyanaWithPratika(vyakhyanaNum, vyakhyaKey, displayTerm, isPratikaGrahana);
                         } else {
                             console.log('No search box found in vyakhyana', vyakhyanaNum);
                         }

@@ -1319,9 +1319,9 @@ header.header-collapsed .header-toggle-btn {
 .commentary-content .watermark {
     position: absolute;
     top: 0;
+    bottom: 0;
     left: 0;
     right: 0;
-    bottom: 0;
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
@@ -1475,4 +1475,9 @@ span[data-type="sandhi"] {
 
 span[data-type="direct"] {
     background-color: #ffeb3b;
+}
+
+/* Pratika Grahana (words ending with ति - quotation indicators) - Bold for visibility */
+.pratika-grahana-bold {
+    font-weight: 700;
 }

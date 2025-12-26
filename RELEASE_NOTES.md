@@ -1,6 +1,6 @@
 # Release Notes
 
-## December 26, 2025
+## Version 1.0.3 - December 26, 2025
 
 ### Cross-Reference Highlighting
 - Select any text in one commentary to automatically search and highlight it across all other open commentaries

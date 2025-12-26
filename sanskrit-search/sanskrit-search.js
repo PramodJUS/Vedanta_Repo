@@ -130,10 +130,158 @@ class SanskritSearch {
      * @param {string} text - The text to search in
      * @returns {Object} - Search results with matches and metadata
      */
+    /**
+     * Exact word match search - respects word boundaries
+     * Used when searching for specific grammatical forms (e.g., नारायणम्)
+     * Will NOT match the stem if it appears separately (e.g., won't match नारायण when searching नारायणम्)
+     * 
+     * Handles Sanskrit phonetic equivalents:
+     * - म् ↔ ं (anusvara)
+     * - ः ↔ स् ↔ र् (visarga)
+     * 
+     * @param {string} searchTerm - The exact term to search for
+     * @param {string} text - The text to search in
+     * @returns {Object} Results with matches array
+     */
+    exactWordSearch(searchTerm, text) {
+        if (!searchTerm || !text) {
+            return { matches: [], count: 0 };
+        }
+
+        // CRITICAL: Normalize input to NFC
+        searchTerm = searchTerm.normalize('NFC');
+        text = text.normalize('NFC');
+
+        const results = {
+            matches: [],
+            count: 0,
+            searchTerm: searchTerm,
+            timestamp: Date.now()
+        };
+
+        // Generate phonetic variants for Sanskrit equivalents
+        const variants = this.generatePhoneticVariants(searchTerm);
+        
+        // Word boundary pattern for Sanskrit/Indic scripts
+        const wordBoundary = '(?:^|[\\s\\n\\r।॥,;\'\"()\\[\\]{}/<>]|$)';
+        
+        // Search for each variant
+        variants.forEach(variant => {
+            const pattern = new RegExp(wordBoundary + '(' + this.escapeRegex(variant) + ')' + wordBoundary, 'g');
+            
+            let match;
+            while ((match = pattern.exec(text)) !== null) {
+                const matchStart = match.index + (match[0].length - match[1].length - (match[0].match(/[\s\n\r।॥,;'"()\[\]{}\/<>]$/) ? 1 : 0));
+                
+                // Check for duplicates (same position)
+                const isDuplicate = results.matches.some(m => m.position === matchStart);
+                if (!isDuplicate) {
+                    results.matches.push({
+                        position: matchStart,
+                        length: match[1].length,
+                        matchedText: match[1],
+                        context: this.getContext(text, matchStart, match[1].length),
+                        type: 'exact',
+                        variant: variant !== searchTerm ? variant : undefined
+                    });
+                }
+            }
+        });
+
+        // Sort by position
+        results.matches.sort((a, b) => a.position - b.position);
+        results.count = results.matches.length;
+        return results;
+    }
+
+    /**
+     * Generate phonetic variants for Sanskrit equivalents
+     * @private
+     */
+    generatePhoneticVariants(term) {
+        const variants = [term];
+        
+        // म् ↔ ं (anusvara equivalence)
+        if (term.includes('म्')) {
+            variants.push(term.replace(/म्/g, 'ं'));
+        }
+        if (term.includes('ं')) {
+            variants.push(term.replace(/ं/g, 'म्'));
+        }
+        
+        // ः ↔ स् (visarga equivalence - less common but exists)
+        if (term.includes('ः')) {
+            variants.push(term.replace(/ः/g, 'स्'));
+        }
+        if (term.includes('स्')) {
+            variants.push(term.replace(/स्$/g, 'ः')); // Only at end
+        }
+        
+        return [...new Set(variants)]; // Remove duplicates
+    }
+
+    /**
+     * Generate all Sanskrit case ending variations for a stem
+     * Used for Pratika Grahana cross-referencing
+     * 
+     * @param {string} stem - The base word stem (e.g., नारायण)
+     * @returns {Array<string>} All case ending variations
+     */
+    generatePratikaGrahanaVariations(stem) {
+        stem = stem.normalize('NFC');
+        
+        const variations = [stem]; // Include the bare stem
+        
+        // Masculine/Neuter case endings (most common)
+        const endings = [
+            '', 'ः', 'म्', 'ं', 'स्य', 'स्य', 'एन', 'ाय', 'ात्', 'े',
+            'ौ', 'योः', 'ाभ्याम्', 
+            'ाः', 'ान्', 'ैः', 'भिः', 'भ्यः', 'ेभ्यः', 'ानाम्', 'ेषु',
+            'ो', 'ौ' // Sandhi forms
+        ];
+        
+        // Feminine endings
+        const femEndings = [
+            'ा', 'ाम्', 'या', 'यै', 'यां', 'याः', 'यैः', 'याः', 'ानाम्', 'ासु'
+        ];
+        
+        // Generate with phonetic variants
+        [...endings, ...femEndings].forEach(ending => {
+            const form = stem + ending;
+            variations.push(form.normalize('NFC'));
+            
+            // Add phonetic variants (म् ↔ ं)
+            if (form.includes('म्')) {
+                variations.push(form.replace(/म्/g, 'ं').normalize('NFC'));
+            }
+            if (form.includes('ं')) {
+                variations.push(form.replace(/ं/g, 'म्').normalize('NFC'));
+            }
+        });
+        
+        // Remove duplicates and return
+        return [...new Set(variations)];
+    }
+
+    /**
+     * Escape special regex characters
+     * @private
+     */
+    escapeRegex(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    /**
+     * Search with multiple strategies
+     */
     search(searchTerm, text) {
         if (!searchTerm || !text) {
             return { matches: [], count: 0 };
         }
+
+        // CRITICAL: Normalize input to NFC to prevent vowel splitting
+        searchTerm = searchTerm.normalize('NFC');
+        text = text.normalize('NFC');
 
         const results = {
             matches: [],
@@ -180,6 +328,10 @@ class SanskritSearch {
         if (!searchTerm || !text) {
             return { matches: [], count: 0 };
         }
+
+        // CRITICAL: Normalize input to NFC to prevent vowel splitting issues
+        searchTerm = searchTerm.normalize('NFC');
+        text = text.normalize('NFC');
 
         const results = {
             matches: [],
@@ -398,20 +550,24 @@ class SanskritSearch {
     highlightMatches(text, matches) {
         if (!matches || matches.length === 0) return text;
 
+        // CRITICAL: Normalize text to NFC to prevent vowel splitting
+        text = text.normalize('NFC');
+
         // Sort matches by position in reverse to avoid position shifts
         const sortedMatches = [...matches].sort((a, b) => b.position - a.position);
 
         let result = text;
         sortedMatches.forEach(match => {
             const before = result.substring(0, match.position);
-            const matchText = result.substr(match.position, match.length);
+            const matchText = result.substr(match.position, match.length).normalize('NFC');
             const after = result.substring(match.position + match.length);
             
             const highlighted = `<span class="${this.config.highlightClass}" data-type="${match.type}">${matchText}</span>`;
             result = before + highlighted + after;
         });
 
-        return result;
+        // Normalize final result to ensure proper composition
+        return result.normalize('NFC');
     }
 
     /**
