@@ -2887,22 +2887,14 @@ async function updateLastModifiedDate() {
     const updateDateElement = document.getElementById('updateDate');
     if (!updateDateElement) return;
     
-    // Hard-coded version date - update this when deploying new version
-    const VERSION_DATE = '2025-12-25T23:04:52+05:30'; // ISO format with timezone
-    
     try {
-        const versionDate = new Date(VERSION_DATE);
-        updateDateElement.textContent = versionDate.toLocaleString('en-IN', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            timeZone: 'Asia/Kolkata',
-            timeZoneName: 'short'
-        });
+        // Fetch timestamp from build-timestamp.txt
+        const response = await fetch('build-timestamp.txt');
+        const timestamp = await response.text();
+        updateDateElement.textContent = timestamp.trim();
     } catch (error) {
-        updateDateElement.textContent = 'Dec 25, 2024, 6:30 PM';
+        console.error('Failed to load build timestamp:', error);
+        updateDateElement.textContent = 'December 26, 2025';
     }
 }
 

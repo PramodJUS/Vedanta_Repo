@@ -1,5 +1,10 @@
 # Multi-Language Content Framework Documentation
 
+## Last Updated
+**December 26, 2025** - Cross-reference highlight clearing functionality completed
+
+---
+
 ## Overview
 This framework provides a flexible, scalable solution for displaying multi-language content with dynamic structure detection, advanced navigation, and state management - all implemented in vanilla JavaScript without external dependencies.
 
@@ -10,7 +15,7 @@ This framework provides a flexible, scalable solution for displaying multi-langu
 ### 1. Sanskrit Search System with Cross-Reference Highlighting
 
 #### Overview
-Advanced Sanskrit text search with sandhi-aware matching, precision controls, search persistence across pagination, and automatic cross-reference highlighting between multiple commentaries.
+Advanced Sanskrit text search with sandhi-aware matching, precision controls, search persistence across pagination, and automatic cross-reference highlighting between multiple commentaries with proper cleanup on deselection.
 
 #### Key Features
 
@@ -38,6 +43,12 @@ Advanced Sanskrit text search with sandhi-aware matching, precision controls, se
 - Populates search boxes automatically
 - Real-time highlighting across multiple open commentaries
 - Perfect for comparative textual analysis
+
+**5. Highlight Cleanup on Deselection (NEW - Dec 26, 2025)**
+- Clicking elsewhere automatically clears all cross-reference highlights
+- Restores original unhighlighted text from sessionStorage
+- Clears search boxes in all commentaries
+- Complete bidirectional cycle: highlight on selection → clear on deselection
 
 #### Implementation Architecture
 
@@ -135,8 +146,37 @@ function changeVyakhyanaPage(sutraNum, vyakhyaKey, direction) {
 }
 ```
 
-**Cross-Reference Highlighting:**
+**Cross-Reference Highlighting with Cleanup:**
 ```javascript
+// Clear all highlights and restore original text
+function clearCrossReferenceHighlights() {
+    const allVyakhyanaItems = document.querySelectorAll('.commentary-item');
+    
+    allVyakhyanaItems.forEach(item => {
+        const vyakhyanaNum = item.dataset.vyakhyanaNum;
+        const vyakhyaKey = item.dataset.vyakhyaKey;
+        const textElem = item.querySelector('.commentary-text');
+        
+        if (!textElem) return;
+        
+        // Get the storage key for this vyakhyana
+        const currentPage = window.vyakhyanaStates?.[vyakhyanaNum]?.currentPage || 0;
+        const storageKey = `vyakhyana_${vyakhyaKey}_page${currentPage}_original`;
+        
+        // Restore original text from storage
+        const originalText = sessionStorage.getItem(storageKey);
+        if (originalText) {
+            textElem.innerHTML = originalText;
+        }
+        
+        // Clear search box
+        const searchBox = item.querySelector('.vyakhyana-search-box input');
+        if (searchBox) {
+            searchBox.value = '';
+        }
+    });
+}
+
 function setupCrossReferenceHighlighting() {
     let selectionTimeout;
     
@@ -180,11 +220,16 @@ function setupCrossReferenceHighlighting() {
                         }
                     });
                 }
+            } else {
+                // Selection cleared - remove all cross-reference highlights
+                clearCrossReferenceHighlights();
             }
         }, 300); // 300ms debounce
     });
 }
 ```
+
+**Note**: The highlighting function now saves original text to `sessionStorage` before applying highlights, enabling proper cleanup when the user deselects text.
 
 **CSS Highlighting:**
 ```css

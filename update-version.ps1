@@ -1,22 +1,15 @@
-# Update version date in bs.js
-$jsFile = "js\bs.js"
+# Update version date in build-timestamp.txt and RELEASE_NOTES.md
+$timestampFile = "build-timestamp.txt"
 $releaseNotesFile = "RELEASE_NOTES.md"
-$currentDateTime = Get-Date -Format "yyyy-MM-ddTHH:mm:sszzz"
-$displayDateTime = Get-Date -Format "MMM dd, yyyy, h:mm tt"
+$currentDateTime = Get-Date -Format "MMMM dd, yyyy - hh:mm tt"
 $releaseDate = Get-Date -Format "MMMM dd, yyyy"
 
-Write-Host "Updating version date to: $displayDateTime" -ForegroundColor Green
+Write-Host "Updating build timestamp to: $currentDateTime IST" -ForegroundColor Green
 
-# Read the file content
-$content = Get-Content $jsFile -Raw
+# Update build-timestamp.txt
+Set-Content $timestampFile -Value "$currentDateTime IST" -NoNewline
 
-# Update the VERSION_DATE line
-$content = $content -replace "const VERSION_DATE = '[^']+';", "const VERSION_DATE = '$currentDateTime';"
-
-# Write back to file
-Set-Content $jsFile -Value $content -NoNewline
-
-Write-Host "Version date updated in bs.js" -ForegroundColor Green
+Write-Host "Build timestamp updated" -ForegroundColor Green
 
 # Update RELEASE_NOTES.md with current date
 $releaseContent = Get-Content $releaseNotesFile -Raw

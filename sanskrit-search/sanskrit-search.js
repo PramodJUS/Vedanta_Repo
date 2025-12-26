@@ -18,6 +18,110 @@ class SanskritSearch {
         
         // Create instance of sandhi rules if available
         this.sandhiRules = window.SanskritSandhiRules ? new window.SanskritSandhiRules() : null;
+        
+        // Iti-quotation sandhi mapping (प्रतीकग्रहण)
+        this.itiSandhiMap = this.createItiSandhiMap();
+    }
+
+    /**
+     * Create mapping of iti-quotation sandhi patterns
+     * Maps endings to possible base forms and vice versa
+     * @private
+     */
+    createItiSandhiMap() {
+        return {
+            // REVERSE: Detect iti-ending → generate possible base endings
+            reverse: {
+                // Vowel endings
+                'ेति': ['', 'अ', 'आ'],           // एति ← stem/अ/आ + इति
+                'ीति': ['इ', 'ई'],               // ईति ← इ/ई + इति
+                'ूति': ['उ', 'ऊ'],               // ूति ← उ/ऊ + इति (rare)
+                'वीति': ['उ', 'ऊ'],              // वीति ← उ/ऊ + इति
+                'विति': ['उ', 'ऊ'],              // विति ← उ/ऊ + इति (alternate)
+                'रिति': ['ऋ', 'ॠ'],              // रिति ← ऋ/ॠ + इति
+                'लिति': ['ऌ', 'ॡ'],              // लिति ← ऌ/ॡ + इति
+                'ैति': ['ए', 'ै'],               // ैति ← ए/ऐ + इति
+                'ावीति': ['ओ', 'औ'],            // आवीति ← ओ/औ + इति
+                'ाविति': ['ओ', 'औ'],            // आविति ← ओ/औ + इति (alternate)
+                'ोऽति': ['ओ'],                   // ओऽति ← ओ + इति (with avagraha)
+                
+                // Case endings - Singular
+                'येति': ['य', 'या', 'ाय'],      // येति ← य/या(ins-f)/आय(dat) + इति
+                'ेणेति': ['ेण'],                 // एणेति ← एण(ins) + इति
+                'ादिति': ['ात्'],                // आदिति ← आत्(abl) + इति
+                'स्येति': ['स्य'],                // स्येति ← स्य(gen) + इति
+                'मिति': ['म्', 'ाम्'],           // मिति ← म्/आम्(acc) + इति
+                'यामिति': ['याम्'],              // यामिति ← याम्(loc-f) + इति
+                
+                // Case endings - Dual
+                'ौति': ['औ'],                    // औति ← औ(dual) + इति
+                'ोरिति': ['योः'],                // ओरिति ← योः(dual-gen/loc) + इति
+                'भ्यामिति': ['भ्याम्'],          // भ्यामिति ← भ्याम्(dual-ins/dat/abl) + इति
+                
+                // Case endings - Plural
+                'ानिति': ['ान्'],                // आनिति ← आन्(acc-pl) + इति
+                'ैरिति': ['ैः'],                 // ऐरिति ← ऐः(ins-pl) + इति
+                'भिरिति': ['भिः'],               // भिरिति ← भिः(ins-pl) + इति
+                'ेभ्यरिति': ['ेभ्यः'],           // एभ्यरिति ← एभ्यः(dat/abl-pl) + इति
+                'ानामिति': ['ानाम्'],            // आनामिति ← आनाम्(gen-pl) + इति
+                'णामिति': ['णाम्'],              // णामिति ← णाम्(gen-pl-f) + इति
+                'ष्विति': ['ेषु'],                // ष्विति ← एषु(loc-pl) + इति
+                'स्विति': ['सु'],                 // स्विति ← सु(loc-pl-f) + इति
+                'यारिति': ['याः'],               // यारिति ← याः(gen/abl-f) + इति
+                'ाः इति': ['ाः'],                // आः इति ← आः(nom/acc-pl) (visarga retained)
+                'ा इति': ['ाः']                  // आ इति ← आः(nom/acc-pl) (visarga dropped)
+            },
+            
+            // FORWARD: Base ending → iti-quotation form
+            forward: {
+                // Vowel endings
+                '': 'ेति',
+                'अ': 'ेति',
+                'आ': 'ेति',
+                'इ': 'ीति',
+                'ई': 'ीति',
+                'उ': 'वीति',
+                'ऊ': 'वीति',
+                'ऋ': 'रिति',
+                'ॠ': 'रिति',
+                'ऌ': 'लिति',
+                'ॡ': 'लिति',
+                'ए': 'ैति',
+                'े': 'ैति',
+                'ऐ': 'ैति',
+                'ै': 'ैति',
+                'ओ': 'ावीति',
+                'औ': 'ावीति',
+                
+                // Case endings - Singular
+                'य': 'येति',
+                'या': 'येति',
+                'ाय': 'ायेति',
+                'ेण': 'ेणेति',
+                'ात्': 'ादिति',
+                'स्य': 'स्येति',
+                'म्': 'मिति',
+                'ाम्': 'मिति',
+                'याम्': 'यामिति',
+                
+                // Case endings - Dual
+                'औ': 'ौति',
+                'योः': 'ोरिति',
+                'भ्याम्': 'भ्यामिति',
+                
+                // Case endings - Plural
+                'ान्': 'ानिति',
+                'ैः': 'ैरिति',
+                'भिः': 'भिरिति',
+                'ेभ्यः': 'ेभ्यरिति',
+                'ानाम्': 'ानामिति',
+                'णाम्': 'णामिति',
+                'ेषु': 'ष्विति',
+                'सु': 'स्विति',
+                'याः': 'यारिति',
+                'ाः': 'ाः इति'
+            }
+        };
     }
 
     /**
@@ -199,64 +303,59 @@ class SanskritSearch {
     }
 
     /**
-     * Generate pratika grahana variations
-     * Handles Sanskrit quotation patterns: base word ↔ word + iti
+     * Generate pratika grahana variations using sandhi mapping
+     * Handles Sanskrit quotation patterns: base word + iti with sandhi
+     * Uses pre-defined mapping for accuracy and performance
      * @private
      */
     generatePratikaVariations(searchTerm) {
         const variations = [];
+        const reverseMap = this.itiSandhiMap.reverse;
+        const forwardMap = this.itiSandhiMap.forward;
 
-        // Pattern 1: If searchTerm ends with ेति, generate base forms
-        if (searchTerm.endsWith('ेति')) {
-            const base = searchTerm.slice(0, -3); // Remove ेति (3 characters: े + त + ि)
-            // Base word could end in अ or आ before sandhi
-            variations.push({ text: base, pattern: 'eti->base-a' });
-            variations.push({ text: base + 'अ', pattern: 'eti->base-a' });
-            variations.push({ text: base + 'आ', pattern: 'eti->base-aa' });
+        // REVERSE PATTERNS: Detect iti-quotation → generate base forms
+        // Check each reverse pattern from longest to shortest (to match correctly)
+        const reversePatterns = Object.keys(reverseMap).sort((a, b) => b.length - a.length);
+        
+        for (const pattern of reversePatterns) {
+            if (searchTerm.endsWith(pattern)) {
+                const base = searchTerm.slice(0, -pattern.length);
+                const possibleEndings = reverseMap[pattern];
+                
+                for (const ending of possibleEndings) {
+                    variations.push({
+                        text: base + ending,
+                        pattern: `${pattern}->${ending || 'stem'}`
+                    });
+                }
+                // Don't break - might match multiple patterns (e.g., येति and ेति)
+            }
         }
 
-        // Pattern 2: If searchTerm ends with ोति, generate base forms  
-        if (searchTerm.endsWith('ोति')) {
-            const base = searchTerm.slice(0, -3); // Remove ोति (3 characters: ो + त + ि)
-            // Base word ended in ओ before sandhi (o + iti = oti)
-            variations.push({ text: base, pattern: 'oti->base' });
-            variations.push({ text: base + 'ओ', pattern: 'oti->base-o' });
-        }
-
-        // Pattern 3: If searchTerm ends with ावति, generate base forms
-        if (searchTerm.endsWith('ावति')) {
-            const base = searchTerm.slice(0, -4); // Remove ावति (4 characters: ा + व + त + ि)
-            // Base word ended in औ before sandhi (au + iti = āviti)
-            variations.push({ text: base, pattern: 'aviti->base' });
-            variations.push({ text: base + 'औ', pattern: 'aviti->base-au' });
-        }
-
-        // Pattern 4: If searchTerm is a regular word, generate quoted forms
-        // Only if it doesn't already end with ति (to avoid double processing)
+        // FORWARD PATTERNS: Generate iti-quotations from base forms
+        // Only if doesn't already end with ति (to avoid double processing)
         if (!searchTerm.endsWith('ति')) {
-            const lastChar = searchTerm[searchTerm.length - 1];
+            // Check endings from longest to shortest
+            const forwardPatterns = Object.keys(forwardMap).sort((a, b) => b.length - a.length);
             
-            // अ/आ + इति = एति
-            if (lastChar === 'अ' || lastChar === 'आ') {
-                const base = searchTerm.slice(0, -1);
-                variations.push({ text: base + 'ेति', pattern: 'base-a->eti' });
-            } 
-            // If word doesn't end in matras, try adding एति directly
-            else if (!/[ंःँािीुूेैोौृॄॢॣ्ᳵᳶ]/.test(lastChar)) {
-                // Could be implicit 'a' ending
-                variations.push({ text: searchTerm + 'ेति', pattern: 'base->eti' });
-            }
-
-            // ओ + इति = ओति (with avagraha usually, but sometimes direct)
-            if (lastChar === 'ओ') {
-                const base = searchTerm.slice(0, -1);
-                variations.push({ text: base + 'ोति', pattern: 'base-o->oti' });
-            }
-
-            // औ + इति = आवति
-            if (lastChar === 'औ') {
-                const base = searchTerm.slice(0, -1);
-                variations.push({ text: base + 'ावति', pattern: 'base-au->aviti' });
+            for (const ending of forwardPatterns) {
+                if (ending === '') {
+                    // Implicit 'a' ending - only if no vowel matra at end
+                    const lastChar = searchTerm[searchTerm.length - 1];
+                    if (lastChar && !/[ंःँािीुूेैोौृॄॢॣ्ᳵᳶ]/.test(lastChar)) {
+                        variations.push({
+                            text: searchTerm + forwardMap[ending],
+                            pattern: `stem->${forwardMap[ending]}`
+                        });
+                    }
+                } else if (searchTerm.endsWith(ending)) {
+                    const base = searchTerm.slice(0, -ending.length);
+                    variations.push({
+                        text: base + forwardMap[ending],
+                        pattern: `${ending}->${forwardMap[ending]}`
+                    });
+                    // Don't break - check for nested patterns
+                }
             }
         }
 
