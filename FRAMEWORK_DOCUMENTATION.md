@@ -7,7 +7,301 @@ This framework provides a flexible, scalable solution for displaying multi-langu
 
 ## Core Features
 
-### 1. Dynamic Multi-Language Support System
+### 1. Sanskrit Search System with Cross-Reference Highlighting
+
+#### Overview
+Advanced Sanskrit text search with sandhi-aware matching, precision controls, search persistence across pagination, and automatic cross-reference highlighting between multiple commentaries.
+
+#### Key Features
+
+**1. Sandhi-Aware Search**
+- Integrates with pre-existing ~900-line Sanskrit Search Module
+- Handles 26+ sandhi transformation rules
+- Finds variations: searching "नारायण" matches "नारायणं", "नारायणः", "नारायणस्य", etc.
+- Smart ending detection with Sanskrit diacritic marks: `[ंःँािीुूेैोौृॄॢॣ्ᳵᳶ]`
+
+**2. Precision Matching Mode**
+- Search with ending marks = exact match only
+- "नारायणं" (with anusvara) → matches only "नारायणं"
+- "नारायण" (without ending) → matches all forms
+- User-controlled precision via search term format
+
+**3. Search Persistence Across Pagination**
+- Search terms stored per vyakhyana in global state
+- Automatically reapplied when navigating between pages
+- Works with both arrow buttons and radio button page selection
+- Highlights appear instantly on page change
+
+**4. Cross-Reference Auto-Highlighting**
+- Select text in one vyakhyana → automatically searches in all others
+- 300ms debounce for stable text selection
+- Populates search boxes automatically
+- Real-time highlighting across multiple open commentaries
+- Perfect for comparative textual analysis
+
+#### Implementation Architecture
+
+**Global State Management:**
+```javascript
+// Search term storage (key: "vyakhyanaNum-vyakhyaKey")
+let vyakhyanaSearchTerms = {}; 
+
+// Pagination state
+let vyakhyanaPagination = {};
+
+// Example storage:
+// vyakhyanaSearchTerms['1-भाष्यम्'] = 'नारायणं'
+// vyakhyanaPagination['1-भाष्यम्'] = 0  // page index
+```
+
+**Data Attributes on DOM Elements:**
+```html
+<div class="commentary-item" 
+     data-key="भाष्यम्" 
+     data-vyakhyana-num="1" 
+     data-vyakhya-key="भाष्यम्">
+     
+    <input class="vyakhyana-search-box"
+           data-vyakhyana-num="1"
+           data-vyakhya-key="भाष्यम्"
+           oninput="searchInVyakhyana(this.dataset.vyakhyanaNum, 
+                                      this.dataset.vyakhyaKey, 
+                                      this.value)">
+    
+    <p class="commentary-text" 
+       data-pages='["page1 content", "page2 content"]'>
+        <!-- Content here -->
+    </p>
+</div>
+```
+
+**Search API Integration:**
+```javascript
+// Correct API usage (two-step process)
+const results = sanskritSearcher.search(searchTerm, text);
+// Returns: {count: number, matches: Array}
+
+if (results.count > 0 && results.matches.length > 0) {
+    const highlightedHTML = sanskritSearcher.highlightMatches(text, results.matches);
+    contentElement.innerHTML = highlightedHTML;
+}
+
+// WRONG API (common mistake to avoid):
+// const results = sanskritSearcher.directSearch(text, searchTerm);
+// This returns empty array - wrong method for this use case
+```
+
+**Search Persistence Flow:**
+```javascript
+function searchInVyakhyana(vyakhyanaNum, vyakhyaKey, searchTerm) {
+    const searchKey = `${vyakhyanaNum}-${vyakhyaKey}`;
+    
+    // Store search term
+    if (searchTerm.trim()) {
+        vyakhyanaSearchTerms[searchKey] = searchTerm.trim();
+    } else {
+        delete vyakhyanaSearchTerms[searchKey];
+    }
+    
+    // Execute search on current page
+    const results = sanskritSearcher.search(searchTerm, currentPageText);
+    if (results.count > 0) {
+        const highlighted = sanskritSearcher.highlightMatches(
+            currentPageText, 
+            results.matches
+        );
+        updateDisplay(highlighted);
+    }
+}
+
+// When user navigates to different page
+function changeVyakhyanaPage(sutraNum, vyakhyaKey, direction) {
+    // ... pagination logic ...
+    
+    // Reapply stored search term
+    const searchKey = `${sutraNum}-${vyakhyaKey}`;
+    const activeSearchTerm = vyakhyanaSearchTerms[searchKey];
+    
+    if (activeSearchTerm && sanskritSearcher) {
+        const results = sanskritSearcher.search(activeSearchTerm, pages[newPage]);
+        if (results && results.count > 0 && results.matches.length > 0) {
+            const highlightedText = sanskritSearcher.highlightMatches(
+                pages[newPage], 
+                results.matches
+            );
+            contentElement.innerHTML = highlightedText.replace(/<PB>/g, '');
+        }
+    }
+}
+```
+
+**Cross-Reference Highlighting:**
+```javascript
+function setupCrossReferenceHighlighting() {
+    let selectionTimeout;
+    
+    document.addEventListener('mouseup', function(e) {
+        if (selectionTimeout) {
+            clearTimeout(selectionTimeout);
+        }
+        
+        // Wait for selection to stabilize
+        selectionTimeout = setTimeout(() => {
+            const selection = window.getSelection();
+            const selectedText = selection.toString().trim();
+            
+            if (selectedText.length >= 2) {
+                let targetElement = selection.anchorNode;
+                if (targetElement.nodeType === Node.TEXT_NODE) {
+                    targetElement = targetElement.parentElement;
+                }
+                
+                // Find which vyakhyana the selection is in
+                const vyakhyanaTextDiv = targetElement?.closest('.commentary-text');
+                if (vyakhyanaTextDiv) {
+                    const commentaryItem = vyakhyanaTextDiv.closest('.commentary-item');
+                    const sourceVyakhyanaNum = commentaryItem?.dataset.vyakhyanaNum;
+                    const sourceVyakhyaKey = commentaryItem?.dataset.vyakhyaKey;
+                    
+                    // Search in all OTHER vyakhyanas
+                    const allVyakhyanaItems = document.querySelectorAll('.commentary-item');
+                    allVyakhyanaItems.forEach(item => {
+                        const vyakhyanaNum = item.dataset.vyakhyanaNum;
+                        const vyakhyaKey = item.dataset.vyakhyaKey;
+                        
+                        // Skip source vyakhyana
+                        if (vyakhyanaNum === sourceVyakhyanaNum) return;
+                        
+                        // Auto-populate search box and execute search
+                        const searchBox = item.querySelector('.vyakhyana-search-box input');
+                        if (searchBox) {
+                            searchBox.value = selectedText;
+                            searchInVyakhyana(vyakhyanaNum, vyakhyaKey, selectedText);
+                        }
+                    });
+                }
+            }
+        }, 300); // 300ms debounce
+    });
+}
+```
+
+**CSS Highlighting:**
+```css
+.search-highlight {
+    background-color: yellow;
+    font-weight: bold;
+}
+```
+
+#### Critical Bug Fixes Implemented
+
+**1. Pagination Key Format Mismatch**
+- **Problem**: Search created keys like "1.1.1-भाष्यम्" but pagination used "1-भाष्यम्"
+- **Symptom**: Searching on page 2 for page 1 content corrupted page 2 display
+- **Solution**: Standardized to `${vyakhyanaNum}-${vyakhyaKey}` format throughout
+- **Impact**: Eliminated pagination corruption completely
+
+**2. Wrong API Method Usage**
+- **Problem**: Used `directSearch()` which returned empty array `[]`
+- **Symptom**: Search persistence didn't work - highlights disappeared on page change
+- **Solution**: Changed to correct two-step process: `search()` + `highlightMatches()`
+- **Impact**: Search persistence now works perfectly
+
+**3. Selector Mismatch**
+- **Problem**: Code looked for `.commentary-section` but DOM used `.commentary-item`
+- **Symptom**: Cross-reference feature couldn't find parent containers
+- **Solution**: Updated selectors to `.commentary-item` and added `data-vyakhyana-num` attribute
+- **Impact**: Cross-reference auto-highlighting now functional
+
+**4. Search Box Selector**
+- **Problem**: Selected `.vyakhyana-search-box` (div) instead of the input element
+- **Symptom**: Couldn't set `value` property on div
+- **Solution**: Changed to `.vyakhyana-search-box input`
+- **Impact**: Search boxes now populate correctly
+
+**5. Pagination Boundary Protection**
+- **Problem**: Navigating to content with fewer pages caused array index out of bounds
+- **Symptom**: `Cannot read properties of undefined (reading 'replace')` errors
+- **Solution**: Added bounds checking before accessing page arrays
+```javascript
+let currentPage = vyakhyanaPagination[paginationKey];
+if (currentPage >= totalPages) {
+    currentPage = 0;
+    vyakhyanaPagination[paginationKey] = 0;
+}
+// Now safe to access pages[currentPage]
+```
+
+**6. JavaScript Syntax Errors**
+- **Problem**: Unclosed comment block and orphaned event listener code
+- **Symptom**: Console errors, features not working
+- **Solution**: Removed orphaned 70 lines of code, fixed comment syntax
+- **Impact**: Clean console, all features operational
+
+#### User Experience Benefits
+
+1. **Comparative Study**: Select word in one commentary, see it highlighted in all others
+2. **Contextual Reading**: Search persists as you navigate through pages
+3. **Flexible Precision**: Control match accuracy via search term format
+4. **No Data Loss**: Pagination changes don't clear your searches
+5. **Multi-Commentary Analysis**: Study word usage across different authors simultaneously
+6. **Sandhi Intelligence**: Find words even when they change form due to sandhi rules
+
+#### Performance Considerations
+
+- **Debounced Selection**: 300ms timeout prevents performance issues with rapid mouse movements
+- **Efficient Highlighting**: Uses DOM innerHTML replacement, not node-by-node manipulation
+- **State Persistence**: localStorage prevents repeated searches on page reload
+- **Lazy Search**: Only executes when search term changes or page changes
+- **Selective Targeting**: Only searches in commentary text, not headers or metadata
+
+#### Integration Requirements
+
+**Required Files:**
+```
+sanskrit-search/
+  ├── sandhi-rules.js       (~400 lines - sandhi transformation rules)
+  └── sanskrit-search.js     (~500 lines - search engine and highlighter)
+
+index.html:
+  <script src="sanskrit-search/sandhi-rules.js"></script>
+  <script src="sanskrit-search/sanskrit-search.js"></script>
+```
+
+**Global Objects:**
+```javascript
+// Instantiated in bs.js
+const sanskritSearcher = new SanskritSearcher();
+
+// State containers
+let vyakhyanaSearchTerms = {};    // Line 16
+let vyakhyanaPagination = {};      // Line 15
+```
+
+**DOM Structure Requirements:**
+- `.commentary-item` containers with `data-vyakhyana-num` and `data-vyakhya-key`
+- `.commentary-text` elements containing the actual text content
+- `.vyakhyana-search-box input` elements for search input fields
+- Proper parent-child hierarchy for `.closest()` traversal
+
+#### Testing Checklist
+
+- [x] Search in one vyakhyana while on page 1
+- [x] Navigate to page 2 - search persists
+- [x] Navigate back to page 1 - search still active
+- [x] Search with ending mark (exact match) - only exact matches highlighted
+- [x] Search without ending (fuzzy match) - all variations highlighted
+- [x] Select text in vyakhyana 1 - automatically highlights in vyakhyana 2
+- [x] Select text in vyakhyana 2 - automatically highlights in vyakhyana 1
+- [x] Open 3 vyakhyanas - selection highlights in all except source
+- [x] Pagination at boundaries - no corruption of content
+- [x] Navigate between different sutras - search state independent per sutra
+- [x] Clear search box - highlights removed immediately
+
+---
+
+### 2. Dynamic Multi-Language Support System
 
 #### Transliteration Engine
 - Real-time conversion between scripts (Devanagari ↔ Kannada/Telugu/Tamil/Malayalam/Gujarati/Odia/Bengali)

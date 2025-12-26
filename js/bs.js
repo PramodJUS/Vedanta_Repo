@@ -13,6 +13,7 @@ let selectAllVyakhyanas = true; // Track if "All" is selected (default: true)
 let openVyakhyanas = new Set(); // Track which vyakhyanas are currently open/expanded
 let vyakhyanaFontSize = parseInt(localStorage.getItem('vyakhyanaFontSize')) || 130; // Default 130%
 let vyakhyanaPagination = {}; // Track current page for each vyakhyana: {sutraNum-vyakhyaKey: currentPage}
+let vyakhyanaSearchTerms = {}; // Track active search term for each vyakhyana: {vyakhyanaNum-vyakhyaKey: searchTerm}
 const CHARS_PER_PAGE = 2000; // Characters per page for pagination
 // Default false - only true if explicitly set to 'true' in localStorage
 let autoHideHeaders = localStorage.getItem('autoHideHeaders') === 'true';
@@ -386,6 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
     applyVyakhyanaFontSize();
     updateUILanguage();
     updateLastModifiedDate();
+    setupCrossReferenceHighlighting();  // Enable cross-reference highlighting
     
     // Load voices for speech synthesis
     if ('speechSynthesis' in window) {
@@ -762,6 +764,26 @@ function navigateVyakhyanaPage(sutraNum, vyakhyaKey, direction, event, shouldScr
     // Update content
     contentElement.innerHTML = pages[newPage].replace(/<PB>/g, '');
     
+    // Reapply search if there's an active search term
+    const searchKey = `${sutraNum}-${vyakhyaKey}`;
+    const activeSearchTerm = vyakhyanaSearchTerms[searchKey];
+    console.log('🔄 Page navigation - checking for active search:');
+    console.log('  Search key:', searchKey);
+    console.log('  Active search term:', activeSearchTerm || 'none');
+    console.log('  All stored searches:', vyakhyanaSearchTerms);
+    if (activeSearchTerm && sanskritSearcher) {
+        console.log('  ✓ Reapplying search for:', activeSearchTerm);
+        const results = sanskritSearcher.search(activeSearchTerm, pages[newPage]);
+        console.log('  Search results:', results);
+        if (results && results.count > 0 && results.matches.length > 0) {
+            const highlightedText = sanskritSearcher.highlightMatches(pages[newPage], results.matches);
+            contentElement.innerHTML = highlightedText.replace(/<PB>/g, '');
+            console.log('  ✓ Highlights applied!', results.count, 'matches');
+        } else {
+            console.log('  ✗ No matches on this page');
+        }
+    }
+    
     // Update all pagination info displays
     paginationInfos.forEach(info => {
         info.textContent = `${newPage + 1} / ${totalPages}`;
@@ -815,6 +837,25 @@ function selectVyakhyanaPage(sutraNum, vyakhyaKey, pageIndex, event, shouldScrol
     
     // Update content
     contentElement.innerHTML = pages[pageIndex].replace(/<PB>/g, '');
+    
+    // Reapply search if there's an active search term
+    const searchKey = `${sutraNum}-${vyakhyaKey}`;
+    const activeSearchTerm = vyakhyanaSearchTerms[searchKey];
+    console.log('🔄 Radio button page selection - checking for active search:');
+    console.log('  Search key:', searchKey);
+    console.log('  Active search term:', activeSearchTerm || 'none');
+    console.log('  All stored searches:', vyakhyanaSearchTerms);
+    if (activeSearchTerm && sanskritSearcher) {
+        console.log('  ✓ Reapplying search for:', activeSearchTerm);
+        const results = sanskritSearcher.directSearch(pages[pageIndex], activeSearchTerm);
+        console.log('  Search results on new page:', results.count, 'matches');
+        if (results.count > 0) {
+            contentElement.innerHTML = results.highlightedText.replace(/<PB>/g, '');
+            console.log('  ✓ Highlights applied!');
+        } else {
+            console.log('  ✗ No matches on this page');
+        }
+    }
     
     // Update all pagination info displays
     paginationInfos.forEach(info => {
@@ -1973,11 +2014,26 @@ function showSutraDetail(sutra) {
                 // Add resize handle only if not the first vyakhyana
                 const resizeHandleTop = num > 1 ? `<div class="resize-handle-top" onmousedown="startResizeTop(event, ${num})"></div>` : '';
                 
+                // Search box for this vyakhyana
+                const searchBox = `
+                    <div class="vyakhyana-search-box" onclick="event.stopPropagation()" style="display: inline-block; margin-left: 10px;">
+                        <input type="text" 
+                               placeholder="🔍 Search..." 
+                               id="search-input-${num}-${vyakhyaKey.replace(/[^a-zA-Z0-9]/g, '-')}" 
+                               data-vyakhyana-num="${num}"
+                               data-vyakhya-key="${vyakhyaKey}"
+                               oninput="searchInVyakhyana(this.dataset.vyakhyanaNum, this.dataset.vyakhyaKey, this.value)"
+                               style="padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; width: 150px;">
+                    </div>
+                `;
+                
                 return `
-                    <div class="commentary-item" data-key="${vyakhyaKey}" ${authorAttr} data-pagination-key="${paginationKey}">
+                    <div class="commentary-item" data-key="${vyakhyaKey}" ${authorAttr} data-pagination-key="${paginationKey}" data-vyakhyana-num="${num}" data-vyakhya-key="${vyakhyaKey}">
                         <div class="commentary-header" onclick="toggleCommentary(${num}, '${vyakhyaKey}')">
                             <span class="commentary-title">${titleText}</span>
                             ${radioButtons}
+                            <span style="flex: 1;"></span>
+                            ${searchBox}
                             ${paginationControls}
                             <span class="commentary-toggle" id="toggle-${num}">▼</span>
                         </div>
@@ -2088,6 +2144,206 @@ function showSutraDetail(sutra) {
     
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Sanskrit Search functionality
+let sanskritSearcher = null;
+
+function initializeSanskritSearch() {
+    if (typeof SanskritSearch !== 'undefined' && !sanskritSearcher) {
+        sanskritSearcher = new SanskritSearch();
+    }
+}
+
+function searchInVyakhyana(vyakhyanaNum, vyakhyaKey, searchTerm) {
+    console.log('=== searchInVyakhyana START ===');
+    console.log('Called with:', {vyakhyanaNum, vyakhyaKey, searchTerm});
+    
+    // Store or clear the search term
+    const searchKey = `${vyakhyanaNum}-${vyakhyaKey}`;
+    if (searchTerm.trim()) {
+        vyakhyanaSearchTerms[searchKey] = searchTerm.trim();
+        console.log('Stored search term:', searchTerm.trim());
+    } else {
+        delete vyakhyanaSearchTerms[searchKey];
+        console.log('Cleared search term');
+    }
+    
+    // Get the commentary content first
+    const contentElem = document.getElementById(`commentary-${vyakhyanaNum}`);
+    if (!contentElem) {
+        console.error('Content element not found:', `commentary-${vyakhyanaNum}`);
+        return;
+    }
+    
+    const textElem = contentElem.querySelector('.commentary-text');
+    if (!textElem) {
+        console.error('Text element not found');
+        return;
+    }
+    
+    // Get the original pages array
+    const pagesAttr = textElem.getAttribute('data-pages');
+    if (!pagesAttr) {
+        console.error('No data-pages attribute found');
+        return;
+    }
+    
+    const pages = JSON.parse(pagesAttr);
+    console.log('Total pages in data:', pages.length);
+    
+    // Construct pagination key - MUST match the key used in rendering!
+    // The key format is: ${vyakhyanaNum}-${vyakhyaKey}
+    // NOT sutraKey! vyakhyanaNum is the sequential number (1, 2, 3...)
+    const paginationKey = `${vyakhyanaNum}-${vyakhyaKey}`;
+    const currentPage = vyakhyanaPagination[paginationKey] || 0;
+    
+    console.log('Pagination key:', paginationKey);
+    console.log('All pagination keys:', Object.keys(vyakhyanaPagination));
+    
+    console.log('Pagination state:', {paginationKey, currentPage, totalPages: pages.length});
+    
+    // Validate current page
+    if (currentPage < 0 || currentPage >= pages.length) {
+        console.error('Current page index out of bounds:', currentPage, 'Total pages:', pages.length);
+        return;
+    }
+    
+    // Get ONLY the current page text (CRITICAL: only search within THIS page)
+    const currentPageText = pages[currentPage];
+    if (!currentPageText) {
+        console.error('Page content is empty for index:', currentPage);
+        return;
+    }
+    
+    const originalText = currentPageText.replace(/<PB>/g, '');
+    console.log(`Current page ${currentPage + 1}/${pages.length}, text length: ${originalText.length} chars`);
+    
+    // If search is cleared, restore original current page
+    if (!searchTerm || searchTerm.trim() === '') {
+        console.log('Search cleared, restoring original page', currentPage + 1);
+        textElem.innerHTML = originalText;
+        console.log('=== searchInVyakhyana END (cleared) ===');
+        return;
+    }
+    
+    initializeSanskritSearch();
+    
+    if (!sanskritSearcher) {
+        console.error('Sanskrit Search module not loaded');
+        return;
+    }
+    
+    // Search ONLY within current page
+    console.log(`Searching for "${searchTerm}" in page ${currentPage + 1}...`);
+    const results = sanskritSearcher.search(searchTerm, originalText);
+    
+    console.log('Search results:', {
+        count: results.count,
+        matches: results.matches.length,
+        currentPage: currentPage + 1
+    });
+    
+    if (results.count > 0 && results.matches.length > 0) {
+        // Highlight the matches in CURRENT page only
+        const highlightedText = sanskritSearcher.highlightMatches(originalText, results.matches);
+        console.log(`✓ Highlighted ${results.count} match(es) on page ${currentPage + 1}`);
+        textElem.innerHTML = highlightedText;
+    } else {
+        console.log('No matches found on current page');
+        textElem.innerHTML = originalText;
+    }
+    
+    console.log('=== searchInVyakhyana END ===');
+}
+
+/**
+ * Search in vyakhyana with Pratika Grahana (quotation detection)
+ * Used for cross-reference highlighting between commentaries
+ * Finds both direct matches AND Sanskrit quotation patterns (word + iti)
+ */
+function searchInVyakhyanaWithPratika(vyakhyanaNum, vyakhyaKey, searchTerm) {
+    console.log('=== searchInVyakhyanaWithPratika START ===');
+    console.log('Called with:', {vyakhyanaNum, vyakhyaKey, searchTerm});
+    
+    // Store or clear the search term
+    const searchKey = `${vyakhyanaNum}-${vyakhyaKey}`;
+    if (searchTerm.trim()) {
+        vyakhyanaSearchTerms[searchKey] = searchTerm.trim();
+        console.log('Stored search term:', searchTerm.trim());
+    } else {
+        delete vyakhyanaSearchTerms[searchKey];
+        console.log('Cleared search term');
+    }
+    
+    // Get the commentary content first
+    const contentElem = document.getElementById(`commentary-${vyakhyanaNum}`);
+    if (!contentElem) {
+        console.error('Content element not found:', `commentary-${vyakhyanaNum}`);
+        return;
+    }
+    
+    const textElem = contentElem.querySelector('.commentary-text');
+    if (!textElem) {
+        console.error('Text element not found');
+        return;
+    }
+    
+    // Get the original pages array
+    const pagesAttr = textElem.getAttribute('data-pages');
+    if (!pagesAttr) {
+        console.error('No data-pages attribute found');
+        return;
+    }
+    
+    const pages = JSON.parse(pagesAttr);
+    const paginationKey = `${vyakhyanaNum}-${vyakhyaKey}`;
+    const currentPage = vyakhyanaPagination[paginationKey] || 0;
+    
+    // Validate current page
+    if (currentPage < 0 || currentPage >= pages.length) {
+        console.error('Current page index out of bounds');
+        return;
+    }
+    
+    const currentPageText = pages[currentPage];
+    const originalText = currentPageText.replace(/<PB>/g, '');
+    
+    // If search is cleared, restore original current page
+    if (!searchTerm || searchTerm.trim() === '') {
+        textElem.innerHTML = originalText;
+        console.log('=== searchInVyakhyanaWithPratika END (cleared) ===');
+        return;
+    }
+    
+    initializeSanskritSearch();
+    
+    if (!sanskritSearcher) {
+        console.error('Sanskrit Search module not loaded');
+        return;
+    }
+    
+    // Use pratika grahana search for cross-reference highlighting
+    console.log(`Searching with pratika grahana for "${searchTerm}" in page ${currentPage + 1}...`);
+    const results = sanskritSearcher.searchWithPratikaGrahana(searchTerm, originalText);
+    
+    console.log('Pratika grahana results:', {
+        count: results.count,
+        matches: results.matches.length,
+        currentPage: currentPage + 1
+    });
+    
+    if (results.count > 0 && results.matches.length > 0) {
+        // Highlight the matches in CURRENT page only
+        const highlightedText = sanskritSearcher.highlightMatches(originalText, results.matches);
+        console.log(`✓ Highlighted ${results.count} match(es) with pratika grahana on page ${currentPage + 1}`);
+        textElem.innerHTML = highlightedText;
+    } else {
+        console.log('No matches found on current page');
+        textElem.innerHTML = originalText;
+    }
+    
+    console.log('=== searchInVyakhyanaWithPratika END ===');
 }
 
 // Show list view
@@ -2643,4 +2899,87 @@ async function updateLastModifiedDate() {
     } catch (error) {
         updateDateElement.textContent = 'Dec 25, 2024, 6:30 PM';
     }
+}
+
+// Cross-reference highlighting: Select text in one vyakhyana to search in others
+function setupCrossReferenceHighlighting() {
+    let selectionTimeout;
+    
+    console.log('Cross-reference highlighting initialized');
+    
+    // Listen for text selection in all vyakhyana text elements
+    document.addEventListener('mouseup', function(e) {
+        console.log('Mouse up detected');
+        
+        // Clear any existing timeout
+        if (selectionTimeout) {
+            clearTimeout(selectionTimeout);
+        }
+        
+        // Wait 300ms to ensure selection is complete
+        selectionTimeout = setTimeout(() => {
+            const selection = window.getSelection();
+            const selectedText = selection.toString().trim();
+            
+            console.log('Selection detected:', selectedText, 'Length:', selectedText.length);
+            
+            // Only proceed if we have selected text (at least 2 characters)
+            if (selectedText.length >= 2) {
+                // Check if selection is within a vyakhyana text element
+                let targetElement = selection.anchorNode;
+                console.log('Anchor node:', targetElement);
+                
+                if (targetElement && targetElement.nodeType === Node.TEXT_NODE) {
+                    targetElement = targetElement.parentElement;
+                    console.log('Parent element:', targetElement);
+                }
+                
+                // Find the vyakhyana text container
+                const vyakhyanaTextDiv = targetElement?.closest('.commentary-text');
+                console.log('Vyakhyana text div:', vyakhyanaTextDiv);
+                
+                if (vyakhyanaTextDiv) {
+                    const commentaryItem = vyakhyanaTextDiv.closest('.commentary-item');
+                    console.log('Commentary item:', commentaryItem);
+                    
+                    const sourceVyakhyanaNum = commentaryItem?.dataset.vyakhyanaNum;
+                    const sourceVyakhyaKey = commentaryItem?.dataset.vyakhyaKey;
+                    console.log('Source vyakhyana:', sourceVyakhyanaNum, sourceVyakhyaKey);
+                    
+                    console.log('Text selected in vyakhyana', sourceVyakhyanaNum, ':', selectedText);
+                    
+                    // Search in all OTHER vyakhyanas
+                    const allVyakhyanaItems = document.querySelectorAll('.commentary-item');
+                    console.log('Found', allVyakhyanaItems.length, 'commentary items');
+                    
+                    allVyakhyanaItems.forEach(item => {
+                        const vyakhyanaNum = item.dataset.vyakhyanaNum;
+                        const vyakhyaKey = item.dataset.vyakhyaKey;
+                        
+                        // Skip the source vyakhyana
+                        if (vyakhyanaNum === sourceVyakhyanaNum) {
+                            console.log('Skipping source vyakhyana', vyakhyanaNum);
+                            return;
+                        }
+                        
+                        const searchBox = item.querySelector('.vyakhyana-search-box input');
+                        if (searchBox) {
+                            console.log('Auto-searching in vyakhyana', vyakhyanaNum);
+                            searchBox.value = selectedText;
+                            
+                            // Trigger search with pratika grahana for cross-reference
+                            console.log('Calling searchInVyakhyanaWithPratika with:', vyakhyanaNum, vyakhyaKey, selectedText);
+                            searchInVyakhyanaWithPratika(vyakhyanaNum, vyakhyaKey, selectedText);
+                        } else {
+                            console.log('No search box found in vyakhyana', vyakhyanaNum);
+                        }
+                    });
+                } else {
+                    console.log('Selection not in vyakhyana text div');
+                }
+            } else {
+                console.log('Selected text too short or empty');
+            }
+        }, 300);
+    });
 }
