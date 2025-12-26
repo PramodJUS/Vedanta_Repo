@@ -5,6 +5,8 @@
 ### Cross-Reference Highlighting
 - Select any text in one commentary to automatically search and highlight it across all other open commentaries
 - Perfect for comparative study across multiple vyākhyānas
+- **Fixed**: Highlights now properly clear when text is deselected (click elsewhere)
+- Highlights automatically appear on selection and disappear on deselection
 
 ### Search Persistence
 - Search terms now remain active when navigating between pages
