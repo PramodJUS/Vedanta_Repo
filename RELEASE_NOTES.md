@@ -1,6 +1,6 @@
 # Release Notes
 
-## Version 1.0.3 - December 26, 2025
+## Version 1.0.3 - December 27, 2025
 
 ### Cross-Reference Highlighting
 - Select any text in one commentary to automatically search and highlight it across all other open commentaries
@@ -16,6 +16,9 @@
 - Fixed pagination corruption when searching
 - Fixed search highlighting not persisting across page navigation
 - Fixed boundary errors when content has different page counts
+- **Fixed**: Search transliteration bug - searches now work correctly in all transliterated languages (Kannada, Telugu, etc.)
+- **Fixed**: Page navigation button state bug - Previous/Next buttons now update correctly when navigating between pages
+- **Fixed**: Search box text clearing on click - search terms now persist when clicking in the search input field
 
 ---
 

@@ -866,6 +866,9 @@ function navigateVyakhyanaPage(sutraNum, vyakhyaKey, direction, event, shouldScr
     // Update content with pratika grahana bold formatting
     const vyakhyanaNum = contentElement.closest('.commentary-item')?.dataset.vyakhyanaNum;
     contentElement.innerHTML = makePratikaGrahanaBold(pages[newPage].replace(/<PB>/g, ''), vyakhyanaNum);
+    
+    // Reapply search if there's an active search term
+    const searchKey = `${sutraNum}-${vyakhyaKey}`;
     const activeSearchTerm = vyakhyanaSearchTerms[searchKey];
     console.log('🔄 Page navigation - checking for active search:');
     console.log('  Search key:', searchKey);
@@ -2131,6 +2134,7 @@ function showSutraDetail(sutra) {
                                id="search-input-${num}-${vyakhyaKey.replace(/[^a-zA-Z0-9]/g, '-')}" 
                                data-vyakhyana-num="${num}"
                                data-vyakhya-key="${vyakhyaKey}"
+                               onclick="event.stopPropagation()"
                                oninput="searchInVyakhyana(this.dataset.vyakhyanaNum, this.dataset.vyakhyaKey, this.value)"
                                style="padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; width: 150px;">
                     </div>
@@ -2447,19 +2451,24 @@ function searchInVyakhyanaWithPratika(vyakhyanaNum, vyakhyaKey, searchTerm, isPr
         // इति pattern detected → Generate all case variations and search each
         console.log(`PRATIKA GRAHANA mode: Generating case variations for stem "${searchTerm}"...`);
         
-        // Generate all case ending variations from stem
+        // Generate all case ending variations from stem (in Devanagari)
         const variations = sanskritSearcher.generatePratikaGrahanaVariations(searchTerm);
-        console.log('Generated variations:', variations);
+        console.log('Generated variations (Devanagari):', variations);
         
-        // Search for each variation using simple string search
+        // Transliterate all variations to target language
+        const transliteratedVariations = variations.map(v => transliterateText(v, currentLanguage));
+        console.log('Transliterated variations:', transliteratedVariations);
+        
+        // Search for each transliterated variation in the transliterated text
         results = { matches: [], count: 0, searchTerm: searchTerm };
-        variations.forEach(variant => {
+        transliteratedVariations.forEach((variant, index) => {
             const variantResults = sanskritSearcher.search(variant, originalText);
             variantResults.matches.forEach(match => {
                 // Avoid duplicates at same position
                 const isDuplicate = results.matches.some(m => m.position === match.position);
                 if (!isDuplicate) {
                     match.pratikaVariant = variant; // Tag which variation matched
+                    match.devanagariVariant = variations[index]; // Also store Devanagari form
                     results.matches.push(match);
                 }
             });
@@ -2468,8 +2477,8 @@ function searchInVyakhyanaWithPratika(vyakhyanaNum, vyakhyaKey, searchTerm, isPr
         results.count = results.matches.length;
     } else {
         // No इति → Simple string search with phonetic variants (ं↔म्)
-        console.log(`STRING SEARCH mode for "${searchTerm}"...`);
-        results = sanskritSearcher.search(searchTerm, originalText);
+        console.log(`STRING SEARCH mode for "${transliteratedSearchTerm}"...`);
+        results = sanskritSearcher.search(transliteratedSearchTerm, originalText);
     }
     
     console.log('========================================');

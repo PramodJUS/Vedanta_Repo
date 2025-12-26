@@ -162,16 +162,19 @@ class SanskritSearch {
         // Generate phonetic variants for Sanskrit equivalents
         const variants = this.generatePhoneticVariants(searchTerm);
         
-        // Word boundary pattern for Sanskrit/Indic scripts
-        const wordBoundary = '(?:^|[\\s\\n\\r।॥,;\'\"()\\[\\]{}/<>]|$)';
+        console.log('Exact word search variants:', variants);
+        
+        // Word boundary pattern for Sanskrit/Indic scripts - support all script punctuation
+        const wordBoundary = '(?:^|[\\s\\n\\r।॥೧೨।।,;\'\"()\\[\\]{}/<>|]|$)';
         
         // Search for each variant
         variants.forEach(variant => {
+            // Try regex with word boundaries first
             const pattern = new RegExp(wordBoundary + '(' + this.escapeRegex(variant) + ')' + wordBoundary, 'g');
             
             let match;
             while ((match = pattern.exec(text)) !== null) {
-                const matchStart = match.index + (match[0].length - match[1].length - (match[0].match(/[\s\n\r।॥,;'"()\[\]{}\/<>]$/) ? 1 : 0));
+                const matchStart = match.index + (match[0].length - match[1].length - (match[0].match(/[\s\n\r।॥೧೨।।,;'"()\[\]{}\/<>|]$/) ? 1 : 0));
                 
                 // Check for duplicates (same position)
                 const isDuplicate = results.matches.some(m => m.position === matchStart);
@@ -186,7 +189,29 @@ class SanskritSearch {
                     });
                 }
             }
+            
+            // Fallback: If no word boundary matches, try simple substring search
+            if (results.matches.length === 0) {
+                let index = 0;
+                while ((index = text.indexOf(variant, index)) !== -1) {
+                    // Check for duplicates
+                    const isDuplicate = results.matches.some(m => m.position === index);
+                    if (!isDuplicate) {
+                        results.matches.push({
+                            position: index,
+                            length: variant.length,
+                            matchedText: variant,
+                            context: this.getContext(text, index, variant.length),
+                            type: 'exact',
+                            variant: variant !== searchTerm ? variant : undefined
+                        });
+                    }
+                    index += variant.length;
+                }
+            }
         });
+
+        console.log('Exact word search results:', results.count, 'matches');
 
         // Sort by position
         results.matches.sort((a, b) => a.position - b.position);
@@ -196,12 +221,14 @@ class SanskritSearch {
 
     /**
      * Generate phonetic variants for Sanskrit equivalents
+     * Supports all Indic scripts
      * @private
      */
     generatePhoneticVariants(term) {
         const variants = [term];
         
-        // म् ↔ ं (anusvara equivalence)
+        // Anusvara equivalence: म् ↔ ं across all scripts
+        // Devanagari: म् ↔ ं
         if (term.includes('म्')) {
             variants.push(term.replace(/म्/g, 'ं'));
         }
@@ -209,7 +236,63 @@ class SanskritSearch {
             variants.push(term.replace(/ं/g, 'म्'));
         }
         
-        // ः ↔ स् (visarga equivalence - less common but exists)
+        // Kannada: ಮ್ ↔ ಂ
+        if (term.includes('ಮ್')) {
+            variants.push(term.replace(/ಮ್/g, 'ಂ'));
+        }
+        if (term.includes('ಂ')) {
+            variants.push(term.replace(/ಂ/g, 'ಮ್'));
+        }
+        
+        // Tamil: ம் ↔ ஂ
+        if (term.includes('ம்')) {
+            variants.push(term.replace(/ம்/g, 'ஂ'));
+        }
+        if (term.includes('ஂ')) {
+            variants.push(term.replace(/ஂ/g, 'ம்'));
+        }
+        
+        // Telugu: మ్ ↔ ం
+        if (term.includes('మ్')) {
+            variants.push(term.replace(/మ్/g, 'ం'));
+        }
+        if (term.includes('ం')) {
+            variants.push(term.replace(/ං/g, 'మ్'));
+        }
+        
+        // Malayalam: മ് ↔ ം
+        if (term.includes('മ്')) {
+            variants.push(term.replace(/മ്/g, 'ം'));
+        }
+        if (term.includes('ം')) {
+            variants.push(term.replace(/ം/g, 'മ്'));
+        }
+        
+        // Bengali: ম্ ↔ ং
+        if (term.includes('ম্')) {
+            variants.push(term.replace(/ম্/g, 'ং'));
+        }
+        if (term.includes('ং')) {
+            variants.push(term.replace(/ং/g, 'ম্'));
+        }
+        
+        // Gujarati: મ્ ↔ ં
+        if (term.includes('મ્')) {
+            variants.push(term.replace(/મ્/g, 'ં'));
+        }
+        if (term.includes('ં')) {
+            variants.push(term.replace(/ં/g, 'મ્'));
+        }
+        
+        // Odia: ମ୍ ↔ ଂ
+        if (term.includes('ମ୍')) {
+            variants.push(term.replace(/ମ୍/g, 'ଂ'));
+        }
+        if (term.includes('ଂ')) {
+            variants.push(term.replace(/ଂ/g, 'ମ୍'));
+        }
+        
+        // Visarga equivalence (less common): ः ↔ స్ (Devanagari only for now)
         if (term.includes('ः')) {
             variants.push(term.replace(/ः/g, 'स्'));
         }
@@ -272,7 +355,24 @@ class SanskritSearch {
     }
 
     /**
+     * Check if search term has Sanskrit ending marker (precision mode)
+     * Supports all Indic scripts: Devanagari, Kannada, Tamil, Telugu, Malayalam, Bengali, Gujarati, Odia
+     * @private
+     */
+    hasEndingMarker(term) {
+        // Sanskrit ending markers across all Indic scripts:
+        // - Anusvara, Visarga, Candrabindu
+        // - Vowel matras (dependent vowels)
+        // - Halant/Virama
+        // - म् equivalents (m + virama)
+        const endingPattern = /[ंःँािीुूेैोौृॄॢॣ्ᳵᳶम्ಂಃಾಿೀುೂೃೄೆೇೈೊೋೌ್ಮ್ஂஃாிீுூெேைொோௌ்ம்ంఃాిీుూృౄెేైొోౌ్మ్ംഃാിീുൂൃെേൈൊോൌ്മ്ংঃািীুূৃেৈোৌ্ম্ંઃાિીુૂૃેૈોૌ્મ્ଂଃାିୀୁୂୃେୈୋୌ୍ମ୍]$/;
+        return endingPattern.test(term);
+    }
+
+    /**
      * Search with multiple strategies
+     * If search term has ending marker → EXACT match only
+     * If no ending marker → Sandhi-aware fuzzy matching
      */
     search(searchTerm, text) {
         if (!searchTerm || !text) {
@@ -282,6 +382,15 @@ class SanskritSearch {
         // CRITICAL: Normalize input to NFC to prevent vowel splitting
         searchTerm = searchTerm.normalize('NFC');
         text = text.normalize('NFC');
+
+        // PRECISION MODE: If search term has ending marker, use exact matching ONLY
+        if (this.hasEndingMarker(searchTerm)) {
+            console.log(`Precision mode: "${searchTerm}" has ending marker → exact match only`);
+            return this.exactWordSearch(searchTerm, text);
+        }
+
+        // FUZZY MODE: No ending marker → use sandhi-aware matching
+        console.log(`Fuzzy mode: "${searchTerm}" has no ending → sandhi-aware matching`);
 
         const results = {
             matches: [],
