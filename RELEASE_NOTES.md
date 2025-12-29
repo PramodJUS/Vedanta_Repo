@@ -1,6 +1,6 @@
 # Release Notes
 
-## Version 1.0.3 - December 27, 2025
+## Version 1.0.3 - December 29, 2025
 
 ### Cross-Reference Highlighting
 - Select any text in one commentary to automatically search and highlight it across all other open commentaries
@@ -11,6 +11,11 @@
 ### Search Persistence
 - Search terms now remain active when navigating between pages
 - No need to re-enter searches after page changes
+
+### Library Organization
+- Renamed `sanskrit-search` folder to `sanskrit-search-library` for consistency with `transliterate-library`
+- Both libraries now follow consistent naming convention
+- Configured as git submodules for better dependency management
 
 ### Bug Fixes
 - Fixed pagination corruption when searching
