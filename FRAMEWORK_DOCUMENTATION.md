@@ -310,8 +310,8 @@ sanskrit-search/
   └── sanskrit-search.js     (~500 lines - search engine and highlighter)
 
 index.html:
-  <script src="sanskrit-search/sandhi-rules.js"></script>
-  <script src="sanskrit-search/sanskrit-search.js"></script>
+  <script src="sanskrit-search-library/sandhi-rules.js"></script>
+  <script src="sanskrit-search-library/sanskrit-search.js"></script>
 ```
 
 **Global Objects:**

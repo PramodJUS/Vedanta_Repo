@@ -1,3 +1,6 @@
 [submodule "transliterate-library"]
 	path = transliterate-library
 	url = https://github.com/PramodJUS/transliterate-library.git
+[submodule "sanskrit-search-library"]
+	path = sanskrit-search-library
+	url = https://github.com/PramodJUS/sanskrit-search-library.git

@@ -92,8 +92,10 @@
                 </select>
             </div>
             <div class="sutra-navigation-header" id="sutraNavigationHeader" style="display: none;">
-                <button class="nav-header-btn" id="previousSutraHeaderBtn" title="Previous sutra">← <span id="previousBtnText">Previous</span></button>
-                <button class="nav-header-btn" id="nextSutraHeaderBtn" title="Next sutra"><span id="nextBtnText">Next</span> →</button>
+                <button class="nav-header-btn vyakhyana-nav-btn" id="prevVyakhyanaBtn" title="Previous Vyakhyana">&lt;&lt;</button>
+                <button class="nav-header-btn part-nav-btn" id="prevPartBtn" title="Previous Part">&lt;</button>
+                <button class="nav-header-btn part-nav-btn" id="nextPartBtn" title="Next Part">&gt;</button>
+                <button class="nav-header-btn vyakhyana-nav-btn" id="nextVyakhyanaBtn" title="Next Vyakhyana">&gt;&gt;</button>
             </div>
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="Search sutras...">
@@ -166,8 +168,9 @@
     </footer>
 
     <!-- Sanskrit Search Module -->
-    <script src="sanskrit-search/sandhi-rules.js"></script>
-    <script src="sanskrit-search/sanskrit-search.js"></script>
+    <script src="sanskrit-search-library/sandhi-rules.js"></script>
+    <script src="sanskrit-search-library/sanskrit-search.js"></script>
+    <script src="sanskrit-search-library/pratika.js"></script>
     
     <!-- Transliteration engine from local library -->
     <script src="transliterate-library/transliterate.js"></script>
