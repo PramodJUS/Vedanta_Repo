@@ -1,11 +1,32 @@
 {
+  "_glossary": {
+    "Brahman": "The Ultimate Reality, Supreme Being, the infinite, eternal, and unchanging consciousness that is the source of all existence",
+    "moksha": "Liberation, the ultimate goal of spiritual practice - freedom from the cycle of birth and death",
+    "karma": "Action, work, or ritual; also refers to the law of cause and effect",
+    "Vedas": "Ancient Hindu scriptures, considered the ultimate authority in spiritual knowledge",
+    "Vedanta": "The end or culmination of the Vedas; philosophical teachings found in the Upanishads",
+    "Upanishad": "Ancient philosophical texts forming the concluding part of the Vedas",
+    "liberation": "Freedom from the cycle of birth and death (moksha)",
+    "shabda pramana": "Scriptural testimony as a valid means of knowledge",
+    "Brahma-vidya": "Knowledge of Brahman, the supreme spiritual wisdom",
+    "pramana": "Valid means of knowledge or proof",
+    "brahma-jijnasa": "Inquiry into Brahman, the desire to know the Ultimate Reality",
+    "karma-kanda": "The section of the Vedas dealing with rituals and actions"
+  },
+  "_section_tooltips": {
+    "vishaya": "The main topic or subject matter under discussion in this adhikarana",
+    "samshaya": "The philosophical doubt or question that needs to be resolved",
+    "purvapaksha": "The preliminary view or objection that is raised before establishing the final conclusion",
+    "siddhanta": "The established conclusion or final verdict after examining all arguments",
+    "prayojana": "The purpose or benefit of this adhikarana discussion"
+  },
   "1.1.जिज्ञासाधिकरणम्": {
     "name": "जिज्ञासाधिकरणम्",
     "name_en": "Jijnasa Adhikarana (Inquiry into Brahman)",
     "adhyaya": 1,
     "pada": 1,
     "sutras": "1.1.1",
-    "vishaya": "The desire to know Brahman and the necessity of such inquiry",
+    "vishaya": "The desire to know Brahman and the necessity of such <span class=\"contextual-tooltip\">inquiry<span class=\"info-tooltip\" title=\"A systematic and sustained effort to understand the nature of ultimate reality through study, reflection, and meditation\">ℹ️</span></span>",
     "samshaya": "Is inquiry into Brahman necessary? Can one attain liberation through karma alone?",
     "purvapaksha": "Karma (ritualistic actions) alone is sufficient for liberation. There is no need for knowledge of Brahman.",
     "siddhanta": "Knowledge of Brahman is essential for liberation. Karma prepares the mind but cannot directly lead to moksha. Therefore, inquiry into Brahman (brahma-jijnasa) is necessary after acquiring the four-fold qualifications.",

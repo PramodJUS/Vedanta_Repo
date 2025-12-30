@@ -1520,6 +1520,17 @@ span[data-type="direct"] {
     transform: translateX(3px);
 }
 
+.adhikarana-info-icon {
+    font-size: 0.9em;
+    opacity: 0.7;
+    margin-left: 5px;
+    transition: opacity 0.3s ease;
+}
+
+.adhikarana-name-link:hover .adhikarana-info-icon {
+    opacity: 1;
+}
+
 .adhikarana-info-link {
     display: inline-block;
     color: #667eea;
@@ -1691,4 +1702,176 @@ span[data-type="direct"] {
     color: #764ba2;
     display: block;
     margin-bottom: 6px;
+}
+
+.info-tooltip {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 0.9em;
+    color: #667eea;
+    cursor: help;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+    position: relative;
+}
+
+.info-tooltip:hover {
+    opacity: 1;
+}
+
+.info-tooltip::before {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    font-size: 0.85rem;
+    font-weight: normal;
+    border-radius: 6px;
+    white-space: normal;
+    width: 250px;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+    line-height: 1.4;
+}
+
+.info-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 2px;
+    border: 6px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.9);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.info-tooltip:hover::before,
+.info-tooltip:hover::after {
+    opacity: 1;
+}
+
+.term-tooltip {
+    color: #667eea;
+    cursor: help;
+    text-decoration: underline dotted;
+    text-decoration-color: rgba(102, 126, 234, 0.4);
+    position: relative;
+}
+
+.term-tooltip:hover {
+    color: #764ba2;
+}
+
+.term-tooltip::before {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 8px;
+    padding: 10px 14px;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    font-size: 0.9rem;
+    font-weight: normal;
+    border-radius: 6px;
+    white-space: normal;
+    width: 300px;
+    text-align: left;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1001;
+    line-height: 1.5;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.term-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 2px;
+    border: 6px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.9);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.term-tooltip:hover::before,
+.term-tooltip:hover::after {
+    opacity: 1;
+}
+
+.contextual-tooltip {
+    position: relative;
+    display: inline;
+}
+
+.contextual-tooltip .info-tooltip {
+    font-size: 0.85em;
+    margin-left: 3px;
+    cursor: help;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.contextual-tooltip .info-tooltip:hover {
+    opacity: 1;
+}
+
+.contextual-tooltip .info-tooltip::before {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 8px;
+    padding: 10px 14px;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    font-size: 0.9rem;
+    font-weight: normal;
+    border-radius: 6px;
+    white-space: normal;
+    width: 300px;
+    text-align: left;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1002;
+    line-height: 1.5;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.contextual-tooltip .info-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 2px;
+    border: 6px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.9);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.contextual-tooltip .info-tooltip:hover::before,
+.contextual-tooltip .info-tooltip:hover::after {
+    opacity: 1;
 }

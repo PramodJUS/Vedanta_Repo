@@ -1,7 +1,7 @@
 # Multi-Language Content Framework Documentation
 
 ## Last Updated
-**Version 1.0.3** - December 30, 2025 - Navigation button fixes and popup layout improvements
+**Version 1.0.3** - December 30, 2025 - Adhikarana tooltips, glossary system, navigation fixes, and text corrections
 
 ---
 

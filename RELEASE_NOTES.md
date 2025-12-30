@@ -2,16 +2,27 @@
 
 ## Version 1.0.3 - December 30, 2025
 
+### Adhikarana Popup Enhancements
+- **New**: Interactive glossary system with info icons for philosophical terms
+  - Generic terms (Brahman, moksha, karma, etc.) auto-detected with tooltips
+  - Contextual tooltips for specific terms with custom explanations
+  - Hover over ℹ️ icons to see detailed explanations
+- **New**: Section tooltips for Sanskrit terminology (विषयः, संशयः, पूर्वपक्षः, सिद्धान्तः, प्रयोजनम्)
+- **New**: Info icon next to adhikarana name indicating clickable content
+- Increased popup width from 600px to 900px for better readability
+- More flexible responsive design (90% of screen width up to 900px max)
+- All tooltip definitions stored in adhikarana-details.json for easy maintenance
+
+### Text Corrections
+- **Fixed**: Sanskrit spelling corrected from "संस्कृतभ" to "संस्कृतम्" in language dropdown
+- **Fixed**: Commentary name corrected from "तत्वप्रकाशः" to "तत्त्वप्रकाशिका"
+
 ### Navigation Improvements
 - **Fixed**: Navigation button states now properly disable/enable based on position
 - `<<` and `>>` buttons disabled at first/last sutra respectively (regardless of part)
 - `<` and `>` buttons disabled at first/last part of first/last sutra respectively
 - Fixed type comparison bug preventing proper button state detection
 - Added visual opacity feedback (30%) for disabled buttons
-
-### Popup Enhancements
-- Increased adhikarana popup width from 600px to 900px for better readability
-- More flexible responsive design (90% of screen width up to 900px max)
 
 ### Cross-Reference Highlighting
 - Select any text in one commentary to automatically search and highlight it across all other open commentaries

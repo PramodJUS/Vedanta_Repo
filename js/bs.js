@@ -2136,7 +2136,9 @@ function updateInfoPanelForSutra(sutra) {
             ${adhikaranaText ? `
                 <h4 class="adhikarana-label">${adhikaranaLabel}</h4>
                 <div class="sutra-info-adhikarana">
-                    <a href="#" class="adhikarana-name-link" id="adhikaranaInfoLink" title="Click for details">${adhikaranaText}</a>
+                    <a href="#" class="adhikarana-name-link" id="adhikaranaInfoLink" title="Click for details">
+                        ${adhikaranaText} <span class="adhikarana-info-icon">ℹ️</span>
+                    </a>
                 </div>
             ` : ''}
             <div class="sutra-info-controls">
@@ -3452,54 +3454,78 @@ function showAdhikaranaInfo(sutra) {
         </li>`;
     }).join('');
     
+    // Function to add tooltips to key terms using glossary from adhikarana details
+    function addTermTooltips(text) {
+        if (!adhikaranaDetails || !adhikaranaDetails._glossary) {
+            return text;
+        }
+        
+        const terms = adhikaranaDetails._glossary;
+        let result = text;
+        
+        for (const [term, tooltip] of Object.entries(terms)) {
+            const regex = new RegExp(`\\b(${term})\\b`, 'gi');
+            result = result.replace(regex, `<span class="contextual-tooltip">$1<span class="info-tooltip" title="${tooltip}">ℹ️</span></span>`);
+        }
+        return result;
+    }
+    
     // Build details sections
     let detailsHTML = '';
     
+    // Get section tooltips from adhikarana details
+    const sectionTooltips = adhikaranaDetails?._section_tooltips || {};
+    
     if (details.name_en) {
         detailsHTML += `<div class="adhikarana-detail-section">
-            <strong>English Name:</strong> ${details.name_en}
+            <strong>English Name:</strong> ${addTermTooltips(details.name_en)}
         </div>`;
     }
     
     if (details.vishaya) {
+        const tooltip = sectionTooltips.vishaya || '';
         detailsHTML += `<div class="adhikarana-detail-section">
-            <strong>विषयः (Subject):</strong> ${details.vishaya}
+            <strong>विषयः (Subject):<span class="info-tooltip" title="${tooltip}">ℹ️</span></strong> ${addTermTooltips(details.vishaya)}
         </div>`;
     }
     
     if (details.samshaya) {
+        const tooltip = sectionTooltips.samshaya || '';
         detailsHTML += `<div class="adhikarana-detail-section">
-            <strong>संशयः (Doubt):</strong> ${details.samshaya}
+            <strong>संशयः (Doubt):<span class="info-tooltip" title="${tooltip}">ℹ️</span></strong> ${addTermTooltips(details.samshaya)}
         </div>`;
     }
     
     if (details.purvapaksha) {
+        const tooltip = sectionTooltips.purvapaksha || '';
         detailsHTML += `<div class="adhikarana-detail-section">
-            <strong>पूर्वपक्षः (Objection):</strong> ${details.purvapaksha}
+            <strong>पूर्वपक्षः (Objection):<span class="info-tooltip" title="${tooltip}">ℹ️</span></strong> ${addTermTooltips(details.purvapaksha)}
         </div>`;
     }
     
     if (details.siddhanta) {
+        const tooltip = sectionTooltips.siddhanta || '';
         detailsHTML += `<div class="adhikarana-detail-section">
-            <strong>सिद्धान्तः (Conclusion):</strong> ${details.siddhanta}
+            <strong>सिद्धान्तः (Conclusion):<span class="info-tooltip" title="${tooltip}">ℹ️</span></strong> ${addTermTooltips(details.siddhanta)}
         </div>`;
     }
     
     if (details.prayojana) {
+        const tooltip = sectionTooltips.prayojana || '';
         detailsHTML += `<div class="adhikarana-detail-section">
-            <strong>प्रयोजनम् (Purpose):</strong> ${details.prayojana}
+            <strong>प्रयोजनम् (Purpose):<span class="info-tooltip" title="${tooltip}">ℹ️</span></strong> ${addTermTooltips(details.prayojana)}
         </div>`;
     }
     
     if (details.notes) {
         detailsHTML += `<div class="adhikarana-detail-section">
-            <strong>Notes:</strong> ${details.notes}
+            <strong>Notes:</strong> ${addTermTooltips(details.notes)}
         </div>`;
     }
     
     if (details.references) {
         detailsHTML += `<div class="adhikarana-detail-section">
-            <strong>References:</strong> ${details.references}
+            <strong>References:</strong> ${addTermTooltips(details.references)}
         </div>`;
     }
     
