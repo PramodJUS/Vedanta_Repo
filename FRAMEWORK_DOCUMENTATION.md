@@ -1,7 +1,7 @@
 # Multi-Language Content Framework Documentation
 
 ## Last Updated
-**Version 1.0.3** - December 30, 2025 - Navigation button tooltip update (Next Sutra)
+**Version 1.0.3** - December 30, 2025 - Personal Notes feature added
 
 ---
 

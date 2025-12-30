@@ -1,0 +1,45 @@
+{
+  "_README": "This template shows how to add Personal_Notes at the sutra level in sutra-details.json",
+  "_STRUCTURE": "Add Personal_Notes object before Part#1 for each sutra",
+  
+  "1.1.1": {
+    "Personal_Notes": {
+      "moola": "अनुबन्धचतुष्टयम्:\n१. अधिकारी - सद्भिः विरक्त्यादिभिः (विरक्ताः, भक्तिमन्तः, ज्ञानपूर्वकाः)\n२. विषयः - नारायणः (सर्वगुणोदीर्णः, दोषवर्जितः)\n३. सम्बन्धः - ज्ञेयत्वगम्यत्वयोः साधनसाध्यभावः\n४. प्रयोजनम् - भगवत्प्राप्तिरूपमोक्षः\n\nसूत्रस्य महत्त्वम्:\n- सर्वशास्त्रारम्भस्य मङ्गलसूचकम्\n- ब्रह्मजिज्ञासाया अनिवार्यत्वप्रतिपादकम्\n- कर्मकाण्डादनन्तरं ज्ञानकाण्डस्य आरम्भः\n\nप्रमुखबिन्दवः:\n- 'अथ' शब्दः मङ्गलार्थः, आनन्तर्यार्थश्च\n- 'अतः' शब्दः कर्मकाण्डानन्तरं हेतुम् दर्शयति\n- 'ब्रह्म' शब्दः विष्णुमात्रपरः, न जीवपरः\n- 'जिज्ञासा' शब्दः श्रवण-मनन-निदिध्यासनपूर्वकम्",
+      "Ka_Translation": "ಅನುಬಂಧ ಚತುಷ್ಟಯ:\n೧. ಅಧಿಕಾರಿ - ವೈರಾಗ್ಯ, ಭಕ್ತಿ, ಜ್ಞಾನದಿಂದ ಯುಕ್ತರು\n೨. ವಿಷಯ - ನಾರಾಯಣ (ಸರ್ವಗುಣಸಂಪನ್ನ, ದೋಷರಹಿತ)\n೩. ಸಂಬಂಧ - ಜ್ಞೇಯತೆ ಮತ್ತು ಗಮ್ಯತೆಯ ಸಾಧನ-ಸಾಧ್ಯ ಸಂಬಂಧ\n೪. ಪ್ರಯೋಜನ - ಭಗವತ್ ಪ್ರಾಪ್ತಿ ರೂಪ ಮೋಕ್ಷ\n\nಸೂತ್ರದ ಮಹತ್ವ:\n- ಸಂಪೂರ್ಣ ಶಾಸ್ತ್ರದ ಮಂಗಳಾರಂಭ\n- ಬ್ರಹ್ಮಜಿಜ್ಞಾಸೆಯ ಅನಿವಾರ್ಯತೆ\n- ಕರ್ಮಕಾಂಡದ ನಂತರ ಜ್ಞಾನಕಾಂಡದ ಪ್ರಾರಂಭ\n\nಮುಖ್ಯ ವಿಷಯಗಳು:\n- 'ಅಥ' ಪದ - ಮಂಗಳ ಮತ್ತು ಅನಂತರ್ಯ ಅರ್ಥಗಳು\n- 'ಅತಃ' ಪದ - ಕರ್ಮಕಾಂಡದ ನಂತರದ ಹೇತು\n- 'ಬ್ರಹ್ಮ' ಪದ - ವಿಷ್ಣುವನ್ನು ಮಾತ್ರ ಸೂಚಿಸುತ್ತದೆ, ಜೀವವನ್ನಲ್ಲ\n- 'ಜಿಜ್ಞಾಸಾ' - ಶ್ರವಣ-ಮನನ-ನಿದಿಧ್ಯಾಸನ ಪೂರ್ವಕ",
+      "Te_Translation": "అనుబంధ చతుష్టయం:\n౧. అధికారి - వైరాగ్యం, భక్తి, జ్ఞానం కలవారు\n౨. విషయం - నారాయణుడు (సర్వగుణసంపన్నుడు, దోషరహితుడు)\n౩. సంబంధం - జ్ఞేయత్వం మరియు గమ్యత్వం యొక్క సాధన-సాధ్య సంబంధం\n౪. ప్రయోజనం - భగవత్ ప్రాప్తి రూప మోక్షం\n\nసూత్ర మహత్వం:\n- సంపూర్ణ శాస్త్ర మంగళారంభం\n- బ్రహ్మ జిజ్ఞాసా అనివార్యత\n- కర్మ కాండ తరువాత జ్ఞాన కాండ ప్రారంభం\n\nప్రధాన విషయాలు:\n- 'అథ' పదం - మంగళం మరియు ఆనంతర్యం\n- 'అతః' పదం - కర్మకాండ తరువాత హేతువు\n- 'బ్రహ్మ' పదం - విష్ణువునే సూచిస్తుంది, జీవుడిని కాదు\n- 'జిజ్ఞాసా' - శ్రవణ-మనన-నిదిధ్యాసన పూర్వకం",
+      "En_Translation": "Anubandha Chatushtaya (Four-fold Connection):\n1. Adhikari (Qualified Student) - Those with dispassion, devotion, and knowledge\n2. Vishaya (Subject) - Narayana (possessing all qualities, devoid of defects)\n3. Sambandha (Relationship) - Means-end relationship between knowability and attainability\n4. Prayojana (Purpose) - Liberation through attaining the Lord\n\nSignificance of Sutra:\n- Auspicious beginning of entire scripture\n- Establishes necessity of inquiry into Brahman\n- Transition from Karma-kanda to Jnana-kanda\n\nKey Points:\n- 'Atha' word indicates auspiciousness and sequence\n- 'Atah' indicates reason after Karma-kanda\n- 'Brahma' refers only to Vishnu, not jiva\n- 'Jijnasa' involves shravana-manana-nididhyasana",
+      "cross_references": [
+        "Bhagavad Gita 4.33-39 (Knowledge superior to action)",
+        "Taittiriya Upanishad Bhashya (Definition of Brahman)",
+        "Mundaka Upanishad 1.1.3 (Para and Apara Vidya)"
+      ],
+      "study_notes": "Focus on understanding why inquiry (jijnasa) is specifically needed - not mere curiosity but systematic study with vairagya as prerequisite"
+    },
+    "Part#1": {
+      "भाष्यम्": {
+        "author": "madhwacharya",
+        "moola": "Content here..."
+      }
+    }
+  },
+  
+  "1.1.2": {
+    "Personal_Notes": {
+      "moola": "अनुबन्धचतुष्टयम्:\n१. अधिकारी - प्रमाणज्ञानेच्छुकाः\n२. विषयः - शास्त्रप्रमाणत्वम्\n३. सम्बन्धः - ब्रह्मज्ञानस्य शास्त्रमूलत्वम्\n४. प्रयोजनम् - वेदप्रामाण्यसिद्धिः\n\nसूत्रस्य सारः:\n- ब्रह्म प्रत्यक्षानुमानाभ्यां अज्ञेयम्\n- शब्दप्रमाणमेव ब्रह्मज्ञाने साधनम्\n- तर्को ऽनुविधायकः, न स्वतन्त्रप्रमाणम्\n\nविशेषविचारः:\n- शास्त्रयोनित्वस्य अर्थः - शास्त्रं योनिः कारणं यस्य\n- प्रत्यक्षस्य विषयः - इन्द्रियग्राह्यम्\n- ब्रह्म अतीन्द्रियम्, अतः प्रत्यक्षेण अज्ञेयम्\n- अनुमानं लिङ्गमूलम्, ब्रह्मणि लिङ्गाभावात् अनुमानमपि असमर्थम्",
+      "Ka_Translation": "ಅನುಬಂಧ ಚತುಷ್ಟಯ:\n೧. ಅಧಿಕಾರಿ - ಪ್ರಮಾಣ ಜ್ಞಾನದ ಅಪೇಕ್ಷೆಯುಳ್ಳವರು\n೨. ವಿಷಯ - ಶಾಸ್ತ್ರ ಪ್ರಮಾಣತ್ವ\n೩. ಸಂಬಂಧ - ಬ್ರಹ್ಮಜ್ಞಾನಕ್ಕೆ ಶಾಸ್ತ್ರವೇ ಮೂಲ\n೪. ಪ್ರಯೋಜನ - ವೇದ ಪ್ರಾಮಾಣ್ಯ ಸಿದ್ಧಿ\n\nಸೂತ್ರದ ಸಾರಾಂಶ:\n- ಬ್ರಹ್ಮ ಪ್ರತ್ಯಕ್ಷ-ಅನುಮಾನಗಳಿಂದ ತಿಳಿಯಲಾಗದು\n- ಶಬ್ದ ಪ್ರಮಾಣವೇ ಬ್ರಹ್ಮಜ್ಞಾನಕ್ಕೆ ಸಾಧನ\n- ತರ್ಕ ಅನುವಿಧಾಯಕ, ಸ್ವತಂತ್ರ ಪ್ರಮಾಣವಲ್ಲ\n\nವಿಶೇಷ ವಿಚಾರ:\n- ಶಾಸ್ತ್ರಯೋನಿತ್ವ - ಶಾಸ್ತ್ರವೇ ಕಾರಣ\n- ಪ್ರತ್ಯಕ್ಷದ ವಿಷಯ - ಇಂದ್ರಿಯಗ್ರಾಹ್ಯ\n- ಬ್ರಹ್ಮ ಅತೀಂದ್ರಿಯ, ಆದ್ದರಿಂದ ಪ್ರತ್ಯಕ್ಷದಿಂದ ತಿಳಿಯಲಾಗದು\n- ಅನುಮಾನ ಲಿಂಗ ಮೂಲಕ, ಬ್ರಹ್ಮದಲ್ಲಿ ಲಿಂಗ ಇಲ್ಲದ್ದರಿಂದ ಅನುಮಾನವೂ ಅಸಮರ್ಥ",
+      "En_Translation": "Anubandha Chatushtaya:\n1. Adhikari - Those seeking knowledge of valid means\n2. Vishaya - Authority of scripture\n3. Sambandha - Scripture as the source of Brahma-knowledge\n4. Prayojana - Establishing Vedic authority\n\nEssence of Sutra:\n- Brahman cannot be known through perception or inference\n- Shabda pramana (scriptural testimony) alone is the means\n- Logic is supplementary, not independent proof\n\nDetailed Analysis:\n- Shastra-yonitvam means scripture is the source/cause\n- Perception's domain is sense-perceivable objects\n- Brahman is super-sensory, hence unknowable by perception\n- Inference depends on signs; Brahman has no inferential marks",
+      "cross_references": [
+        "Mundaka Upanishad 3.2.3 (Not by reasoning)",
+        "Katha Upanishad 2.23 (Chosen by Atman alone)",
+        "Brahma Sutra 2.1.11 (Refutation of inference)"
+      ],
+      "study_notes": "Key distinction: Yukti (reasoning) supports but cannot independently establish Brahman. Only Shabda pramana is valid here."
+    },
+    "Part#1": {
+      "भाष्यम्": {
+        "author": "madhwacharya",
+        "moola": "Content here..."
+      }
+    }
+  }
+}

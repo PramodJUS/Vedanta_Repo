@@ -2,6 +2,16 @@
 
 ## Version 1.0.3 - December 30, 2025
 
+### Personal Notes Feature
+- **New**: Added personal study notes functionality at sutra level
+- Notes appear as first commentary item (वय्यक्तिक टिप्पणी) above Bhāṣyam
+- Click header to open popup modal with full notes content
+- Supports multi-language translations (Sanskrit, Kannada, Telugu, English)
+- Structure includes Anubandha Chatushtaya (अधिकारी, विषयः, सम्बन्धः, प्रयोजनम्)
+- Notes display in current UI language with automatic transliteration
+- Always visible regardless of vyākhyāna selection
+- Stored in Personal_Notes object at sutra level in sutra-details.json
+
 ### UI/UX Refinements
 - **Updated**: Next Sutra button (>>) tooltip changed from "Next Vyakhyana" to "Next Sutra" for clarity
 

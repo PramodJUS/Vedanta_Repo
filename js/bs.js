@@ -1108,6 +1108,10 @@ function updateVyakhyanaVisibility() {
     
     commentaryItems.forEach((item) => {
         const vyakhyanaKey = item.dataset.key;
+        // Skip items without a data-key (like Personal Notes)
+        if (!vyakhyanaKey) {
+            return;
+        }
         if (selectedVyakhyanaKeys.has(vyakhyanaKey)) {
             item.style.display = 'block';
         } else {
@@ -2373,6 +2377,28 @@ function showSutraDetail(sutra, partKey = null) {
         key: key
     }));
     
+    // Add Personal Notes section above Bhashya if notes exist
+    let personalNotesSection = '';
+    console.log('🔍 Checking for Personal_Notes:', details.Personal_Notes);
+    if (details.Personal_Notes) {
+        console.log('✅ Personal_Notes found! Creating section...');
+        const personalNotesTitle = currentLanguage !== 'sa' ? 
+                                   transliterateText('वय्यक्तिक टिप्पणी', currentLanguage) : 
+                                   'वय्यक्तिक टिप्पणी';
+        personalNotesSection = `
+            <div class="commentary-item" style="margin-bottom: 10px;">
+                <div class="commentary-header" onclick="showPersonalNotes()" style="cursor: pointer;">
+                    <span class="commentary-title">${personalNotesTitle}</span>
+                    <span style="flex: 1;"></span>
+                    <span class="commentary-toggle">▼</span>
+                </div>
+            </div>
+        `;
+        console.log('📝 Personal Notes HTML created:', personalNotesSection);
+    } else {
+        console.log('❌ No Personal_Notes found in details');
+    }
+    
     // VIBGYOR color pattern for vyakhyanas
     const vibgyorColors = [
         '#8B00FF', // Violet
@@ -2387,6 +2413,7 @@ function showSutraDetail(sutra, partKey = null) {
     // Render ALL available vyakhyanas, then control visibility with CSS
     let additionalCommentariesHTML = `
         <div class="commentary-items">
+            ${personalNotesSection}
             ${availableVyakhyanas2
                 .map(item => {
                 const num = item.num;
@@ -3875,4 +3902,85 @@ function setupCrossReferenceHighlighting() {
             }
         }, 300);
     });
+}
+// Function to show Personal Notes popup
+function showPersonalNotes() {
+    if (!currentSutra) return;
+    
+    const sutraKey = `${currentSutra.adhyaya}.${currentSutra.pada}.${currentSutra.sutra_number}`;
+    const details = sutraDetails[sutraKey] || {};
+    
+    if (!details.Personal_Notes) {
+        alert('No personal notes available for this sutra');
+        return;
+    }
+    
+    const notes = details.Personal_Notes;
+    
+    // Map language codes to translation keys
+    const langMap = {
+        'kn': 'Ka_Translation',
+        'te': 'Te_Translation',
+        'ta': 'Ta_Translation',
+        'ml': 'Ml_Translation',
+        'gu': 'Gu_Translation',
+        'or': 'Or_Translation',
+        'bn': 'Bn_Translation',
+        'en': 'En_Translation',
+        'sa': 'moola'
+    };
+    
+    const translationKey = langMap[currentLanguage];
+    let notesText = '';
+    
+    // Get notes in current language
+    if (translationKey && notes[translationKey]) {
+        notesText = notes[translationKey];
+    } else if (notes['moola']) {
+        // Fallback to Sanskrit and transliterate
+        notesText = currentLanguage !== 'sa' ? 
+                   transliterateText(notes['moola'], currentLanguage) : 
+                   notes['moola'];
+    }
+    
+    // Convert line breaks to HTML
+    notesText = notesText.replace(/\\r\\n\\r\\n|\\n\\n|\\r\\r/g, '<br><br>');
+    notesText = notesText.replace(/\\r\\n|\\n|\\r/g, '<br>');
+    
+    const notesLabel = currentLanguage !== 'sa' ? 
+                      transliterateText('व्यक्तिगत टिप्पणी', currentLanguage) + ' (Personal Notes)' : 
+                      'व्यक्तिगत टिप्पणी (Personal Notes)';
+    
+    // Create popup modal
+    const modal = document.createElement('div');
+    modal.id = 'personalNotesModal';
+    modal.className = 'personal-notes-modal';
+    modal.innerHTML = `
+        <div class="personal-notes-popup">
+            <div class="personal-notes-header">
+                <h3>📝 ${notesLabel}</h3>
+                <button class="close-notes-btn" onclick="closePersonalNotes()">×</button>
+            </div>
+            <div class="personal-notes-body">
+                ${notesText}
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Close on outside click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closePersonalNotes();
+        }
+    });
+}
+
+// Function to close Personal Notes popup
+function closePersonalNotes() {
+    const modal = document.getElementById('personalNotesModal');
+    if (modal) {
+        modal.remove();
+    }
 }
