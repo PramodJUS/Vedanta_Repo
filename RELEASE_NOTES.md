@@ -1,6 +1,17 @@
 # Release Notes
 
-## Version 1.0.3 - December 29, 2025
+## Version 1.0.3 - December 30, 2025
+
+### Navigation Improvements
+- **Fixed**: Navigation button states now properly disable/enable based on position
+- `<<` and `>>` buttons disabled at first/last sutra respectively (regardless of part)
+- `<` and `>` buttons disabled at first/last part of first/last sutra respectively
+- Fixed type comparison bug preventing proper button state detection
+- Added visual opacity feedback (30%) for disabled buttons
+
+### Popup Enhancements
+- Increased adhikarana popup width from 600px to 900px for better readability
+- More flexible responsive design (90% of screen width up to 900px max)
 
 ### Cross-Reference Highlighting
 - Select any text in one commentary to automatically search and highlight it across all other open commentaries

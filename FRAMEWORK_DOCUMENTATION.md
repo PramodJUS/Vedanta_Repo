@@ -1,7 +1,7 @@
 # Multi-Language Content Framework Documentation
 
 ## Last Updated
-**Version 1.0.3** - December 29, 2025 - Library organization and naming consistency improvements
+**Version 1.0.3** - December 30, 2025 - Navigation button fixes and popup layout improvements
 
 ---
 

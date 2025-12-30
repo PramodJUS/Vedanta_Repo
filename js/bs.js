@@ -1574,9 +1574,9 @@ function updateNavigationButtons() {
     }
     
     // Check if we're on the first sutra (1.1.1)
-    const isFirstSutra = currentSutra.adhyaya === 1 && 
-                        currentSutra.pada === 1 && 
-                        currentSutra.sutra_number === 1;
+    const isFirstSutra = currentSutra.adhyaya == 1 && 
+                        currentSutra.pada == 1 && 
+                        currentSutra.sutra_number == 1;
     
     // Get part information
     const sutraKey = `${currentSutra.adhyaya}.${currentSutra.pada}.${currentSutra.sutra_number}`;
@@ -1592,26 +1592,41 @@ function updateNavigationButtons() {
     const isLastPart = currentPartIndex === partKeys.length - 1;
     const isLastSutra = currentIndex >= filteredSutras.length - 1;
     
+    // Debug logging
+    console.log('Navigation Debug:', {
+        sutra: `${currentSutra.adhyaya}.${currentSutra.pada}.${currentSutra.sutra_number}`,
+        currentPart: currentPart,
+        partKeys: partKeys,
+        currentPartIndex: currentPartIndex,
+        isFirstSutra: isFirstSutra,
+        isFirstPart: isFirstPart,
+        shouldDisablePrev: isFirstSutra && isFirstPart
+    });
+    
     // Update inner part navigation buttons (<, >)
     // < button disabled only when on first sutra AND first part
     if (prevPartBtn) {
         prevPartBtn.disabled = isFirstSutra && isFirstPart;
+        prevPartBtn.style.opacity = (isFirstSutra && isFirstPart) ? '0.3' : '1';
     }
     // > button disabled only when on last sutra AND last part
     if (nextPartBtn) {
         nextPartBtn.disabled = isLastSutra && isLastPart;
+        nextPartBtn.style.opacity = (isLastSutra && isLastPart) ? '0.3' : '1';
     }
     
     // Update previous vyakhyana button (<<)
-    // Disable if on first sutra AND first part
+    // Disable if on first sutra (regardless of part)
     if (prevVyakhyanaBtn) {
-        prevVyakhyanaBtn.disabled = isFirstSutra && isFirstPart;
+        prevVyakhyanaBtn.disabled = isFirstSutra;
+        prevVyakhyanaBtn.style.opacity = isFirstSutra ? '0.3' : '1';
     }
     
     // Update next vyakhyana button (>>)
-    // Disable if on last sutra AND last part
+    // Disable if on last sutra (regardless of part)
     if (nextVyakhyanaBtn) {
-        nextVyakhyanaBtn.disabled = isLastSutra && isLastPart;
+        nextVyakhyanaBtn.disabled = isLastSutra;
+        nextVyakhyanaBtn.style.opacity = isLastSutra ? '0.3' : '1';
     }
 }
 
