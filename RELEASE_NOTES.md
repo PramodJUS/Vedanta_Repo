@@ -2,6 +2,9 @@
 
 ## Version 1.0.3 - December 30, 2025
 
+### UI/UX Refinements
+- **Updated**: Next Sutra button (>>) tooltip changed from "Next Vyakhyana" to "Next Sutra" for clarity
+
 ### Adhikarana Popup Enhancements
 - **New**: Interactive glossary system with info icons for philosophical terms
   - Generic terms (Brahman, moksha, karma, etc.) auto-detected with tooltips
