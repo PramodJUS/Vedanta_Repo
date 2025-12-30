@@ -1,0 +1,30 @@
+{
+  "1.1.जिज्ञासाधिकरणम्": {
+    "name": "जिज्ञासाधिकरणम्",
+    "name_en": "Jijnasa Adhikarana (Inquiry into Brahman)",
+    "adhyaya": 1,
+    "pada": 1,
+    "sutras": "1.1.1",
+    "vishaya": "The desire to know Brahman and the necessity of such inquiry",
+    "samshaya": "Is inquiry into Brahman necessary? Can one attain liberation through karma alone?",
+    "purvapaksha": "Karma (ritualistic actions) alone is sufficient for liberation. There is no need for knowledge of Brahman.",
+    "siddhanta": "Knowledge of Brahman is essential for liberation. Karma prepares the mind but cannot directly lead to moksha. Therefore, inquiry into Brahman (brahma-jijnasa) is necessary after acquiring the four-fold qualifications.",
+    "prayojana": "To establish the necessity and importance of Brahma-vidya (knowledge of Brahman) as the direct means to liberation",
+    "notes": "This is the first and foundational adhikarana that establishes the entire purpose of Vedanta study. The word 'atha' indicates auspicious beginning and 'athah' indicates sequence after karma-kanda.",
+    "references": "Bhagavad Gita 4.33-39, Taittiriya Upanishad Bhashya"
+  },
+  "1.1.शास्त्रयोनित्वाधिकरणम्": {
+    "name": "शास्त्रयोनित्वाधिकरणम्",
+    "name_en": "Shastra Yonitvam Adhikarana (Scriptures as Source)",
+    "adhyaya": 1,
+    "pada": 1,
+    "sutras": "1.1.2",
+    "vishaya": "The source of valid knowledge about Brahman",
+    "samshaya": "Can Brahman be known through perception, inference, or other means of knowledge? Or are the scriptures the only source?",
+    "purvapaksha": "Brahman can be known through inference and reasoning, similar to knowing the existence of atoms.",
+    "siddhanta": "The Vedas (shabda pramana) are the only valid means of knowing Brahman. Brahman is beyond the reach of perception and inference as it transcends the sensory and intellectual realm.",
+    "prayojana": "To establish the supreme authority of Vedas as the sole pramana for Brahma-vidya",
+    "notes": "This adhikarana establishes that scriptural testimony is indispensable for knowledge of Brahman, though reasoning can support and clarify scriptural teachings.",
+    "references": "Mundaka Upanishad 3.2.3, Katha Upanishad 2.23"
+  }
+}

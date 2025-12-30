@@ -362,6 +362,28 @@ header.header-collapsed .header-toggle-btn {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+/* Part-level navigation buttons - inner buttons */
+.part-nav-btn {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.part-nav-btn:not(:disabled):hover {
+    background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+    box-shadow: 0 6px 12px rgba(245, 87, 108, 0.4);
+}
+
+/* Vyakhyana-level navigation buttons - outer buttons */
+.vyakhyana-nav-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.vyakhyana-nav-btn:not(:disabled):hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    box-shadow: 0 6px 12px rgba(118, 75, 162, 0.4);
+}
+
 .translation-status {
     display: inline-block;
     font-size: 0.85rem;
@@ -1480,4 +1502,193 @@ span[data-type="direct"] {
 /* Pratika Grahana (words ending with ति - quotation indicators) - Bold for visibility */
 .pratika-grahana-bold {
     font-weight: 700;
+}
+
+/* Adhikarana Info Link */
+.adhikarana-name-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border-bottom: 2px solid transparent;
+    display: inline-block;
+}
+
+.adhikarana-name-link:hover {
+    color: #764ba2;
+    border-bottom-color: #764ba2;
+    transform: translateX(3px);
+}
+
+.adhikarana-info-link {
+    display: inline-block;
+    color: #667eea;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.adhikarana-info-link:hover {
+    background: rgba(102, 126, 234, 0.2);
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+/* Adhikarana Popup */
+.adhikarana-popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.adhikarana-popup-content {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.adhikarana-popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-bottom: 2px solid #667eea;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px 12px 0 0;
+}
+
+.adhikarana-popup-header h3 {
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+.adhikarana-popup-close {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: white;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.adhikarana-popup-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+}
+
+.adhikarana-popup-body {
+    padding: 25px;
+}
+
+.adhikarana-name {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #667eea;
+    margin-bottom: 15px;
+    padding: 15px;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.adhikarana-location {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.adhikarana-popup-body h4 {
+    color: #764ba2;
+    margin: 20px 0 15px 0;
+    font-size: 1.15rem;
+}
+
+.adhikarana-sutra-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.adhikarana-sutra-list li {
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border-left: 3px solid #ddd;
+    transition: all 0.2s ease;
+}
+
+.adhikarana-sutra-list li:hover {
+    background: #e9ecef;
+    border-left-color: #667eea;
+    transform: translateX(5px);
+}
+
+.adhikarana-sutra-list li.current-sutra {
+    background: rgba(102, 126, 234, 0.15);
+    border-left-color: #667eea;
+    font-weight: 600;
+}
+
+.adhikarana-sutra-list li strong {
+    color: #667eea;
+    margin-right: 8px;
+}
+
+.adhikarana-detail-section {
+    padding: 12px 15px;
+    margin-bottom: 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border-left: 3px solid #667eea;
+    line-height: 1.6;
+}
+
+.adhikarana-detail-section strong {
+    color: #764ba2;
+    display: block;
+    margin-bottom: 6px;
 }

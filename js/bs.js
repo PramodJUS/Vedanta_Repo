@@ -2,12 +2,14 @@
 let allSutras = [];
 let filteredSutras = [];
 let sutraDetails = {};
+let adhikaranaDetails = {};
 let currentView = 'list'; // 'list' or 'detail'
 let currentSpeech = null; // Track current speech synthesis
 let currentAudio = null; // Track current audio element
 let isSpeaking = false;
 let currentLanguage = 'sa'; // Default language (Sanskrit)
 let currentSutra = null; // Track current sutra in detail view
+let currentPart = 'Part#1'; // Track current part being displayed
 let selectedVyakhyanaKeys = new Set(); // Track selected vyakhyana KEY NAMES, not positions
 let selectAllVyakhyanas = true; // Track if "All" is selected (default: true)
 let openVyakhyanas = new Set(); // Track which vyakhyanas are currently open/expanded
@@ -17,6 +19,7 @@ let vyakhyanaSearchTerms = {}; // Track active search term for each vyakhyana: {
 const CHARS_PER_PAGE = 2000; // Characters per page for pagination
 // Default false - only true if explicitly set to 'true' in localStorage
 let autoHideHeaders = localStorage.getItem('autoHideHeaders') === 'true';
+let pratikaIdentifier = null; // Pratika identifier instance
 
 // Translation lookup table for common Sanskrit terms
 const translationLookup = {
@@ -85,6 +88,17 @@ const translationLookup = {
         or: 'ସମସ୍ତ',
         bn: 'সব',
         en: 'All'
+    },
+    'अधिकरणविषयः': {
+        sa: 'अधिकरणविषयः',
+        kn: 'ಅಧಿಕರಣ ವಿಷಯ',
+        te: 'అధికరణ విషయం',
+        ta: 'அதிகரண விஷயம்',
+        ml: 'അധികരണ വിഷയം',
+        gu: 'અધિકરણ વિષય',
+        or: 'ଅଧିକରଣ ବିଷୟ',
+        bn: 'অধিকরণ বিষয়',
+        en: 'Topic Details'
     },
     'वेदान्तदर्शनम्': {
         sa: 'वेदान्तदर्शनम्',
@@ -434,31 +448,66 @@ function makePratikaGrahanaBold(text, vyakhyanaNum = null) {
         return text;
     }
     
+    console.log('makePratikaGrahanaBold called for vyakhyana:', vyakhyanaNum);
+    console.log('Text length:', text.length, 'First 200 chars:', text.substring(0, 200));
+    
+    // Initialize pratika identifier if not already done
+    initializePratikaIdentifier();
+    
+    if (!pratikaIdentifier) {
+        // Fallback to original implementation if module not loaded
+        return text;
+    }
+    
     // CRITICAL: Normalize text to NFC (Normalized Form Composed) to prevent vowel splitting
-    // This ensures combining characters (vowel marks) stay attached to base characters
     text = text.normalize('NFC');
     
-    // Match pratika grahana quotation patterns in multiple Indic scripts
-    // Valid इति sandhi patterns:
-    // 1. Compound forms (no space): ेति, मिति, ानीति, ोति
-    //    Examples: नारायणेति, ज्ञेयमिति, रामानीति
-    // 2. Word (without visarga, without punctuation) + space + इति
-    //    Examples: राम इति, वने इति, द्वौ इति (visarga already dropped in text)
-    // INVALID:
-    //    - विशेषतः इति (visarga + space + इति - no sandhi)
-    //    - सम्बन्ध॥ इति (punctuation breaks sandhi)
-    // Devanagari: \u0900-\u097F, Kannada: \u0C80-\u0CFF, Telugu: \u0C00-\u0C7F, Tamil: \u0B80-\u0BFF
-    const pattern = /(^|[\s\n\r।॥,;'"()[\]{}<>\/\\])((?:[\u0900-\u097F\u0C80-\u0CFF\u0C00-\u0C7F\u0B80-\u0BFF]+(?:ेति|मिति|ानीति|ोति|ಮಿತಿ|ೇತಿ|మిति|ేతి))|(?:[\u0900-\u097F\u0C80-\u0CFF\u0C00-\u0C7F\u0B80-\u0BFF]+(?<![ःं।॥])\s+(?:इति|ಇತಿ|ఇతి)))(?=[\s\n\r।॥,;'"()[\]{}<>\/\\]|$)/gu;
+    // Pattern to match potential pratikas (word + इति/ಇತಿ/ఇతి/etc.)
+    // CRITICAL: Only match words ending with ति at END OF SENTENCE (followed by । or ॥)
+    // This avoids false positives - true pratikas appear at sentence boundaries
+    // Matches: consonant/vowel sequences followed by ति/ತಿ/తి/தி + optional spaces + danda (।) or double danda (॥)
+    // Devanagari ति, Kannada ತಿ, Telugu తి, Tamil தி
+    // Danda: । (U+0964), Double Danda: ॥ (U+0965)
+    const itiPattern = /[\u0900-\u097F\u0C80-\u0CFF\u0C00-\u0C7F\u0B80-\u0BFF]+ति\s*[।॥]+|[\u0900-\u097F\u0C80-\u0CFF\u0C00-\u0C7F\u0B80-\u0BFF]+ತಿ\s*[।॥]+|[\u0900-\u097F\u0C80-\u0CFF\u0C00-\u0C7F\u0B80-\u0BFF]+తి\s*[।॥]+|[\u0900-\u097F\u0C80-\u0CFF\u0C00-\u0C7F\u0B80-\u0BFF]+தி\s*[।॥]+|[\u0900-\u097F\u0C80-\u0CFF\u0C00-\u0C7F\u0B80-\u0BFF]+\s+(?:इति|ಇತಿ|ఇతి|இதி)\s*[।॥]+/gu;
     
-    const result = text.replace(pattern, (match, before, word) => {
-        console.log('Pratika Grahana found:', word);
-        // Normalize the word again to ensure no splitting
-        const normalizedWord = word.normalize('NFC');
-        // Make it bold
-        return `${before}<span class="pratika-grahana-bold">${normalizedWord}</span>`;
+    const result = text.replace(itiPattern, (match) => {
+        // Normalize the match
+        const normalizedMatch = match.normalize('NFC');
+        
+        console.log('⭐ Regex matched:', JSON.stringify(normalizedMatch));
+        
+        // CRITICAL: Remove trailing dandas before validation
+        // Match includes dandas (।॥) but pratika identifier expects just the word
+        const wordOnly = normalizedMatch.replace(/\s*[।॥]+\s*$/, '');
+        
+        console.log('   Word only (after stripping dandas):', JSON.stringify(wordOnly));
+        
+        // Convert to Devanagari for pratika detection
+        let devanagariMatch = wordOnly;
+        if (currentLanguage !== 'sa') {
+            devanagariMatch = reverseTransliterateIfNeeded(wordOnly);
+        }
+        
+        // Check if it's a valid pratika
+        const pratikaResult = pratikaIdentifier.identifyPratika(devanagariMatch);
+        
+        console.log('   Pratika result:', pratikaResult);
+        
+        if (pratikaResult && pratikaResult.isPratika) {
+            // It's a valid pratika - make it bold (but exclude dandas from bold)
+            // Extract the trailing dandas and whitespace
+            const dandasMatch = normalizedMatch.match(/(\s*[।॥]+)\s*$/);
+            const dandaPart = dandasMatch ? dandasMatch[0] : '';
+            
+            console.log('   ✓ BOLDING:', JSON.stringify(wordOnly), 'Dandas outside bold:', JSON.stringify(dandaPart));
+            return `<span class="pratika-grahana-bold">${wordOnly}</span>${dandaPart}`;
+        } else {
+            // Not a pratika - return as-is
+            console.log('   ✗ NOT A PRATIKA - skipping');
+            return normalizedMatch;
+        }
     });
     
-    // Normalize result again to ensure consistency
     return result.normalize('NFC');
 }
 
@@ -523,12 +572,32 @@ function setupEventListeners() {
     searchInput.addEventListener('input', debounce(searchSutras, 300));
     sectionHeading.addEventListener('click', toggleSutraList);
     
-    // Navigation buttons in header
+    // Navigation buttons in header (vyakhyana navigation)
     if (previousHeaderBtn) {
         previousHeaderBtn.addEventListener('click', navigateToPrevious);
     }
     if (nextHeaderBtn) {
         nextHeaderBtn.addEventListener('click', navigateToNext);
+    }
+    
+    // Vyakhyana navigation buttons (outer buttons)
+    const prevVyakhyanaBtn = document.getElementById('prevVyakhyanaBtn');
+    const nextVyakhyanaBtn = document.getElementById('nextVyakhyanaBtn');
+    if (prevVyakhyanaBtn) {
+        prevVyakhyanaBtn.addEventListener('click', navigateToPreviousVyakhyana);
+    }
+    if (nextVyakhyanaBtn) {
+        nextVyakhyanaBtn.addEventListener('click', navigateToNextVyakhyana);
+    }
+    
+    // Part navigation buttons (inner buttons)
+    const prevPartBtn = document.getElementById('prevPartBtn');
+    const nextPartBtn = document.getElementById('nextPartBtn');
+    if (prevPartBtn) {
+        prevPartBtn.addEventListener('click', navigateToPreviousPart);
+    }
+    if (nextPartBtn) {
+        nextPartBtn.addEventListener('click', navigateToNextPart);
     }
     
     // Panel toggle button
@@ -665,11 +734,11 @@ function applyVyakhyanaFontSize() {
     commentaryItems.forEach(item => {
         item.style.fontSize = `${vyakhyanaFontSize}%`;
         
-        // Prevent copying of vyakhyana content
-        item.addEventListener('copy', (e) => {
-            e.preventDefault();
-            return false;
-        });
+        // Allow copying of vyakhyana content (enabled for testing)
+        // item.addEventListener('copy', (e) => {
+        //     e.preventDefault();
+        //     return false;
+        // });
     });
 }
 
@@ -864,8 +933,7 @@ function navigateVyakhyanaPage(sutraNum, vyakhyaKey, direction, event, shouldScr
     vyakhyanaPagination[paginationKey] = newPage;
     
     // Update content with pratika grahana bold formatting
-    const vyakhyanaNum = contentElement.closest('.commentary-item')?.dataset.vyakhyanaNum;
-    contentElement.innerHTML = makePratikaGrahanaBold(pages[newPage].replace(/<PB>/g, ''), vyakhyanaNum);
+    contentElement.innerHTML = makePratikaGrahanaBold(pages[newPage].replace(/<PB>/g, ''), sutraNum);
     
     // Reapply search if there's an active search term
     const searchKey = `${sutraNum}-${vyakhyaKey}`;
@@ -880,7 +948,7 @@ function navigateVyakhyanaPage(sutraNum, vyakhyaKey, direction, event, shouldScr
         console.log('  Search results:', results);
         if (results && results.count > 0 && results.matches.length > 0) {
             const highlightedText = sanskritSearcher.highlightMatches(pages[newPage], results.matches);
-            contentElement.innerHTML = makePratikaGrahanaBold(highlightedText.replace(/<PB>/g, ''));
+            contentElement.innerHTML = makePratikaGrahanaBold(highlightedText.replace(/<PB>/g, ''), sutraNum);
             console.log('  ✓ Highlights applied!', results.count, 'matches');
         } else {
             console.log('  ✗ No matches on this page');
@@ -939,7 +1007,7 @@ function selectVyakhyanaPage(sutraNum, vyakhyaKey, pageIndex, event, shouldScrol
     vyakhyanaPagination[paginationKey] = pageIndex;
     
     // Update content with pratika grahana bold formatting
-    contentElement.innerHTML = makePratikaGrahanaBold(pages[pageIndex].replace(/<PB>/g, ''));
+    contentElement.innerHTML = makePratikaGrahanaBold(pages[pageIndex].replace(/<PB>/g, ''), sutraNum);
     
     // Reapply search if there's an active search term
     const searchKey = `${sutraNum}-${vyakhyaKey}`;
@@ -954,7 +1022,7 @@ function selectVyakhyanaPage(sutraNum, vyakhyaKey, pageIndex, event, shouldScrol
         console.log('  Search results on new page:', results.count, 'matches');
         if (results.count > 0 && results.matches.length > 0) {
             const highlightedText = sanskritSearcher.highlightMatches(pages[pageIndex], results.matches);
-            contentElement.innerHTML = makePratikaGrahanaBold(highlightedText.replace(/<PB>/g, ''));
+            contentElement.innerHTML = makePratikaGrahanaBold(highlightedText.replace(/<PB>/g, ''), sutraNum);
             console.log('  ✓ Highlights applied!');
         } else {
             console.log('  ✗ No matches on this page');
@@ -1124,7 +1192,8 @@ function updateVyakhyanaDropdownLabels() {
 }
 
 // Navigate to previous sutra
-function navigateToPrevious() {
+// Navigate to previous sutra (outer << button - preserves open vyakhyanas like old Previous button)
+function navigateToPreviousVyakhyana() {
     if (!currentSutra || filteredSutras.length === 0) return;
     
     const currentIndex = filteredSutras.findIndex(s => 
@@ -1144,17 +1213,19 @@ function navigateToPrevious() {
             // Get available vyakhyanas for the new sutra to check which ones exist
             const sutraKey = `${previousSutra.adhyaya}.${previousSutra.pada}.${previousSutra.sutra_number}`;
             const details = sutraDetails[sutraKey] || {};
+            // Access vyakhyanas from Part#1
+            const vyakhyanaContainer = details['Part#1'] || details;
             
             let firstOpenedVyakhyana = null;
             openVyakhyanasArray.forEach(vyakhyanaKey => {
                 // Only try to open if this vyakhyana key exists in the new sutra
-                if (details[vyakhyanaKey]) {
+                if (vyakhyanaContainer[vyakhyanaKey]) {
                     // Find the index of this vyakhyana in the new sutra
-                    const vyakhyanaKeys = Object.keys(details).filter(key => {
+                    const vyakhyanaKeys = Object.keys(vyakhyanaContainer).filter(key => {
                         const excludeKeys = ['meaning', 'meaningKn', 'meaningTe', 'meaningDetails', 'meaningDetailsKn', 'meaningDetailsTe', 
                                              'commentary', 'commentaryKn', 'commentaryTe'];
                         if (excludeKeys.includes(key)) return false;
-                        const value = details[key];
+                        const value = vyakhyanaContainer[key];
                         return value && typeof value === 'object' && 
                                (value.hasOwnProperty('moola') || value.hasOwnProperty('Ka_Translation') || 
                                 value.hasOwnProperty('Te_Translation') || value.hasOwnProperty('En_Translation'));
@@ -1182,7 +1253,232 @@ function navigateToPrevious() {
     }
 }
 
-// Navigate to next sutra
+// Navigate to next sutra (outer >> button - preserves open vyakhyanas like old Next button)
+function navigateToNextVyakhyana() {
+    if (!currentSutra || filteredSutras.length === 0) return;
+    
+    const currentIndex = filteredSutras.findIndex(s => 
+        s.adhyaya === currentSutra.adhyaya && 
+        s.pada === currentSutra.pada && 
+        s.sutra_number === currentSutra.sutra_number
+    );
+    
+    if (currentIndex < filteredSutras.length - 1) {
+        // Keep track of which vyakhyanas are currently open (by key name)
+        const openVyakhyanasArray = Array.from(openVyakhyanas);
+        const nextSutra = filteredSutras[currentIndex + 1];
+        showSutraDetail(nextSutra);
+        
+        // After navigation, open the same vyakhyanas (only if they exist in new sutra) and scroll to first one
+        setTimeout(() => {
+            // Get available vyakhyanas for the new sutra to check which ones exist
+            const sutraKey = `${nextSutra.adhyaya}.${nextSutra.pada}.${nextSutra.sutra_number}`;
+            const details = sutraDetails[sutraKey] || {};
+            // Access vyakhyanas from Part#1
+            const vyakhyanaContainer = details['Part#1'] || details;
+            
+            let firstOpenedVyakhyana = null;
+            openVyakhyanasArray.forEach(vyakhyanaKey => {
+                // Only try to open if this vyakhyana key exists in the new sutra
+                if (vyakhyanaContainer[vyakhyanaKey]) {
+                    // Find the index of this vyakhyana in the new sutra
+                    const vyakhyanaKeys = Object.keys(vyakhyanaContainer).filter(key => {
+                        const excludeKeys = ['meaning', 'meaningKn', 'meaningTe', 'meaningDetails', 'meaningDetailsKn', 'meaningDetailsTe', 
+                                             'commentary', 'commentaryKn', 'commentaryTe'];
+                        if (excludeKeys.includes(key)) return false;
+                        const value = vyakhyanaContainer[key];
+                        return value && typeof value === 'object' && 
+                               (value.hasOwnProperty('moola') || value.hasOwnProperty('Ka_Translation') || 
+                                value.hasOwnProperty('Te_Translation') || value.hasOwnProperty('En_Translation'));
+                    });
+                    const num = vyakhyanaKeys.indexOf(vyakhyanaKey) + 1;
+                    
+                    if (num > 0) {
+                        const toggle = document.getElementById(`toggle-${num}`);
+                        const content = document.getElementById(`commentary-${num}`);
+                        if (toggle && content) {
+                            content.style.display = 'block';
+                            toggle.textContent = '▲';
+                            openVyakhyanas.add(vyakhyanaKey);
+                            if (!firstOpenedVyakhyana) firstOpenedVyakhyana = content;
+                        }
+                    }
+                }
+            });
+            
+            // Scroll to first opened vyakhyana
+            if (firstOpenedVyakhyana) {
+                firstOpenedVyakhyana.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 100);
+    }
+}
+
+// Navigate to previous part within current sutra (inner < button)
+function navigateToPreviousPart() {
+    if (!currentSutra) return;
+    
+    const sutraKey = `${currentSutra.adhyaya}.${currentSutra.pada}.${currentSutra.sutra_number}`;
+    const details = sutraDetails[sutraKey] || {};
+    
+    // Get all part keys (Part#1, Part#2, etc.) and sort them
+    const partKeys = Object.keys(details).filter(key => key.startsWith('Part#')).sort((a, b) => {
+        const numA = parseInt(a.replace('Part#', ''));
+        const numB = parseInt(b.replace('Part#', ''));
+        return numA - numB;
+    });
+    
+    if (partKeys.length === 0) {
+        console.log('No parts found in this sutra');
+        return;
+    }
+    
+    // Find current part index
+    const currentPartIndex = partKeys.indexOf(currentPart);
+    
+    if (currentPartIndex > 0) {
+        const prevPart = partKeys[currentPartIndex - 1];
+        console.log(`Navigating to ${prevPart}`);
+        showSutraDetail(currentSutra, prevPart);
+    } else {
+        // At first part, navigate to previous sutra's last part
+        if (filteredSutras.length === 0) return;
+        
+        const currentIndex = filteredSutras.findIndex(s => 
+            s.adhyaya === currentSutra.adhyaya && 
+            s.pada === currentSutra.pada && 
+            s.sutra_number === currentSutra.sutra_number
+        );
+        
+        if (currentIndex > 0) {
+            const previousSutra = filteredSutras[currentIndex - 1];
+            const prevSutraKey = `${previousSutra.adhyaya}.${previousSutra.pada}.${previousSutra.sutra_number}`;
+            const prevDetails = sutraDetails[prevSutraKey] || {};
+            
+            // Get last part of previous sutra
+            const prevPartKeys = Object.keys(prevDetails).filter(key => key.startsWith('Part#')).sort((a, b) => {
+                const numA = parseInt(a.replace('Part#', ''));
+                const numB = parseInt(b.replace('Part#', ''));
+                return numA - numB;
+            });
+            
+            const lastPart = prevPartKeys.length > 0 ? prevPartKeys[prevPartKeys.length - 1] : 'Part#1';
+            console.log(`Navigating to previous sutra's ${lastPart}`);
+            showSutraDetail(previousSutra, lastPart);
+        } else {
+            console.log('Already at first sutra and first part');
+        }
+    }
+}
+
+// Navigate to next part within current sutra (inner > button)
+function navigateToNextPart() {
+    if (!currentSutra) return;
+    
+    const sutraKey = `${currentSutra.adhyaya}.${currentSutra.pada}.${currentSutra.sutra_number}`;
+    const details = sutraDetails[sutraKey] || {};
+    
+    // Get all part keys (Part#1, Part#2, etc.) and sort them
+    const partKeys = Object.keys(details).filter(key => key.startsWith('Part#')).sort((a, b) => {
+        const numA = parseInt(a.replace('Part#', ''));
+        const numB = parseInt(b.replace('Part#', ''));
+        return numA - numB;
+    });
+    
+    if (partKeys.length === 0) {
+        console.log('No parts found in this sutra');
+        return;
+    }
+    
+    // Find current part index
+    const currentPartIndex = partKeys.indexOf(currentPart);
+    
+    if (currentPartIndex >= 0 && currentPartIndex < partKeys.length - 1) {
+        const nextPart = partKeys[currentPartIndex + 1];
+        console.log(`Navigating to ${nextPart}`);
+        showSutraDetail(currentSutra, nextPart);
+    } else {
+        // At last part, navigate to next sutra's first part
+        if (filteredSutras.length === 0) return;
+        
+        const currentIndex = filteredSutras.findIndex(s => 
+            s.adhyaya === currentSutra.adhyaya && 
+            s.pada === currentSutra.pada && 
+            s.sutra_number === currentSutra.sutra_number
+        );
+        
+        if (currentIndex >= 0 && currentIndex < filteredSutras.length - 1) {
+            const nextSutra = filteredSutras[currentIndex + 1];
+            console.log('Navigating to next sutra\'s Part#1');
+            showSutraDetail(nextSutra, 'Part#1');
+        } else {
+            console.log('Already at last sutra and last part');
+        }
+    }
+}
+
+// Navigate to previous vyakhyana (preserves open vyakhyanas)
+function navigateToPrevious() {
+    if (!currentSutra || filteredSutras.length === 0) return;
+    
+    const currentIndex = filteredSutras.findIndex(s => 
+        s.adhyaya === currentSutra.adhyaya && 
+        s.pada === currentSutra.pada && 
+        s.sutra_number === currentSutra.sutra_number
+    );
+    
+    if (currentIndex > 0) {
+        // Keep track of which vyakhyanas are currently open (by key name)
+        const openVyakhyanasArray = Array.from(openVyakhyanas);
+        const previousSutra = filteredSutras[currentIndex - 1];
+        showSutraDetail(previousSutra);
+        
+        // After navigation, open the same vyakhyanas (only if they exist in new sutra) and scroll to first one
+        setTimeout(() => {
+            // Get available vyakhyanas for the new sutra to check which ones exist
+            const sutraKey = `${previousSutra.adhyaya}.${previousSutra.pada}.${previousSutra.sutra_number}`;
+            const details = sutraDetails[sutraKey] || {};
+            // Access vyakhyanas from Part#1
+            const vyakhyanaContainer = details['Part#1'] || details;
+            
+            let firstOpenedVyakhyana = null;
+            openVyakhyanasArray.forEach(vyakhyanaKey => {
+                // Only try to open if this vyakhyana key exists in the new sutra
+                if (vyakhyanaContainer[vyakhyanaKey]) {
+                    // Find the index of this vyakhyana in the new sutra
+                    const vyakhyanaKeys = Object.keys(vyakhyanaContainer).filter(key => {
+                        const excludeKeys = ['meaning', 'meaningKn', 'meaningTe', 'meaningDetails', 'meaningDetailsKn', 'meaningDetailsTe', 
+                                             'commentary', 'commentaryKn', 'commentaryTe'];
+                        if (excludeKeys.includes(key)) return false;
+                        const value = vyakhyanaContainer[key];
+                        return value && typeof value === 'object' && 
+                               (value.hasOwnProperty('moola') || value.hasOwnProperty('Ka_Translation') || 
+                                value.hasOwnProperty('Te_Translation') || value.hasOwnProperty('En_Translation'));
+                    });
+                    const num = vyakhyanaKeys.indexOf(vyakhyanaKey) + 1;
+                    
+                    if (num > 0) {
+                        const toggle = document.getElementById(`toggle-${num}`);
+                        const content = document.getElementById(`commentary-${num}`);
+                        if (toggle && content) {
+                            content.style.display = 'block';
+                            toggle.textContent = '▲';
+                            openVyakhyanas.add(vyakhyanaKey);
+                            if (!firstOpenedVyakhyana) firstOpenedVyakhyana = content;
+                        }
+                    }
+                }
+            });
+            
+            // Scroll to first opened vyakhyana
+            if (firstOpenedVyakhyana) {
+                firstOpenedVyakhyana.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 100);
+    }
+}
+
+// Navigate to next vyakhyana (preserves open vyakhyanas)
 function navigateToNext() {
     if (!currentSutra || filteredSutras.length === 0) return;
     
@@ -1203,17 +1499,19 @@ function navigateToNext() {
             // Get available vyakhyanas for the new sutra to check which ones exist
             const sutraKey = `${nextSutra.adhyaya}.${nextSutra.pada}.${nextSutra.sutra_number}`;
             const details = sutraDetails[sutraKey] || {};
+            // Access vyakhyanas from Part#1
+            const vyakhyanaContainer = details['Part#1'] || details;
             
             let firstOpenedVyakhyana = null;
             openVyakhyanasArray.forEach(vyakhyanaKey => {
                 // Only try to open if this vyakhyana key exists in the new sutra
-                if (details[vyakhyanaKey]) {
+                if (vyakhyanaContainer[vyakhyanaKey]) {
                     // Find the index of this vyakhyana in the new sutra
-                    const vyakhyanaKeys = Object.keys(details).filter(key => {
+                    const vyakhyanaKeys = Object.keys(vyakhyanaContainer).filter(key => {
                         const excludeKeys = ['meaning', 'meaningKn', 'meaningTe', 'meaningDetails', 'meaningDetailsKn', 'meaningDetailsTe', 
                                              'commentary', 'commentaryKn', 'commentaryTe'];
                         if (excludeKeys.includes(key)) return false;
-                        const value = details[key];
+                        const value = vyakhyanaContainer[key];
                         return value && typeof value === 'object' && 
                                (value.hasOwnProperty('moola') || value.hasOwnProperty('Ka_Translation') || 
                                 value.hasOwnProperty('Te_Translation') || value.hasOwnProperty('En_Translation'));
@@ -1246,10 +1544,18 @@ function updateNavigationButtons() {
     // Get buttons from header
     const previousBtn = document.getElementById('previousSutraHeaderBtn');
     const nextBtn = document.getElementById('nextSutraHeaderBtn');
+    const prevVyakhyanaBtn = document.getElementById('prevVyakhyanaBtn');
+    const nextVyakhyanaBtn = document.getElementById('nextVyakhyanaBtn');
+    const prevPartBtn = document.getElementById('prevPartBtn');
+    const nextPartBtn = document.getElementById('nextPartBtn');
     
     if (!currentSutra || filteredSutras.length === 0) {
         if (previousBtn) previousBtn.disabled = true;
         if (nextBtn) nextBtn.disabled = true;
+        if (prevVyakhyanaBtn) prevVyakhyanaBtn.disabled = true;
+        if (nextVyakhyanaBtn) nextVyakhyanaBtn.disabled = true;
+        if (prevPartBtn) prevPartBtn.disabled = true;
+        if (nextPartBtn) nextPartBtn.disabled = true;
         return;
     }
     
@@ -1259,11 +1565,53 @@ function updateNavigationButtons() {
         s.sutra_number === currentSutra.sutra_number
     );
     
+    // Update outer navigation buttons (<<, >>)
     if (previousBtn) {
         previousBtn.disabled = currentIndex <= 0;
     }
     if (nextBtn) {
         nextBtn.disabled = currentIndex >= filteredSutras.length - 1;
+    }
+    
+    // Check if we're on the first sutra (1.1.1)
+    const isFirstSutra = currentSutra.adhyaya === 1 && 
+                        currentSutra.pada === 1 && 
+                        currentSutra.sutra_number === 1;
+    
+    // Get part information
+    const sutraKey = `${currentSutra.adhyaya}.${currentSutra.pada}.${currentSutra.sutra_number}`;
+    const details = sutraDetails[sutraKey] || {};
+    const partKeys = Object.keys(details).filter(key => key.startsWith('Part#')).sort((a, b) => {
+        const numA = parseInt(a.replace('Part#', ''));
+        const numB = parseInt(b.replace('Part#', ''));
+        return numA - numB;
+    });
+    
+    const currentPartIndex = partKeys.indexOf(currentPart);
+    const isFirstPart = currentPartIndex === 0;
+    const isLastPart = currentPartIndex === partKeys.length - 1;
+    const isLastSutra = currentIndex >= filteredSutras.length - 1;
+    
+    // Update inner part navigation buttons (<, >)
+    // < button disabled only when on first sutra AND first part
+    if (prevPartBtn) {
+        prevPartBtn.disabled = isFirstSutra && isFirstPart;
+    }
+    // > button disabled only when on last sutra AND last part
+    if (nextPartBtn) {
+        nextPartBtn.disabled = isLastSutra && isLastPart;
+    }
+    
+    // Update previous vyakhyana button (<<)
+    // Disable if on first sutra AND first part
+    if (prevVyakhyanaBtn) {
+        prevVyakhyanaBtn.disabled = isFirstSutra && isFirstPart;
+    }
+    
+    // Update next vyakhyana button (>>)
+    // Disable if on last sutra AND last part
+    if (nextVyakhyanaBtn) {
+        nextVyakhyanaBtn.disabled = isLastSutra && isLastPart;
     }
 }
 
@@ -1483,14 +1831,25 @@ async function loadSutras() {
         const csvText = await csvResponse.text();
         allSutras = parseCSV(csvText);
         
+        const timestamp = new Date().getTime();
+        
         // Load JSON details with cache-busting
         try {
-            const timestamp = new Date().getTime();
             const jsonResponse = await fetch(`sutra/sutra-details.json?v=${timestamp}`);
             sutraDetails = await jsonResponse.json();
         } catch (jsonError) {
             console.warn('Sutra details JSON not found, using placeholders:', jsonError);
             sutraDetails = {};
+        }
+        
+        // Load adhikarana details
+        try {
+            const adhikaranaResponse = await fetch(`sutra/adhikarana-details.json?v=${timestamp}`);
+            adhikaranaDetails = await adhikaranaResponse.json();
+            console.log('Adhikarana details loaded:', Object.keys(adhikaranaDetails).length);
+        } catch (adhikaranaError) {
+            console.warn('Adhikarana details JSON not found:', adhikaranaError);
+            adhikaranaDetails = {};
         }
         
         populateAdhikaranaDropdown();
@@ -1749,6 +2108,7 @@ function updateInfoPanelForSutra(sutra) {
                           '';
     
     const backToMainText = lang.backToHome || baseLang.backToHome;
+    const adhikaranaInfoText = getTranslatedText('अधिकरणविषयः', currentLanguage);
     
     infoPanelContent.innerHTML = `
         <div class="sutra-info-panel">
@@ -1760,7 +2120,9 @@ function updateInfoPanelForSutra(sutra) {
             <div class="sutra-info-text">${sutraText}</div>
             ${adhikaranaText ? `
                 <h4 class="adhikarana-label">${adhikaranaLabel}</h4>
-                <div class="sutra-info-adhikarana">${adhikaranaText}</div>
+                <div class="sutra-info-adhikarana">
+                    <a href="#" class="adhikarana-name-link" id="adhikaranaInfoLink" title="Click for details">${adhikaranaText}</a>
+                </div>
             ` : ''}
             <div class="sutra-info-controls">
                 <button class="info-back-btn" id="infoPanelBack" title="Back to main page">← ${backToMainText}</button>
@@ -1781,6 +2143,14 @@ function updateInfoPanelForSutra(sutra) {
         const backBtn = document.getElementById('infoPanelBack');
         if (backBtn) {
             backBtn.addEventListener('click', showListView);
+        }
+        
+        const adhikaranaInfoLink = document.getElementById('adhikaranaInfoLink');
+        if (adhikaranaInfoLink) {
+            adhikaranaInfoLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                showAdhikaranaInfo(sutra);
+            });
         }
     }, 0);
 }
@@ -1816,7 +2186,7 @@ function restoreInfoPanel() {
 }
 
 // Show detailed view of a sutra
-function showSutraDetail(sutra) {
+function showSutraDetail(sutra, partKey = null) {
     // Check if we're switching to a different sutra
     const isDifferentSutra = !currentSutra || 
                              currentSutra.adhyaya !== sutra.adhyaya || 
@@ -1826,6 +2196,12 @@ function showSutraDetail(sutra) {
     // Clear open vyakhyanas only when switching to a different sutra
     if (isDifferentSutra) {
         openVyakhyanas.clear();
+        currentPart = 'Part#1'; // Reset to Part#1 when switching sutras
+    }
+    
+    // If partKey is provided, update currentPart
+    if (partKey) {
+        currentPart = partKey;
     }
     
     currentView = 'detail';
@@ -1879,14 +2255,16 @@ function showSutraDetail(sutra) {
     // Get details from JSON using sutra key
     const sutraKey = `${sutra.adhyaya}.${sutra.pada}.${sutra.sutra_number}`;
     const details = sutraDetails[sutraKey] || {};
+    // Access vyakhyanas from the current part if it exists, otherwise use details directly for backward compatibility
+    const vyakhyanaContainer = details[currentPart] || details['Part#1'] || details;
     
     // Dynamically detect available vyakhyanas by checking structure
     // A vyakhyana is any key whose value is an object with moola or translation keys
     const excludeKeys = ['meaning', 'meaningKn', 'meaningTe', 'meaningDetails', 'meaningDetailsKn', 'meaningDetailsTe', 
                          'commentary', 'commentaryKn', 'commentaryTe'];
-    const vyakhyanaKeys = Object.keys(details).filter(key => {
+    const vyakhyanaKeys = Object.keys(vyakhyanaContainer).filter(key => {
         if (excludeKeys.includes(key)) return false;
-        const value = details[key];
+        const value = vyakhyanaContainer[key];
         return value && typeof value === 'object' && 
                (value.hasOwnProperty('moola') || value.hasOwnProperty('Ka_Translation') || 
                 value.hasOwnProperty('Te_Translation') || value.hasOwnProperty('En_Translation'));
@@ -1966,9 +2344,9 @@ function showSutraDetail(sutra) {
     // Detect vyakhyanas by structure instead of key name pattern
     const excludeKeys2 = ['meaning', 'meaningKn', 'meaningTe', 'meaningDetails', 'meaningDetailsKn', 'meaningDetailsTe', 
                           'commentary', 'commentaryKn', 'commentaryTe'];
-    const vyakhyanaKeys2 = Object.keys(details).filter(key => {
+    const vyakhyanaKeys2 = Object.keys(vyakhyanaContainer).filter(key => {
         if (excludeKeys2.includes(key)) return false;
-        const value = details[key];
+        const value = vyakhyanaContainer[key];
         return value && typeof value === 'object' && 
                (value.hasOwnProperty('moola') || value.hasOwnProperty('Ka_Translation') || 
                 value.hasOwnProperty('Te_Translation') || value.hasOwnProperty('En_Translation'));
@@ -2005,7 +2383,7 @@ function showSutraDetail(sutra) {
                 
                 // Get language-specific commentary from vyakhya structure
                 let commentaryText;
-                const vyakhyaData = details[vyakhyaKey];
+                const vyakhyaData = vyakhyanaContainer[vyakhyaKey];
                 
                 if (!vyakhyaData) {
                     // If vyakhyana data doesn't exist, show placeholder
@@ -2185,12 +2563,12 @@ function showSutraDetail(sutra) {
     // Restore previously open vyakhyanas
     setTimeout(() => {
         openVyakhyanas.forEach(vyakhyanaKey => {
-            // Find the position of this vyakhyana in the current sutra
+            // Find the position of this vyakhyana in the current part's container
             const excludeKeys = ['meaning', 'meaningKn', 'meaningTe', 'meaningDetails', 'meaningDetailsKn', 'meaningDetailsTe', 
                                  'commentary', 'commentaryKn', 'commentaryTe'];
-            const vyakhyanaKeys = Object.keys(details).filter(key => {
+            const vyakhyanaKeys = Object.keys(vyakhyanaContainer).filter(key => {
                 if (excludeKeys.includes(key)) return false;
-                const value = details[key];
+                const value = vyakhyanaContainer[key];
                 return value && typeof value === 'object' && 
                        (value.hasOwnProperty('moola') || value.hasOwnProperty('Ka_Translation') || 
                         value.hasOwnProperty('Te_Translation') || value.hasOwnProperty('En_Translation'));
@@ -2200,9 +2578,15 @@ function showSutraDetail(sutra) {
             if (num > 0) {
                 const content = document.getElementById(`commentary-${num}`);
                 const toggle = document.getElementById(`toggle-${num}`);
-                if (content && toggle) {
+                const item = content ? content.closest('.commentary-item') : null;
+                if (content && toggle && item) {
                     content.style.display = 'block';
                     toggle.textContent = '▲';
+                    item.classList.add('open');
+                    // Apply auto-hide class if enabled
+                    if (autoHideHeaders) {
+                        item.classList.add('auto-hide-enabled');
+                    }
                 }
             }
         });
@@ -2268,9 +2652,19 @@ function initializeSanskritSearch() {
     }
 }
 
+function initializePratikaIdentifier() {
+    if (typeof PratikaIdentifier !== 'undefined' && !pratikaIdentifier) {
+        pratikaIdentifier = new PratikaIdentifier();
+        console.log('Pratika Identifier initialized');
+    }
+}
+
 function searchInVyakhyana(vyakhyanaNum, vyakhyaKey, searchTerm) {
     console.log('=== searchInVyakhyana START ===');
     console.log('Called with:', {vyakhyanaNum, vyakhyaKey, searchTerm});
+    
+    // Initialize pratika identifier if needed
+    initializePratikaIdentifier();
     
     // Store or clear the search term
     const searchKey = `${vyakhyanaNum}-${vyakhyaKey}`;
@@ -2347,24 +2741,81 @@ function searchInVyakhyana(vyakhyanaNum, vyakhyaKey, searchTerm) {
         return;
     }
     
-    // Search ONLY within current page
-    console.log(`Searching for "${searchTerm}" in page ${currentPage + 1}...`);
-    const results = sanskritSearcher.search(searchTerm, originalText);
+    // Split search term on commas to handle multiple terms
+    // E.g., "सद्भिः, सद्भिर्" → ["सद्भिः", "सद्भिर्"]
+    const searchTerms = searchTerm.split(',').map(t => t.trim()).filter(t => t.length > 0);
+    console.log('Search terms (after comma split):', searchTerms);
     
-    console.log('Search results:', {
-        count: results.count,
-        matches: results.matches.length,
+    // Check if search term is a pratika pattern
+    let searchTermsToUse = searchTerms;
+    
+    if (pratikaIdentifier && searchTerms.length === 1) {
+        // Only check for pratika if it's a single term (not already comma-separated)
+        // Convert searchTerm to Devanagari first if needed
+        let devanagariSearchTerm = searchTerms[0];
+        if (currentLanguage !== 'sa') {
+            // Convert from current language to Devanagari for pratika detection
+            devanagariSearchTerm = reverseTransliterateIfNeeded(searchTerms[0]);
+            console.log('Converted to Devanagari for pratika check:', devanagariSearchTerm);
+        }
+        
+        // Check if it's a pratika
+        const pratikaResult = pratikaIdentifier.identifyPratika(devanagariSearchTerm);
+        console.log('Pratika check result:', pratikaResult);
+        
+        if (pratikaResult && pratikaResult.isPratika) {
+            // Extract searchable forms (in Devanagari)
+            const searchForms = pratikaIdentifier.extractSearchableForms(devanagariSearchTerm);
+            console.log('Pratika detected! Search forms (Devanagari):', searchForms);
+            
+            // Convert search forms back to current language
+            if (currentLanguage !== 'sa') {
+                searchTermsToUse = searchForms.map(form => 
+                    transliterateText(form, currentLanguage)
+                );
+                console.log('Search forms (transliterated to', currentLanguage + '):', searchTermsToUse);
+            } else {
+                searchTermsToUse = searchForms;
+            }
+        }
+    } else if (searchTerms.length > 1) {
+        console.log('Multiple comma-separated terms detected - searching for each term directly');
+    }
+    
+    // Search ONLY within current page with all search terms
+    console.log(`Searching for ${searchTermsToUse.length} term(s) in page ${currentPage + 1}...`);
+    let allMatches = [];
+    let totalCount = 0;
+    
+    for (const term of searchTermsToUse) {
+        const results = sanskritSearcher.search(term, originalText);
+        allMatches = allMatches.concat(results.matches);
+        totalCount += results.count;
+    }
+    
+    console.log('Combined search results:', {
+        count: totalCount,
+        matches: allMatches.length,
         currentPage: currentPage + 1
     });
     
-    if (results.count > 0 && results.matches.length > 0) {
+    console.log('Combined search results:', {
+        count: totalCount,
+        matches: allMatches.length,
+        currentPage: currentPage + 1
+    });
+    
+    if (totalCount > 0 && allMatches.length > 0) {
         // Highlight the matches in CURRENT page only
-        const highlightedText = sanskritSearcher.highlightMatches(originalText, results.matches);
-        console.log(`✓ Highlighted ${results.count} match(es) on page ${currentPage + 1}`);
-        textElem.innerHTML = makePratikaGrahanaBold(highlightedText);
+        const highlightedText = sanskritSearcher.highlightMatches(originalText, allMatches);
+        console.log(`✓ Highlighted ${totalCount} match(es) on page ${currentPage + 1}`);
+        // Get sutra number from contentElem
+        const sutraNum = parseInt(contentElem.closest('.sutra-item')?.dataset?.sutraNum || vyakhyanaNum);
+        textElem.innerHTML = makePratikaGrahanaBold(highlightedText, sutraNum);
     } else {
         console.log('No matches found on current page');
-        textElem.innerHTML = makePratikaGrahanaBold(originalText);
+        const sutraNum = parseInt(contentElem.closest('.sutra-item')?.dataset?.sutraNum || vyakhyanaNum);
+        textElem.innerHTML = makePratikaGrahanaBold(originalText, sutraNum);
     }
     
     console.log('=== searchInVyakhyana END ===');
@@ -2436,43 +2887,58 @@ function searchInVyakhyanaWithPratika(vyakhyanaNum, vyakhyaKey, searchTerm, isPr
         return;
     }
     
-    // Transliterate search term to match the current language in data-pages
-    const transliteratedSearchTerm = transliterateText(searchTerm, currentLanguage);
-    console.log(`Search term transliterated to ${currentLanguage}:`, transliteratedSearchTerm);
+    // Split search term on commas to handle multiple terms
+    // E.g., "सद्भिः, सद्भिर्" → ["सद्भिः", "सद्भिर्"]
+    const searchTerms = searchTerm.split(',').map(t => t.trim()).filter(t => t.length > 0);
+    console.log('Search terms in searchInVyakhyanaWithPratika (after comma split):', searchTerms);
     
     console.log('========================================');
     console.log('SEARCH MODE DETECTION:');
-    console.log('Search term:', searchTerm);
+    console.log('Search terms:', searchTerms);
     console.log('Is Pratika Grahana (इति pattern):', isPratikaGrahana);
     
     let results;
     
-    if (isPratikaGrahana) {
-        // इति pattern detected → Generate all case variations and search each
-        console.log(`PRATIKA GRAHANA mode: Generating case variations for stem "${searchTerm}"...`);
+    if (isPratikaGrahana && searchTerms.length === 1) {
+        // Single term pratika - generate case variations
+        console.log(`PRATIKA GRAHANA mode: Generating case variations for "${searchTerms[0]}"...`);
+        const variations = sanskritSearcher.generatePratikaGrahanaVariations(searchTerms[0]);
+        console.log('Generated case variations (Devanagari):', variations);
         
-        // Generate all case ending variations from stem (in Devanagari)
-        const variations = sanskritSearcher.generatePratikaGrahanaVariations(searchTerm);
-        console.log('Generated variations (Devanagari):', variations);
-        
-        // Transliterate all variations to target language
+        // Transliterate all forms to target language
         const transliteratedVariations = variations.map(v => transliterateText(v, currentLanguage));
         console.log('Transliterated variations:', transliteratedVariations);
         
-        // Search for each transliterated variation in the transliterated text
-        results = { matches: [], count: 0, searchTerm: searchTerm };
+        // Search for each transliterated variation in the text
+        results = { matches: [], count: 0, searchTerm: searchTerms[0] };
         transliteratedVariations.forEach((variant, index) => {
             const variantResults = sanskritSearcher.search(variant, originalText);
             variantResults.matches.forEach(match => {
                 // Avoid duplicates at same position
                 const isDuplicate = results.matches.some(m => m.position === match.position);
                 if (!isDuplicate) {
-                    match.pratikaVariant = variant; // Tag which variation matched
-                    match.devanagariVariant = variations[index]; // Also store Devanagari form
+                    match.pratikaVariant = variant;
+                    match.devanagariVariant = variations[index];
                     results.matches.push(match);
                 }
             });
         });
+        results.matches.sort((a, b) => a.position - b.position);
+        results.count = results.matches.length;
+    } else if (searchTerms.length > 1 || !isPratikaGrahana) {
+        // Multiple comma-separated terms OR non-pratika search - search each term directly
+        console.log(`Searching for ${searchTerms.length} term(s) directly (no case generation)...`);
+        results = { matches: [], count: 0, searchTerm: searchTerm };
+        
+        for (const term of searchTerms) {
+            const variantResults = sanskritSearcher.search(term, originalText);
+            variantResults.matches.forEach(match => {
+                const isDuplicate = results.matches.some(m => m.position === match.position);
+                if (!isDuplicate) {
+                    results.matches.push(match);
+                }
+            });
+        }
         results.matches.sort((a, b) => a.position - b.position);
         results.count = results.matches.length;
     } else {
@@ -2926,6 +3392,139 @@ function stopSequentialPlayback() {
     stopSpeech();
 }
 
+// Show adhikarana information popup
+function showAdhikaranaInfo(sutra) {
+    if (!sutra.adhikarana) return;
+    
+    // Create popup overlay if it doesn't exist
+    let popup = document.getElementById('adhikaranaPopup');
+    if (!popup) {
+        popup = document.createElement('div');
+        popup.id = 'adhikaranaPopup';
+        popup.className = 'adhikarana-popup-overlay';
+        document.body.appendChild(popup);
+    }
+    
+    const adhikaranaText = currentLanguage !== 'sa' ? 
+                          transliterateText(sutra.adhikarana, currentLanguage) : 
+                          sutra.adhikarana;
+    
+    const adhikaranaLabel = currentLanguage !== 'sa' ? 
+                           transliterateText('अधिकरणम्', currentLanguage) : 
+                           'अधिकरणम्';
+    
+    // Get adhikarana details from JSON
+    const adhikaranaKey = `${sutra.adhyaya}.${sutra.pada}.${sutra.adhikarana}`;
+    const details = adhikaranaDetails[adhikaranaKey] || {};
+    console.log('Adhikarana key:', adhikaranaKey);
+    console.log('Adhikarana details:', details);
+    console.log('All adhikarana keys:', Object.keys(adhikaranaDetails));
+    
+    // Get all sutras in the same adhikarana
+    const sutrasInAdhikarana = allSutras.filter(s => 
+        s.adhyaya === sutra.adhyaya && 
+        s.pada === sutra.pada && 
+        s.adhikarana === sutra.adhikarana
+    );
+    
+    const sutraList = sutrasInAdhikarana.map(s => {
+        const isCurrent = s.sutra_number === sutra.sutra_number;
+        const sutraText = currentLanguage !== 'sa' ? 
+                         transliterateText(s.sutra_text, currentLanguage) : 
+                         s.sutra_text;
+        return `<li${isCurrent ? ' class="current-sutra"' : ''}>
+            <strong>${s.adhyaya}.${s.pada}.${s.sutra_number}</strong> - ${sutraText}
+        </li>`;
+    }).join('');
+    
+    // Build details sections
+    let detailsHTML = '';
+    
+    if (details.name_en) {
+        detailsHTML += `<div class="adhikarana-detail-section">
+            <strong>English Name:</strong> ${details.name_en}
+        </div>`;
+    }
+    
+    if (details.vishaya) {
+        detailsHTML += `<div class="adhikarana-detail-section">
+            <strong>विषयः (Subject):</strong> ${details.vishaya}
+        </div>`;
+    }
+    
+    if (details.samshaya) {
+        detailsHTML += `<div class="adhikarana-detail-section">
+            <strong>संशयः (Doubt):</strong> ${details.samshaya}
+        </div>`;
+    }
+    
+    if (details.purvapaksha) {
+        detailsHTML += `<div class="adhikarana-detail-section">
+            <strong>पूर्वपक्षः (Objection):</strong> ${details.purvapaksha}
+        </div>`;
+    }
+    
+    if (details.siddhanta) {
+        detailsHTML += `<div class="adhikarana-detail-section">
+            <strong>सिद्धान्तः (Conclusion):</strong> ${details.siddhanta}
+        </div>`;
+    }
+    
+    if (details.prayojana) {
+        detailsHTML += `<div class="adhikarana-detail-section">
+            <strong>प्रयोजनम् (Purpose):</strong> ${details.prayojana}
+        </div>`;
+    }
+    
+    if (details.notes) {
+        detailsHTML += `<div class="adhikarana-detail-section">
+            <strong>Notes:</strong> ${details.notes}
+        </div>`;
+    }
+    
+    if (details.references) {
+        detailsHTML += `<div class="adhikarana-detail-section">
+            <strong>References:</strong> ${details.references}
+        </div>`;
+    }
+    
+    popup.innerHTML = `
+        <div class="adhikarana-popup-content">
+            <div class="adhikarana-popup-header">
+                <h3>${adhikaranaLabel}</h3>
+                <button class="adhikarana-popup-close" onclick="closeAdhikaranaPopup()">&times;</button>
+            </div>
+            <div class="adhikarana-popup-body">
+                <div class="adhikarana-name">${adhikaranaText}</div>
+                <div class="adhikarana-location">
+                    <strong>अध्यायः ${sutra.adhyaya}, पादः ${sutra.pada}</strong>
+                </div>
+                ${detailsHTML}
+                <h4>Sutras in this adhikarana:</h4>
+                <ul class="adhikarana-sutra-list">
+                    ${sutraList}
+                </ul>
+            </div>
+        </div>
+    `;
+    
+    popup.style.display = 'flex';
+    
+    // Close popup when clicking outside
+    popup.addEventListener('click', (e) => {
+        if (e.target === popup) {
+            closeAdhikaranaPopup();
+        }
+    });
+}
+
+function closeAdhikaranaPopup() {
+    const popup = document.getElementById('adhikaranaPopup');
+    if (popup) {
+        popup.style.display = 'none';
+    }
+}
+
 // Toggle commentary collapse/expand
 function toggleCommentary(num, vyakhyanaKey) {
     const content = document.getElementById(`commentary-${num}`);
@@ -3061,6 +3660,7 @@ function clearCrossReferenceHighlights() {
     allVyakhyanaItems.forEach(item => {
         const vyakhyanaNum = item.dataset.vyakhyanaNum;
         const vyakhyaKey = item.dataset.vyakhyaKey;
+        const paginationKey = item.dataset.paginationKey;
         const textElem = item.querySelector('.commentary-text');
         
         if (!textElem) {
@@ -3068,8 +3668,8 @@ function clearCrossReferenceHighlights() {
             return;
         }
         
-        // Get the storage key for this vyakhyana
-        const currentPage = window.vyakhyanaStates?.[vyakhyanaNum]?.currentPage || 0;
+        // Get the current page from pagination state
+        const currentPage = vyakhyanaPagination[paginationKey] || 0;
         const storageKey = `vyakhyana_${vyakhyaKey}_page${currentPage}_original`;
         
         // Restore original text from storage
@@ -3077,7 +3677,9 @@ function clearCrossReferenceHighlights() {
         
         if (originalText) {
             console.log('Restoring original text for vyakhyana', vyakhyanaNum, 'page', currentPage + 1);
-            textElem.innerHTML = makePratikaGrahanaBold(originalText);
+            // Get sutra number from the item's parent
+            const sutraNum = parseInt(item.closest('.sutra-item')?.dataset?.sutraNum || item.dataset.sutraNum || vyakhyanaNum);
+            textElem.innerHTML = makePratikaGrahanaBold(originalText, sutraNum);
         } else {
             console.log('No original text found in storage for', storageKey);
         }
@@ -3140,46 +3742,54 @@ function setupCrossReferenceHighlighting() {
                     console.log('Text selected in vyakhyana', sourceVyakhyanaNum, ':', selectedText);
                     
                     // CRITICAL: Reverse transliterate to Devanagari if needed
-                    // The data-pages contains Devanagari, so search must be in Devanagari
                     const searchTerm = reverseTransliterateIfNeeded(selectedText);
                     console.log('Search term (after reverse transliteration):', searchTerm);
                     
-                    // Determine search mode based on इति patterns
-                    let displayTerm = searchTerm;
+                    // CRITICAL: Remove trailing dandas before pratika detection
+                    // User may have selected text including punctuation (।॥)
+                    const searchTermClean = searchTerm.replace(/\s*[।॥]+\s*$/, '');
+                    
+                    // Use pratika identifier to detect and extract stem
+                    let displayTerm = searchTermClean;
+                    let searchableForms = null;
                     let isPratikaGrahana = false;
                     
-                    // Check for इति quotation patterns → Pratika grahana mode
-                    if (searchTerm.endsWith('मिति')) {
-                        // Remove मिति (म् + इति) to get the stem (e.g., ज्ञेयमिति → ज्ञेयम्)
-                        displayTerm = searchTerm.slice(0, -4) + 'म्';
-                        displayTerm = displayTerm.normalize('NFC');
-                        isPratikaGrahana = true;
-                        console.log('Pratika grahana मिति detected: stem =', displayTerm);
-                    } else if (searchTerm.endsWith('ेति') || searchTerm.endsWith('ानीति') || searchTerm.endsWith('ोति')) {
-                        // Remove इति patterns to get the stem
-                        if (searchTerm.endsWith('ानीति')) {
-                            displayTerm = searchTerm.slice(0, -5).normalize('NFC');
-                        } else if (searchTerm.endsWith('ेति') || searchTerm.endsWith('ोति')) {
-                            displayTerm = searchTerm.slice(0, -3).normalize('NFC');
+                    if (pratikaIdentifier) {
+                        const pratikaResult = pratikaIdentifier.identifyPratika(searchTermClean);
+                        if (pratikaResult && pratikaResult.isPratika) {
+                            // Get searchable forms from pratika identifier
+                            searchableForms = pratikaIdentifier.extractSearchableForms(searchTermClean);
+                            if (searchableForms && searchableForms.length > 0) {
+                                displayTerm = searchableForms[0]; // Use first searchable form for search
+                                isPratikaGrahana = true;
+                                console.log('Pratika detected:', pratikaResult.pattern, '- stem =', displayTerm, '- all forms:', searchableForms);
+                            }
+                        } else {
+                            // Not a pratika - use simple search
+                            displayTerm = searchTermClean;
+                            isPratikaGrahana = false;
+                            console.log('Not a pratika: using simple string search for:', displayTerm);
                         }
-                        isPratikaGrahana = true;
-                        console.log('Pratika grahana इति pattern detected: stem =', displayTerm);
-                    } else if (searchTerm.match(/(?:^|[^अ-ह])इति$/)) {
-                        // Standalone इति at the end
-                        displayTerm = searchTerm.slice(0, -2).normalize('NFC');
-                        isPratikaGrahana = true;
-                        console.log('Pratika grahana standalone इति detected: stem =', displayTerm);
                     } else {
-                        // No इति pattern → Simple string search with phonetic variants only
-                        displayTerm = searchTerm;
+                        // Fallback if pratika identifier not loaded
+                        displayTerm = searchTermClean;
                         isPratikaGrahana = false;
-                        console.log('No इति pattern: using simple string search for:', displayTerm);
+                        console.log('Pratika identifier not loaded - using simple search');
                     }
                     
-                    // CRITICAL: Transliterate displayTerm to current language for search box
-                    // Search box should show Kannada/Telugu/etc. if that's the current language
-                    const displayTermInCurrentLang = transliterateText(displayTerm, currentLanguage);
-                    console.log('Display term in', currentLanguage, ':', displayTermInCurrentLang);
+                    // CRITICAL: Transliterate displayTerm and all forms to current language for search box
+                    // If multiple searchable forms exist, show them comma-separated
+                    let displayTermInCurrentLang;
+                    if (searchableForms && searchableForms.length > 1) {
+                        // Multiple forms - show comma-separated
+                        const transliteratedForms = searchableForms.map(form => transliterateText(form, currentLanguage));
+                        displayTermInCurrentLang = transliteratedForms.join(', ');
+                        console.log('Display terms in', currentLanguage, ':', displayTermInCurrentLang);
+                    } else {
+                        // Single form
+                        displayTermInCurrentLang = transliterateText(displayTerm, currentLanguage);
+                        console.log('Display term in', currentLanguage, ':', displayTermInCurrentLang);
+                    }
                     
                     // Search in all OTHER vyakhyanas
                     const allVyakhyanaItems = document.querySelectorAll('.commentary-item');
@@ -3198,18 +3808,18 @@ function setupCrossReferenceHighlighting() {
                         const searchBox = item.querySelector('.vyakhyana-search-box input');
                         if (searchBox) {
                             console.log('Auto-searching in vyakhyana', vyakhyanaNum);
-                            // Show transliterated stem in search box (matches current language)
+                            // Show transliterated forms in search box (comma-separated if multiple)
                             searchBox.value = displayTermInCurrentLang.normalize('NFC');
                             
-                            // Trigger appropriate search based on mode
-                            // isPratikaGrahana flag determines whether to use pratika grahana or simple search
+                            // Trigger search - use displayTermInCurrentLang which contains all forms
+                            // If multiple forms exist, they are comma-separated and will be split by search function
                             console.log('Calling search with:', {
                                 vyakhyanaNum, 
                                 vyakhyaKey, 
-                                displayTerm, 
+                                searchTerm: displayTermInCurrentLang,
                                 isPratikaGrahana
                             });
-                            searchInVyakhyanaWithPratika(vyakhyanaNum, vyakhyaKey, displayTerm, isPratikaGrahana);
+                            searchInVyakhyanaWithPratika(vyakhyanaNum, vyakhyaKey, displayTermInCurrentLang, isPratikaGrahana);
                         } else {
                             console.log('No search box found in vyakhyana', vyakhyanaNum);
                         }
