@@ -1,124 +1,108 @@
 # Release Notes
 
-## Version 1.0.3 - December 30, 2025
+## Version 1.0.3 - December 31, 2025
 
 ### Personal Notes Feature
 - **New**: Added personal study notes functionality at sutra level
-- Notes appear as first commentary item (वय्यक्तिक टिप्पणी) above Bhāṣyam
+- Notes appear as first commentary item with customizable heading
 - Click header to open popup modal with full notes content
-- Supports multi-language translations (Sanskrit, Kannada, Telugu, English)
-- Structure includes Anubandha Chatushtaya (अधिकारी, विषयः, सम्बन्धः, प्रयोजनम्)
-- Notes display in current UI language with automatic transliteration
+- **Enhanced**: Wider popup (1400px) for better readability
+- **Enhanced**: Draggable popup - click and hold header to move
+- **Enhanced**: Resizable popup - drag from bottom-right corner
+- **Enhanced**: Auto-updates when language is changed
+- Supports multi-language translations with automatic transliteration fallback
+- Flexible heading names - displays as defined in data
 - Always visible regardless of vyākhyāna selection
-- Stored in Personal_Notes object at sutra level in sutra-details.json
 
 ### UI/UX Refinements
 - **Updated**: Next Sutra button (>>) tooltip changed from "Next Vyakhyana" to "Next Sutra" for clarity
 
 ### Adhikarana Popup Enhancements
-- **New**: Interactive glossary system with info icons for philosophical terms
-  - Generic terms (Brahman, moksha, karma, etc.) auto-detected with tooltips
-  - Contextual tooltips for specific terms with custom explanations
-  - Hover over ℹ️ icons to see detailed explanations
-- **New**: Section tooltips for Sanskrit terminology (विषयः, संशयः, पूर्वपक्षः, सिद्धान्तः, प्रयोजनम्)
+- **New**: Interactive glossary with info icons (ℹ️) for philosophical terms
+- **New**: Tooltips for Sanskrit terminology sections
 - **New**: Info icon next to adhikarana name indicating clickable content
-- Increased popup width from 600px to 900px for better readability
-- More flexible responsive design (90% of screen width up to 900px max)
-- All tooltip definitions stored in adhikarana-details.json for easy maintenance
+- **Enhanced**: Wider popup (900px) for better readability
+- Responsive design adapts to screen size
 
 ### Text Corrections
 - **Fixed**: Sanskrit spelling corrected from "संस्कृतभ" to "संस्कृतम्" in language dropdown
 - **Fixed**: Commentary name corrected from "तत्वप्रकाशः" to "तत्त्वप्रकाशिका"
 
 ### Navigation Improvements
-- **Fixed**: Navigation button states now properly disable/enable based on position
-- `<<` and `>>` buttons disabled at first/last sutra respectively (regardless of part)
-- `<` and `>` buttons disabled at first/last part of first/last sutra respectively
-- Fixed type comparison bug preventing proper button state detection
-- Added visual opacity feedback (30%) for disabled buttons
+- **Fixed**: Navigation buttons now properly enable/disable based on position
+- First/last position detection works correctly across all parts
+- Visual feedback (reduced opacity) for disabled buttons
 
 ### Cross-Reference Highlighting
-- Select any text in one commentary to automatically search and highlight it across all other open commentaries
+- Select text in one commentary to automatically highlight it across all open commentaries
 - Perfect for comparative study across multiple vyākhyānas
-- **Fixed**: Highlights now properly clear when text is deselected (click elsewhere)
-- Highlights automatically appear on selection and disappear on deselection
+- **Fixed**: Highlights now properly clear when clicking elsewhere
 
 ### Search Persistence
-- Search terms now remain active when navigating between pages
-- No need to re-enter searches after page changes
+- Search terms remain active when navigating between pages
 
 ### Library Organization
-- Renamed `sanskrit-search` folder to `sanskrit-search-library` for consistency with `transliterate-library`
-- Both libraries now follow consistent naming convention
-- Configured as git submodules for better dependency management
+- Renamed libraries for consistency and better organization
+- Configured as git submodules for dependency management
 
 ### Bug Fixes
-- Fixed pagination corruption when searching
-- Fixed search highlighting not persisting across page navigation
-- Fixed boundary errors when content has different page counts
-- **Fixed**: Search transliteration bug - searches now work correctly in all transliterated languages (Kannada, Telugu, etc.)
-- **Fixed**: Page navigation button state bug - Previous/Next buttons now update correctly when navigating between pages
-- **Fixed**: Search box text clearing on click - search terms now persist when clicking in the search input field
+- **Fixed**: Search transliteration now works correctly in all languages
+- **Fixed**: Page navigation buttons update correctly
+- **Fixed**: Search text no longer clears when clicking in search box
+- **Fixed**: Pagination corruption during search
+- **Fixed**: Search highlighting persists across page navigation
+- **Fixed**: Boundary errors with different page counts
 
 ---
 
 ## December 25, 2025
 
 ### Auto-Hide Headers
-- Headers automatically hide when scrolling down, reappear when scrolling up
-- Global toggle to enable/disable auto-hide behavior
-- Maximizes reading space while keeping navigation accessible
+- Headers auto-hide when scrolling down, reappear when scrolling up
+- Global toggle to enable/disable behavior
+- Maximizes reading space
 
 ### Sticky Resize Handles
-- Green vertical resize handles between vyākhyānas
-- Always visible for easy adjustment of column widths
-- Smooth resizing experience
+- Vertical resize handles between vyākhyānas always visible
+- Easy adjustment of column widths
 
 ### Footer Timestamp
-- Displays last build date/time in Indian Standard Time (IST)
+- Displays last build date/time in IST
 - Auto-updates during build process
-- Helps users know when content was last updated
 
 ### Dynamic Watermark System
-- Displays सूत्र number as watermark behind text
-- Bottom title toggle for additional context
-- Hybrid pagination improvements
+- Displays सूत्र number as watermark
+- Bottom title toggle for context
 
 ---
 
 ## December 24, 2025
 
 ### 'All' Mode for Vyākhyāna Selection
-- Select "All" to view every available commentary simultaneously
-- Maintains selection state when navigating between sūtras
-- Track by key names instead of positions for reliable persistence
+- Select "All" to view all available commentaries simultaneously
+- Selection persists when navigating between sūtras
 
 ### Code Refactoring
-- Improved code structure for better maintainability
-- Enhanced readability across modules
+- Improved code structure and readability
 
 ---
 
 ## December 23, 2025 - Version 1.0.0
 
 ### Transliteration System
-- Complete transliteration support with Kannada script
+- Complete transliteration support with multiple regional scripts
 - Toggle between Devanagari and regional scripts
 - Instant script switching
 
 ### Telugu Language Support
-- Added Telugu script mapping
-- UI translations for Telugu
-- Full Telugu interface support
+- Full Telugu script and interface support
 
 ### Enhanced Search Features
-- Support for searching transliterated text
+- Search works across both Devanagari and transliterated content
 - Unicode normalization for accurate matching
-- Works across both Devanagari and transliterated content
 
 ### UI Improvements
-- Disabled dropdowns in detail view for cleaner interface
-- Hidden search box when not needed
+- Cleaner interface in detail view
 - Removed duplicate files
 
 ---
