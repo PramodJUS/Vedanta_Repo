@@ -1917,12 +1917,14 @@ span[data-type="direct"] {
 /* Personal Notes Popup Modal */
 .personal-notes-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; z-index: 10000; animation: fadeIn 0.3s ease; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-.personal-notes-popup { background: linear-gradient(135deg, #F0F8F8 0%, #E0F0F0 100%); border: 3px solid #5F9EA0; border-radius: 16px; width: 90%; max-width: 800px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 8px 32px rgba(95, 158, 160, 0.3); animation: slideUp 0.3s ease; }
+.personal-notes-popup { background: linear-gradient(135deg, #F0F8F8 0%, #E0F0F0 100%); border: 3px solid #5F9EA0; border-radius: 16px; width: 95%; max-width: 1400px; height: 90vh; display: flex; flex-direction: column; box-shadow: 0 8px 32px rgba(95, 158, 160, 0.3); animation: slideUp 0.3s ease; position: relative; }
 @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-.personal-notes-header { background: linear-gradient(135deg, #5F9EA0, #66B2B5); color: white; padding: 20px 30px; border-radius: 13px 13px 0 0; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+.personal-notes-header { background: linear-gradient(135deg, #5F9EA0, #66B2B5); color: white; padding: 20px 30px; border-radius: 13px 13px 0 0; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); user-select: none; }
 .personal-notes-header h3 { margin: 0; font-size: 1.5rem; font-weight: 600; }
 .close-notes-btn { background: rgba(255, 255, 255, 0.2); border: 2px solid white; color: white; font-size: 2rem; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; line-height: 1; padding: 0; }
 .close-notes-btn:hover { background: white; color: #5F9EA0; transform: rotate(90deg); }
 .personal-notes-body { padding: 30px; overflow-y: auto; flex: 1; background: white; margin: 20px; border-radius: 12px; border-left: 4px solid #5F9EA0; font-size: 1.1rem; line-height: 1.8; color: #333; white-space: pre-wrap; }
 .personal-notes-body strong { color: #5F9EA0; font-weight: 600; }
 .personal-notes-section .commentary-header:hover { background: #4A8588; transition: all 0.3s ease; }
+.resize-handle { position: absolute; bottom: 0; right: 0; width: 20px; height: 20px; cursor: nwse-resize; background: linear-gradient(135deg, transparent 0%, transparent 50%, #5F9EA0 50%, #5F9EA0 100%); border-bottom-right-radius: 13px; }
+.resize-handle:hover { background: linear-gradient(135deg, transparent 0%, transparent 50%, #66B2B5 50%, #66B2B5 100%); }

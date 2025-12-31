@@ -1147,6 +1147,13 @@ function onLanguageChange() {
         // Refresh detail view with new language
         showSutraDetail(currentSutra);
     }
+    
+    // Refresh personal notes popup if it's open
+    const personalNotesModal = document.getElementById('personalNotesModal');
+    if (personalNotesModal && currentSutra) {
+        closePersonalNotes();
+        showPersonalNotes(currentSutra);
+    }
 }
 
 // Update vyakhyana dropdown labels based on language
@@ -2379,16 +2386,18 @@ function showSutraDetail(sutra, partKey = null) {
     
     // Add Personal Notes section above Bhashya if notes exist
     let personalNotesSection = '';
-    console.log('🔍 Checking for Personal_Notes:', details.Personal_Notes);
-    if (details.Personal_Notes) {
-        console.log('✅ Personal_Notes found! Creating section...');
-        const personalNotesTitle = currentLanguage !== 'sa' ? 
-                                   transliterateText('वय्यक्तिक टिप्पणी', currentLanguage) : 
-                                   'वय्यक्तिक टिप्पणी';
+    // Find the personal notes key dynamically (any key that's not Part#1 or Part#2)
+    const personalNotesKey = Object.keys(details).find(key => 
+        key !== 'Part#1' && key !== 'Part#2' && typeof details[key] === 'object' && details[key].moola
+    );
+    console.log('🔍 Checking for personal notes key:', personalNotesKey);
+    if (personalNotesKey) {
+        console.log('✅ Personal notes found with key:', personalNotesKey);
+        // Use the actual key name from JSON as the display title
         personalNotesSection = `
             <div class="commentary-item" style="margin-bottom: 10px;">
                 <div class="commentary-header" onclick="showPersonalNotes()" style="cursor: pointer;">
-                    <span class="commentary-title">${personalNotesTitle}</span>
+                    <span class="commentary-title">${personalNotesKey}</span>
                     <span style="flex: 1;"></span>
                     <span class="commentary-toggle">▼</span>
                 </div>
@@ -2396,7 +2405,7 @@ function showSutraDetail(sutra, partKey = null) {
         `;
         console.log('📝 Personal Notes HTML created:', personalNotesSection);
     } else {
-        console.log('❌ No Personal_Notes found in details');
+        console.log('❌ No personal notes found in details');
     }
     
     // VIBGYOR color pattern for vyakhyanas
@@ -3910,12 +3919,17 @@ function showPersonalNotes() {
     const sutraKey = `${currentSutra.adhyaya}.${currentSutra.pada}.${currentSutra.sutra_number}`;
     const details = sutraDetails[sutraKey] || {};
     
-    if (!details.Personal_Notes) {
+    // Find the personal notes key dynamically
+    const personalNotesKey = Object.keys(details).find(key => 
+        key !== 'Part#1' && key !== 'Part#2' && typeof details[key] === 'object' && details[key].moola
+    );
+    
+    if (!personalNotesKey) {
         alert('No personal notes available for this sutra');
         return;
     }
     
-    const notes = details.Personal_Notes;
+    const notes = details[personalNotesKey];
     
     // Map language codes to translation keys
     const langMap = {
@@ -3956,24 +3970,105 @@ function showPersonalNotes() {
     modal.id = 'personalNotesModal';
     modal.className = 'personal-notes-modal';
     modal.innerHTML = `
-        <div class="personal-notes-popup">
-            <div class="personal-notes-header">
+        <div class="personal-notes-popup" id="personalNotesPopup">
+            <div class="personal-notes-header" id="personalNotesHeader">
                 <h3>📝 ${notesLabel}</h3>
                 <button class="close-notes-btn" onclick="closePersonalNotes()">×</button>
             </div>
             <div class="personal-notes-body">
                 ${notesText}
             </div>
+            <div class="resize-handle"></div>
         </div>
     `;
     
     document.body.appendChild(modal);
+    
+    // Make popup draggable
+    makePopupDraggable();
+    
+    // Make popup resizable
+    makePopupResizable();
     
     // Close on outside click
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
             closePersonalNotes();
         }
+    });
+}
+
+// Function to make popup draggable
+function makePopupDraggable() {
+    const popup = document.getElementById('personalNotesPopup');
+    const header = document.getElementById('personalNotesHeader');
+    
+    if (!popup || !header) return;
+    
+    let isDragging = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    
+    header.style.cursor = 'move';
+    
+    header.addEventListener('mousedown', (e) => {
+        if (e.target.classList.contains('close-notes-btn')) return;
+        
+        isDragging = true;
+        initialX = e.clientX - popup.offsetLeft;
+        initialY = e.clientY - popup.offsetTop;
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            e.preventDefault();
+            currentX = e.clientX - initialX;
+            currentY = e.clientY - initialY;
+            
+            popup.style.left = currentX + 'px';
+            popup.style.top = currentY + 'px';
+            popup.style.transform = 'none';
+        }
+    });
+    
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+    });
+}
+
+// Function to make popup resizable
+function makePopupResizable() {
+    const popup = document.getElementById('personalNotesPopup');
+    const resizeHandle = popup.querySelector('.resize-handle');
+    
+    if (!popup || !resizeHandle) return;
+    
+    let isResizing = false;
+    let startX, startY, startWidth, startHeight;
+    
+    resizeHandle.addEventListener('mousedown', (e) => {
+        isResizing = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        startWidth = popup.offsetWidth;
+        startHeight = popup.offsetHeight;
+        e.preventDefault();
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+        if (isResizing) {
+            const width = startWidth + (e.clientX - startX);
+            const height = startHeight + (e.clientY - startY);
+            
+            if (width > 600) popup.style.width = width + 'px';
+            if (height > 400) popup.style.height = height + 'px';
+        }
+    });
+    
+    document.addEventListener('mouseup', () => {
+        isResizing = false;
     });
 }
 
