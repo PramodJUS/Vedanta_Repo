@@ -2665,9 +2665,8 @@ function showSutraDetail(sutra, partKey = null) {
                 ` : '';
                 
                 // Add watermark div if author exists
-                // Normalize author name to lowercase for image filename
                 // Use lazy loading for watermark images
-                const authorImageName = author ? author.toLowerCase() : '';
+                const authorImageName = author || '';
                 const watermarkDiv = authorImageName ? `<div class="watermark lazy-bg" data-bg="images/${authorImageName}.jpg"></div>` : '';
 
                 
