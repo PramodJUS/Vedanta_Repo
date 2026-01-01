@@ -86,7 +86,15 @@ let lazyBgLoader = null;
 
 function initializeLazyBackgrounds() {
     if (typeof PerformanceUtils === 'undefined') {
-        console.warn('PerformanceUtils not loaded, skipping lazy loading');
+        console.warn('PerformanceUtils not loaded, loading watermarks immediately');
+        // Fallback: Load all watermarks immediately without lazy loading
+        document.querySelectorAll('.lazy-bg').forEach(el => {
+            const bgUrl = el.dataset.bg;
+            if (bgUrl) {
+                el.style.backgroundImage = `url('${bgUrl}')`;
+                el.classList.remove('lazy-bg');
+            }
+        });
         return;
     }
     
@@ -112,6 +120,15 @@ function refreshLazyBackgrounds() {
     if (lazyBgLoader) {
         document.querySelectorAll('.lazy-bg').forEach(el => {
             lazyBgLoader.observe(el);
+        });
+    } else if (typeof PerformanceUtils === 'undefined') {
+        // Fallback: Load watermarks immediately
+        document.querySelectorAll('.lazy-bg').forEach(el => {
+            const bgUrl = el.dataset.bg;
+            if (bgUrl) {
+                el.style.backgroundImage = `url('${bgUrl}')`;
+                el.classList.remove('lazy-bg');
+            }
         });
     }
 }
