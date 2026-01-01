@@ -21,6 +21,87 @@ const CHARS_PER_PAGE = 2000; // Characters per page for pagination
 let autoHideHeaders = localStorage.getItem('autoHideHeaders') === 'true';
 let pratikaIdentifier = null; // Pratika identifier instance
 
+// Performance optimizations
+const transliterationCache = new PerformanceUtils.LRUCache(100);
+const sutraDataCache = new PerformanceUtils.LRUCache(50);
+const perfMonitor = new PerformanceUtils.PerformanceMonitor(false); // Set to true for debugging
+const virtualScrollers = {}; // Track virtual scrollers for each vyakhyana
+
+// Create debounced search handler (300ms delay)
+const debouncedSearchHandlers = {}; // Store per-vyakhyana debounced functions
+
+function getOrCreateDebouncedSearch(vyakhyanaNum, vyakhyaKey) {
+    const key = `${vyakhyanaNum}-${vyakhyaKey}`;
+    if (!debouncedSearchHandlers[key]) {
+        debouncedSearchHandlers[key] = PerformanceUtils.debounce(
+            (term) => searchInVyakhyana(vyakhyanaNum, vyakhyaKey, term),
+            300
+        );
+    }
+    return debouncedSearchHandlers[key];
+}
+
+// Helper function to render text with optional virtual scrolling
+// Use virtual scrolling for texts over 5000 lines
+function renderTextContent(textElem, content, useVirtual = true) {
+    const lines = content.split('\n');
+    const VIRTUAL_THRESHOLD = 5000; // Use virtual scrolling for > 5000 lines
+    
+    if (useVirtual && lines.length > VIRTUAL_THRESHOLD) {
+        const elemId = textElem.id || `text-${Date.now()}`;
+        textElem.id = elemId;
+        
+        // Initialize or update virtual scroller
+        if (!virtualScrollers[elemId]) {
+            virtualScrollers[elemId] = new VirtualTextScroller(textElem, {
+                lineHeight: 25,
+                bufferLines: 10
+            });
+        }
+        
+        virtualScrollers[elemId].setContent(content);
+        console.log(`Virtual scrolling enabled for ${lines.length} lines`);
+    } else {
+        // Standard rendering for smaller texts
+        textElem.innerHTML = content;
+    }
+}
+
+// Initialize lazy loading for background images (watermarks)
+let lazyBgLoader = null;
+
+function initializeLazyBackgrounds() {
+    if (typeof PerformanceUtils === 'undefined') {
+        console.warn('PerformanceUtils not loaded, skipping lazy loading');
+        return;
+    }
+    
+    lazyBgLoader = new PerformanceUtils.LazyLoader({
+        rootMargin: '50px',
+        onIntersect: (element) => {
+            const bgUrl = element.dataset.bg;
+            if (bgUrl) {
+                element.style.backgroundImage = `url('${bgUrl}')`;
+                element.classList.remove('lazy-bg');
+            }
+        }
+    });
+    
+    // Observe all lazy background elements
+    document.querySelectorAll('.lazy-bg').forEach(el => {
+        lazyBgLoader.observe(el);
+    });
+}
+
+// Re-initialize lazy loading after adding new vyakhyanas
+function refreshLazyBackgrounds() {
+    if (lazyBgLoader) {
+        document.querySelectorAll('.lazy-bg').forEach(el => {
+            lazyBgLoader.observe(el);
+        });
+    }
+}
+
 // Translation lookup table for common Sanskrit terms
 const translationLookup = {
     'सूत्रम्': {
@@ -531,6 +612,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         updateSelectedVyakhyanas();
     }
+    
+    // Initialize lazy loading for background images
+    initializeLazyBackgrounds();
     
     loadSutras();
     setupEventListeners();
@@ -2551,8 +2635,10 @@ function showSutraDetail(sutra, partKey = null) {
                 
                 // Add watermark div if author exists
                 // Normalize author name to lowercase for image filename
+                // Use lazy loading for watermark images
                 const authorImageName = author ? author.toLowerCase() : '';
-                const watermarkDiv = authorImageName ? `<div class="watermark" style="background-image: url('images/${authorImageName}.jpg');"></div>` : '';
+                const watermarkDiv = authorImageName ? `<div class="watermark lazy-bg" data-bg="images/${authorImageName}.jpg"></div>` : '';
+
                 
                 // Add resize handle only if not the first vyakhyana
                 const resizeHandleTop = num > 1 ? `<div class="resize-handle-top" onmousedown="startResizeTop(event, ${num})"></div>` : '';
@@ -2566,7 +2652,7 @@ function showSutraDetail(sutra, partKey = null) {
                                data-vyakhyana-num="${num}"
                                data-vyakhya-key="${vyakhyaKey}"
                                onclick="event.stopPropagation()"
-                               oninput="searchInVyakhyana(this.dataset.vyakhyanaNum, this.dataset.vyakhyaKey, this.value)"
+                               oninput="getOrCreateDebouncedSearch('${num}', '${vyakhyaKey}')(this.value)"
                                style="padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; width: 150px;">
                     </div>
                 `;
@@ -2603,6 +2689,11 @@ function showSutraDetail(sutra, partKey = null) {
             ${additionalCommentariesHTML}
         </div>
     `;
+    
+    // Initialize lazy loading for watermarks after rendering
+    setTimeout(() => {
+        refreshLazyBackgrounds();
+    }, 50);
     
     // Update navigation button states after rendering
     updateNavigationButtons();
@@ -2782,7 +2873,8 @@ function searchInVyakhyana(vyakhyanaNum, vyakhyaKey, searchTerm) {
     // If search is cleared, restore original current page
     if (!searchTerm || searchTerm.trim() === '') {
         console.log('Search cleared, restoring original page', currentPage + 1);
-        textElem.innerHTML = makePratikaGrahanaBold(originalText);
+        const processedText = makePratikaGrahanaBold(originalText);
+        renderTextContent(textElem, processedText);
         console.log('=== searchInVyakhyana END (cleared) ===');
         return;
     }
@@ -2864,11 +2956,13 @@ function searchInVyakhyana(vyakhyanaNum, vyakhyaKey, searchTerm) {
         console.log(`✓ Highlighted ${totalCount} match(es) on page ${currentPage + 1}`);
         // Get sutra number from contentElem
         const sutraNum = parseInt(contentElem.closest('.sutra-item')?.dataset?.sutraNum || vyakhyanaNum);
-        textElem.innerHTML = makePratikaGrahanaBold(highlightedText, sutraNum);
+        const processedText = makePratikaGrahanaBold(highlightedText, sutraNum);
+        renderTextContent(textElem, processedText);
     } else {
         console.log('No matches found on current page');
         const sutraNum = parseInt(contentElem.closest('.sutra-item')?.dataset?.sutraNum || vyakhyanaNum);
-        textElem.innerHTML = makePratikaGrahanaBold(originalText, sutraNum);
+        const processedText = makePratikaGrahanaBold(originalText, sutraNum);
+        renderTextContent(textElem, processedText);
     }
     
     console.log('=== searchInVyakhyana END ===');
@@ -2928,7 +3022,7 @@ function searchInVyakhyanaWithPratika(vyakhyanaNum, vyakhyaKey, searchTerm, isPr
     
     // If search is cleared, restore original current page
     if (!searchTerm || searchTerm.trim() === '') {
-        textElem.innerHTML = originalText;
+        renderTextContent(textElem, originalText);
         console.log('=== searchInVyakhyanaWithPratika END (cleared) ===');
         return;
     }
@@ -3014,10 +3108,12 @@ function searchInVyakhyanaWithPratika(vyakhyanaNum, vyakhyaKey, searchTerm, isPr
         // Highlight the matches in CURRENT page only
         const highlightedText = sanskritSearcher.highlightMatches(originalText, results.matches);
         console.log(`✓ Highlighted ${results.count} match(es) with pratika grahana on page ${currentPage + 1}`);
-        textElem.innerHTML = makePratikaGrahanaBold(highlightedText);
+        const processedText = makePratikaGrahanaBold(highlightedText);
+        renderTextContent(textElem, processedText);
     } else {
         console.log('No matches found on current page');
-        textElem.innerHTML = makePratikaGrahanaBold(originalText);
+        const processedText = makePratikaGrahanaBold(originalText);
+        renderTextContent(textElem, processedText);
     }
     
     console.log('=== searchInVyakhyanaWithPratika END ===');
@@ -3756,7 +3852,8 @@ function clearCrossReferenceHighlights() {
             console.log('Restoring original text for vyakhyana', vyakhyanaNum, 'page', currentPage + 1);
             // Get sutra number from the item's parent
             const sutraNum = parseInt(item.closest('.sutra-item')?.dataset?.sutraNum || item.dataset.sutraNum || vyakhyanaNum);
-            textElem.innerHTML = makePratikaGrahanaBold(originalText, sutraNum);
+            const processedText = makePratikaGrahanaBold(originalText, sutraNum);
+            renderTextContent(textElem, processedText);
         } else {
             console.log('No original text found in storage for', storageKey);
         }

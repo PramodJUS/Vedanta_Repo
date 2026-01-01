@@ -1510,6 +1510,10 @@ footer .last-updated span {
     opacity: 1;
 }
 
+.lazy-bg {
+    background-image: none !important;
+    transition: background-image 0.3s ease-in;
+}
 
 /* Search Highlight */
 .search-highlight {
