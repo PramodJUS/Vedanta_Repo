@@ -1,7 +1,7 @@
 # Multi-Language Content Framework Documentation
 
 ## Last Updated
-**Version 1.0.3** - January 1, 2026 - Vyākhyāna resize handle improvements
+**Version 1.0.3** - January 1, 2026
 
 ---
 
