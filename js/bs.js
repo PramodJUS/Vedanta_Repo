@@ -21,11 +21,18 @@ const CHARS_PER_PAGE = 2000; // Characters per page for pagination
 let autoHideHeaders = localStorage.getItem('autoHideHeaders') === 'true';
 let pratikaIdentifier = null; // Pratika identifier instance
 
-// Performance optimizations
-const transliterationCache = new PerformanceUtils.LRUCache(100);
-const sutraDataCache = new PerformanceUtils.LRUCache(50);
-const perfMonitor = new PerformanceUtils.PerformanceMonitor(false); // Set to true for debugging
+// Performance optimizations - initialize after PerformanceUtils loads
+let transliterationCache = null;
+let sutraDataCache = null;
+let perfMonitor = null;
 const virtualScrollers = {}; // Track virtual scrollers for each vyakhyana
+
+// Initialize performance utilities when available
+if (typeof PerformanceUtils !== 'undefined') {
+    transliterationCache = new PerformanceUtils.LRUCache(100);
+    sutraDataCache = new PerformanceUtils.LRUCache(50);
+    perfMonitor = new PerformanceUtils.PerformanceMonitor(false); // Set to true for debugging
+}
 
 // Create debounced search handler (300ms delay)
 const debouncedSearchHandlers = {}; // Store per-vyakhyana debounced functions
@@ -33,9 +40,19 @@ const debouncedSearchHandlers = {}; // Store per-vyakhyana debounced functions
 function getOrCreateDebouncedSearch(vyakhyanaNum, vyakhyaKey) {
     const key = `${vyakhyanaNum}-${vyakhyaKey}`;
     if (!debouncedSearchHandlers[key]) {
-        debouncedSearchHandlers[key] = PerformanceUtils.debounce(
-            (term) => searchInVyakhyana(vyakhyanaNum, vyakhyaKey, term),
-            300
+        // Use debounce if available, otherwise return direct function
+        if (typeof PerformanceUtils !== 'undefined' && PerformanceUtils.debounce) {
+            debouncedSearchHandlers[key] = PerformanceUtils.debounce(
+                (term) => searchInVyakhyana(vyakhyanaNum, vyakhyaKey, term),
+                300
+            );
+        } else {
+            // Fallback to direct call if PerformanceUtils not available
+            debouncedSearchHandlers[key] = (term) => searchInVyakhyana(vyakhyanaNum, vyakhyaKey, term);
+        }
+    }
+    return debouncedSearchHandlers[key];
+}
         );
     }
     return debouncedSearchHandlers[key];
@@ -47,7 +64,8 @@ function renderTextContent(textElem, content, useVirtual = true) {
     const lines = content.split('\n');
     const VIRTUAL_THRESHOLD = 5000; // Use virtual scrolling for > 5000 lines
     
-    if (useVirtual && lines.length > VIRTUAL_THRESHOLD) {
+    // Check if VirtualTextScroller is available
+    if (useVirtual && lines.length > VIRTUAL_THRESHOLD && typeof VirtualTextScroller !== 'undefined') {
         const elemId = textElem.id || `text-${Date.now()}`;
         textElem.id = elemId;
         
@@ -56,6 +74,16 @@ function renderTextContent(textElem, content, useVirtual = true) {
             virtualScrollers[elemId] = new VirtualTextScroller(textElem, {
                 lineHeight: 25,
                 bufferLines: 10
+            });
+        }
+        
+        virtualScrollers[elemId].setContent(content);
+        console.log(`Virtual scrolling enabled for ${lines.length} lines`);
+    } else {
+        // Standard rendering for smaller texts or when VirtualTextScroller not available
+        textElem.innerHTML = content;
+    }
+}
             });
         }
         
