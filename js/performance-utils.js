@@ -61,7 +61,12 @@ class LazyLoader {
     }
     
     observe(elements) {
-        elements.forEach(el => this.observer.observe(el));
+        // Handle both single element and array/NodeList
+        if (elements instanceof NodeList || Array.isArray(elements)) {
+            elements.forEach(el => this.observer.observe(el));
+        } else {
+            this.observer.observe(elements);
+        }
     }
 }
 

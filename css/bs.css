@@ -1347,7 +1347,7 @@ header.header-collapsed .header-toggle-btn {
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
-    opacity: 0.10;
+    opacity: 0.15;
     pointer-events: none;
     z-index: 0;
 }
