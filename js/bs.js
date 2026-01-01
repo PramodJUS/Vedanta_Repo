@@ -53,10 +53,6 @@ function getOrCreateDebouncedSearch(vyakhyanaNum, vyakhyaKey) {
     }
     return debouncedSearchHandlers[key];
 }
-        );
-    }
-    return debouncedSearchHandlers[key];
-}
 
 // Helper function to render text with optional virtual scrolling
 // Use virtual scrolling for texts over 5000 lines
