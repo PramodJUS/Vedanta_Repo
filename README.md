@@ -1,6 +1,6 @@
 # Vedanta Project
 
-**Version 1.0.3** | Last Updated: December 26, 2025
+**Version 1.0.3** | Last Updated: January 1, 2026
 
 A comprehensive web-based resource for studying Vedanta philosophy, specifically the **Brahma Sutras** with **Madhvacharya's Dvaita Vedanta** commentary.
 
