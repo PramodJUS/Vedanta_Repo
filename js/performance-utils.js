@@ -29,8 +29,10 @@ function throttle(func, limit) {
 
 // 3. Lazy loader for images and heavy content
 class LazyLoader {
-    constructor() {
+    constructor(options = {}) {
         this.observer = null;
+        this.onIntersect = options.onIntersect || null;
+        this.rootMargin = options.rootMargin || '50px';
         this.init();
     }
     
@@ -44,11 +46,18 @@ class LazyLoader {
                 }
             });
         }, {
-            rootMargin: '50px' // Start loading 50px before element is visible
+            rootMargin: this.rootMargin // Start loading before element is visible
         });
     }
     
     loadElement(element) {
+        // If custom callback provided, use it
+        if (this.onIntersect) {
+            this.onIntersect(element);
+            return;
+        }
+        
+        // Default behavior
         if (element.dataset.src) {
             element.src = element.dataset.src;
         }
