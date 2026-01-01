@@ -8,10 +8,6 @@
 - **Enhanced**: Handles easier to find and interact with when multiple vyākhyānas are open
 - Full opacity on hover for clear visual feedback
 
----
-
-## Version 1.0.3 - December 31, 2025
-
 ### Personal Notes Feature
 - **New**: Added personal study notes functionality at sutra level
 - Notes appear as first commentary item with customizable heading
