@@ -1,5 +1,15 @@
 # Release Notes
 
+## Version 1.0.3 - January 1, 2026
+
+### Vyākhyāna Resize Handle Fix
+- **Fixed**: Green resize handles between vyākhyānas now always visible (30% opacity)
+- **Fixed**: Changed positioning from sticky to relative for better reliability
+- **Enhanced**: Handles easier to find and interact with when multiple vyākhyānas are open
+- Full opacity on hover for clear visual feedback
+
+---
+
 ## Version 1.0.3 - December 31, 2025
 
 ### Personal Notes Feature
