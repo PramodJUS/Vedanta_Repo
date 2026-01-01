@@ -80,16 +80,6 @@ function renderTextContent(textElem, content, useVirtual = true) {
         textElem.innerHTML = content;
     }
 }
-            });
-        }
-        
-        virtualScrollers[elemId].setContent(content);
-        console.log(`Virtual scrolling enabled for ${lines.length} lines`);
-    } else {
-        // Standard rendering for smaller texts
-        textElem.innerHTML = content;
-    }
-}
 
 // Initialize lazy loading for background images (watermarks)
 let lazyBgLoader = null;
