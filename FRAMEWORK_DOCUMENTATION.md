@@ -1,7 +1,7 @@
 # Multi-Language Content Framework Documentation
 
 ## Last Updated
-**Version 1.0.3** - December 31, 2025 - Personal Notes enhancements
+**Version 1.0.3** - January 1, 2026 - Vyākhyāna resize handle improvements
 
 ---
 
@@ -1157,16 +1157,16 @@ function navigateVyakhyanaPage(sutraNum, vyakhyaKey, direction, event, shouldScr
         transparent 70%
     );
     cursor: ns-resize;
-    position: sticky;
+    position: relative;  /* Changed from sticky for better reliability */
     top: 0;
     left: 0;
-    opacity: 0;  /* Hidden by default */
+    opacity: 0.3;  /* Always visible at 30% opacity */
     transition: opacity 0.2s;
     z-index: 150;
 }
 
 .resize-handle-top:hover {
-    opacity: 1;
+    opacity: 1;  /* Full opacity on hover */
     background: linear-gradient(
         to bottom, 
         transparent 20%, 
@@ -1177,10 +1177,10 @@ function navigateVyakhyanaPage(sutraNum, vyakhyaKey, direction, event, shouldScr
 ```
 
 **Benefits**:
-- Non-intrusive: Only shows when needed
-- Always accessible: Sticky positioning keeps it at viewport top
-- Clear affordance: Color and cursor indicate draggability
-- Clean UI: Doesn't clutter interface when not in use
+- Always Visible: Subtle 30% opacity ensures users can find resize handles
+- Clear Affordance: Green line with cursor change indicates draggability
+- Enhanced Hover: Full opacity on hover provides clear visual feedback
+- Reliable Positioning: Relative positioning prevents sticky behavior issues with stacked vyākhyānas
 
 ---
 
