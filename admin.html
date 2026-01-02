@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brahma Sutra Vyakhyana - Admin Panel</title>
+    
+    <!-- Load Configuration -->
+    <script src="config.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .auth-box {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .auth-box h2 {
+            color: #1f2937;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .auth-box p {
+            color: #6b7280;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .auth-box input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .auth-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .auth-box button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .auth-box button:hover {
+            background: #5568d3;
+        }
+
+        .auth-error {
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .auth-box .lock-icon {
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .actions {
+            padding: 20px 30px;
+            background: #f9f9f9;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .content {
+            display: flex;
+            height: calc(100vh - 280px);
+            overflow: hidden;
+            transition: height 0.3s ease;
+        }
+
+        .container.header-collapsed .content {
+            height: calc(100vh - 40px);
+        }
+
+        .sidebar {
+            width: 280px;
+            border-right: 1px solid #e0e0e0;
+            overflow-y: auto;
+            background: #fafafa;
+            transition: margin-left 0.3s ease;
+            position: relative;
+        }
+
+        .sidebar.collapsed {
+            margin-left: -280px;
+        }
+
+        .sidebar-toggle {
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+            position: fixed;
+            left: 10px;
+            top: 572px;
+            z-index: 1000;
+            transition: background 0.2s;
+        }
+
+        .sidebar-toggle:hover {
+            background: #5568d3;
+        }
+
+        .header-toggle {
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            transition: background 0.2s;
+        }
+
+        .header-toggle:hover {
+            background: #5568d3;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .header, .actions {
+            transition: margin-top 0.3s ease, opacity 0.3s ease;
+        }
+
+        .header.collapsed {
+            margin-top: -150px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .actions.collapsed {
+            margin-top: -80px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .sutra-list {
+            list-style: none;
+        }
+
+        .sutra-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .sutra-item:hover {
+            background: #f0f0f0;
+        }
+
+        .sutra-item.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .sutra-number {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .sutra-text {
+            font-size: 13px;
+            opacity: 0.8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .editor-panel {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .editor-panel.empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            font-size: 18px;
+        }
+
+        .sutra-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .sutra-header h2 {
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+
+        .sutra-meta {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .vyakhyana-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .vyakhyana-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .vyakhyana-header h3 {
+            color: #374151;
+            font-size: 18px;
+        }
+
+        .btn-small {
+            padding: 5px 12px;
+            font-size: 12px;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+            background: white;
+            appearance: auto;
+            -webkit-appearance: auto;
+            -moz-appearance: auto;
+        }
+
+        .form-group select {
+            cursor: pointer;
+            min-height: 40px;
+        }
+
+        .form-group textarea {
+            min-height: 200px;
+            font-family: 'Noto Sans', sans-serif;
+            line-height: 1.6;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .add-vyakhyana {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f0fdf4;
+            border: 2px dashed #86efac;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-left: auto;
+            font-size: 14px;
+        }
+
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .search-box {
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: #1f2937;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+            font-size: 13px;
+        }
+
+        .stat-badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        /* Rich Text Editor */
+        .editor-toolbar {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-bottom: none;
+            padding: 8px;
+            border-radius: 5px 5px 0 0;
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .editor-btn {
+            padding: 5px 10px;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .editor-btn:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+
+        .editor-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .editor-select {
+            padding: 5px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 3px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .editor-divider {
+            width: 1px;
+            background: #d1d5db;
+            margin: 0 5px;
+        }
+
+        .editor-content {
+            min-height: 200px;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 0 0 5px 5px;
+            background: white;
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            line-height: 1.6;
+            outline: none;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+
+        .editor-content:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .color-select {
+            padding: 4px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 3px;
+            background: white;
+            font-size: 12px;
+            cursor: pointer;
+            min-width: 80px;
+        }
+
+        /* MS Word style split color button */
+        .color-btn-group {
+            display: inline-flex;
+            border: 1px solid #d1d5db;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .color-main-btn {
+            border: none !important;
+            border-right: 1px solid #d1d5db !important;
+            border-radius: 0 !important;
+            padding: 4px 8px !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 28px;
+        }
+
+        .color-dropdown-btn {
+            border: none !important;
+            border-radius: 0 !important;
+            padding: 4px 6px !important;
+            font-size: 10px;
+            min-width: 18px;
+        }
+
+        .color-indicator {
+            margin-top: 2px;
+            border: 1px solid #999;
+        }
+
+        .color-btn-group:hover {
+            border-color: #9ca3af;
+        }
+    </style>
+</head>
+<body>
+    <!-- Authentication Overlay -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-box">
+            <div class="lock-icon">🔐</div>
+            <h2>Admin Access</h2>
+            <p>Please enter the password to access the admin panel</p>
+            <input type="password" id="authPassword" placeholder="Enter password" onkeypress="if(event.key==='Enter') checkPassword()">
+            <button onclick="checkPassword()">Access Admin Panel</button>
+            <div class="auth-error" id="authError">? Incorrect password. Please try again.</div>
+        </div>
+    </div>
+
+    <button class="logout-btn" onclick="logout()">? Logout</button>
+
+    <div class="container">
+        <button class="header-toggle" onclick="toggleHeader()" title="Toggle Header">
+            <span id="headerToggleIcon">▲</span>
+        </button>
+        
+        <div class="header" id="header">
+            <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+            <h1>🕉️ Brahma Sutra Vyakhyana Admin Panel</h1>
+            <p>Manage sutras and vyakhyanas for all authors</p>
+        </div>
+
+        <div class="actions" id="actions">
+            <button class="btn btn-primary" onclick="loadData()">📂 Load Data</button>
+            <button class="btn btn-success" onclick="saveData()">💾 Download JSON</button>
+            <button class="btn btn-secondary" onclick="showAddVyakhyanaModal()">➕ Add New Sutra</button>
+            <div id="status"></div>
+        </div>
+
+        <div class="content">
+            <div class="sidebar" id="sidebar">
+                <div class="search-box">
+                    <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle Sidebar">
+                        <span id="toggleIcon">◀</span>
+                    </button>
+                    <input type="text" id="searchSutra" placeholder="Search sutras..." oninput="filterSutras()">
+                </div>
+                <ul class="sutra-list" id="sutraList">
+                    <li style="padding: 40px 20px; text-align: center; color: #9ca3af;">
+                        Click "Load Data" to begin
+                    </li>
+                </ul>
+            </div>
+
+            <div class="editor-panel empty" id="editorPanel">
+                <div>Select a sutra from the sidebar to edit</div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Add Vyakhyana Modal -->
+    <div class="modal" id="addVyakhyanaModal" onclick="if(event.target === this) closeModal()">
+        <div class="modal-content">
+            <h3>Add New Sutra</h3>
+            <div class="form-group">
+                <label>Sutra Number (e.g., 1.1.1 or 1.1.2)</label>
+                <input type="text" id="newSutraNumber" placeholder="1.1.1" onchange="updatePartDropdown()">
+            </div>
+            <div class="form-group">
+                <label>Select Part</label>
+                <select id="newPartNumber">
+                    <option value="Part#1">Part#1</option>
+                </select>
+            </div>
+            <div class="form-group" id="newPartGroup" style="display: none;">
+                <button type="button" class="btn btn-secondary" onclick="createNewPart()" id="newPartBtn">+ Create New Part</button>
+                <input type="hidden" id="newPartName">
+                <small id="newPartHint" style="color: #6b7280; display: none; margin-top: 8px;"></small>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmAddVyakhyana()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // Configuration loaded from config.js
+        // ========================================
+        
+        // ====== AUTHENTICATION SYSTEM ======
+        
+        // Check if already authenticated
+        window.addEventListener('DOMContentLoaded', function() {
+            if (sessionStorage.getItem('adminAuth') === 'true') {
+                document.getElementById('authOverlay').style.display = 'none';
+            }
+        });
+
+        // Hash password using SHA-256
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Check password
+        async function checkPassword() {
+            const password = document.getElementById('authPassword').value;
+            const hash = await hashPassword(password);
+            
+            console.log('Testing password - Hash:', hash);
+            
+            if (hash === ADMIN_PASSWORD_HASH) {
+                sessionStorage.setItem('adminAuth', 'true');
+                document.getElementById('authOverlay').style.display = 'none';
+                document.getElementById('authError').style.display = 'none';
+            } else {
+                document.getElementById('authError').style.display = 'block';
+                document.getElementById('authPassword').value = '';
+                document.getElementById('authPassword').focus();
+            }
+        }
+
+        // Logout function
+        function logout() {
+            sessionStorage.removeItem('adminAuth');
+            location.reload();
+        }
+        // ====== END AUTHENTICATION ======
+
+        let sutraData = {};
+        let currentSutraId = null;
+        let currentPart = 'Part#1'; // Track which part is currently displayed
+
+        // Load data from JSON file
+        async function loadData() {
+            try {
+                showStatus('Loading data...', 'info');
+                const response = await fetch(DATA_CONFIG.dataPath);
+                if (!response.ok) throw new Error('Failed to load data');
+                
+                sutraData = await response.json();
+                renderSutraList();
+                showStatus('Data loaded successfully!', 'success');
+            } catch (error) {
+                showStatus('Error loading data: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        // Render sutra list in sidebar
+        function renderSutraList(filter = '') {
+            const list = document.getElementById('sutraList');
+            list.innerHTML = '';
+
+            const sutras = Object.keys(sutraData).sort((a, b) => {
+                // Handle both formats: "1.1.1" and "sutra_1"
+                const getNum = (id) => {
+                    if (id.includes('.')) {
+                        return id.split('.').map(n => parseInt(n));
+                    }
+                    return [parseInt(id.replace('sutra_', ''))];
+                };
+                const numsA = getNum(a);
+                const numsB = getNum(b);
+                for (let i = 0; i < Math.min(numsA.length, numsB.length); i++) {
+                    if (numsA[i] !== numsB[i]) return numsA[i] - numsB[i];
+                }
+                return numsA.length - numsB.length;
+            });
+
+            const filtered = filter ? 
+                sutras.filter(id => id.toLowerCase().includes(filter.toLowerCase())) : sutras;
+
+            filtered.forEach(sutraId => {
+                const sutra = sutraData[sutraId];
+                const li = document.createElement('li');
+                li.className = 'sutra-item';
+                if (sutraId === currentSutraId) li.classList.add('active');
+                
+                // Count vyakhyanas by looking at nested structure
+                let vyakhyanaCount = 0;
+                Object.keys(sutra).forEach(key => {
+                    if (typeof sutra[key] === 'object' && sutra[key] !== null) {
+                        vyakhyanaCount += Object.keys(sutra[key]).length;
+                    }
+                });
+                
+                li.innerHTML = `
+                    <div class="sutra-number">Sutra ${sutraId}</div>
+                    <div class="sutra-text">${vyakhyanaCount} sections</div>
+                    <div class="stats">
+                        <span class="stat-badge">${vyakhyanaCount} entries</span>
+                    </div>
+                `;
+                li.onclick = () => selectSutra(sutraId);
+                list.appendChild(li);
+            });
+        }
+
+        // Filter sutras based on search
+        function filterSutras() {
+            const searchTerm = document.getElementById('searchSutra').value;
+            renderSutraList(searchTerm);
+        }
+
+        // Toggle sidebar collapse
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const icon = document.getElementById('toggleIcon');
+            sidebar.classList.toggle('collapsed');
+            icon.textContent = sidebar.classList.contains('collapsed') ? '▶' : '◀';
+        }
+
+        // Toggle header collapse
+        function toggleHeader() {
+            const container = document.querySelector('.container');
+            const header = document.getElementById('header');
+            const actions = document.getElementById('actions');
+            const icon = document.getElementById('headerToggleIcon');
+            
+            header.classList.toggle('collapsed');
+            actions.classList.toggle('collapsed');
+            container.classList.toggle('header-collapsed');
+            icon.textContent = header.classList.contains('collapsed') ? '▼' : '▲';
+        }
+
+        // Store last used colors per editor
+        const lastColors = {};
+        
+        // Apply last used color (MS Word style)
+        function applyLastColor(editorId, type) {
+            const key = `${editorId}_${type}`;
+            const defaultColor = type === 'text' ? EDITOR_CONFIG.defaultTextColor : EDITOR_CONFIG.defaultBgColor;
+            const color = lastColors[key] || defaultColor;
+            
+            if (type === 'text') {
+                formatDoc('foreColor', editorId, color);
+            } else {
+                formatDoc('backColor', editorId, color);
+            }
+        }
+        
+        // Show color palette and remember selection
+        function showColorPalette(editorId, type) {
+            const colors = type === 'text' ? EDITOR_CONFIG.textColors : EDITOR_CONFIG.bgColors;
+            
+            const html = colors.map(c => 
+                `<div style="padding:4px;cursor:pointer;display:flex;gap:8px;align-items:center;" 
+                      onmouseover="this.style.background='#f0f0f0'" 
+                      onmouseout="this.style.background=''" 
+                      onclick="selectColor('${editorId}', '${type}', '${c.hex}')">
+                    <span style="background:${c.hex};border:1px solid #ccc;width:20px;height:20px;display:inline-block;"></span>
+                    <span>${c.emoji} ${c.name}</span>
+                </div>`
+            ).join('');
+            
+            // Show palette in a simple popup
+            const palette = document.createElement('div');
+            palette.id = `palette_${editorId}_${type}`;
+            palette.style.cssText = 'position:absolute;background:white;border:1px solid #ccc;box-shadow:0 2px 8px rgba(0,0,0,0.15);z-index:1000;min-width:150px;';
+            palette.innerHTML = html;
+            
+            // Remove any existing palette
+            document.querySelectorAll('[id^="palette_"]').forEach(el => el.remove());
+            
+            // Position near the button
+            document.body.appendChild(palette);
+            const btn = event.target;
+            const rect = btn.getBoundingClientRect();
+            palette.style.left = rect.left + 'px';
+            palette.style.top = (rect.bottom + 2) + 'px';
+            
+            // Close on click outside
+            setTimeout(() => {
+                document.addEventListener('click', function closePalette(e) {
+                    if (!palette.contains(e.target) && e.target !== btn) {
+                        palette.remove();
+                        document.removeEventListener('click', closePalette);
+                    }
+                });
+            }, 100);
+        }
+        
+        // Select color from palette
+        function selectColor(editorId, type, color) {
+            const key = `${editorId}_${type}`;
+            lastColors[key] = color;
+            
+            if (type === 'text') {
+                formatDoc('foreColor', editorId, color);
+            } else {
+                formatDoc('backColor', editorId, color);
+            }
+            
+            // Update button indicator
+            updateColorButton(editorId, type, color);
+            
+            // Close palette
+            document.querySelectorAll('[id^="palette_"]').forEach(el => el.remove());
+        }
+        
+        // Update button to show current color
+        function updateColorButton(editorId, type, color) {
+            const btnId = `${type}ColorBtn_${editorId}`;
+            const indicator = document.getElementById(btnId)?.querySelector('.color-indicator');
+            if (indicator && color !== 'transparent') {
+                indicator.style.background = color;
+            }
+        }
+
+        // Generate editor toolbar HTML
+        function getEditorToolbar(editorId) {
+            const cfg = EDITOR_CONFIG;
+            const sym = cfg.symbols;
+            let html = '';
+            
+            // Text formatting buttons
+            if (cfg.features.bold) html += `<button class="editor-btn" onclick="formatDoc('bold', '${editorId}')" title="Bold"><b>${sym.bold}</b></button>`;
+            if (cfg.features.italic) html += `<button class="editor-btn" onclick="formatDoc('italic', '${editorId}')" title="Italic"><i>${sym.italic}</i></button>`;
+            if (cfg.features.underline) html += `<button class="editor-btn" onclick="formatDoc('underline', '${editorId}')" title="Underline"><u>${sym.underline}</u></button>`;
+            if (cfg.features.bold || cfg.features.italic || cfg.features.underline) html += '<div class="editor-divider"></div>';
+            
+            // Font size
+            if (cfg.features.fontSize) {
+                html += `<select class="editor-select" onchange="formatDoc('fontSize', '${editorId}', this.value); this.selectedIndex=0;" title="Font Size">
+                    <option value="" selected>Size</option>`;
+                cfg.fontSizes.forEach(size => {
+                    html += `<option value="${size.value}">${size.label}</option>`;
+                });
+                html += '</select>';
+            }
+            // Color buttons
+            if (cfg.features.textColor) {
+                html += `<div class="color-btn-group">
+                    <button class="editor-btn color-main-btn" id="textColorBtn_${editorId}" onclick="applyLastColor('${editorId}', 'text')" title="Text Color">
+                        A<span class="color-indicator" style="background:${cfg.defaultTextColor};width:14px;height:3px;display:block;margin-top:1px;"></span>
+                    </button>
+                    <button class="editor-btn color-dropdown-btn" onclick="showColorPalette('${editorId}', 'text')" title="Choose Text Color">?</button>
+                </div>`;
+            }
+            if (cfg.features.bgColor) {
+                html += `<div class="color-btn-group">
+                    <button class="editor-btn color-main-btn" id="bgColorBtn_${editorId}" onclick="applyLastColor('${editorId}', 'bg')" title="Background Color">
+                        <span style="display:inline-block;background:#fff;border:1px solid #666;padding:2px 4px;">ab</span><span class="color-indicator" style="background:${cfg.defaultBgColor};width:14px;height:3px;display:block;margin-top:1px;"></span>
+                    </button>
+                    <button class="editor-btn color-dropdown-btn" onclick="showColorPalette('${editorId}', 'bg')" title="Choose Background Color">?</button>
+                </div>`;
+            }
+            if (cfg.features.textColor || cfg.features.bgColor) html += '<div class="editor-divider"></div>';
+            
+            // Alignment buttons
+            if (cfg.features.alignLeft) html += `<button class="editor-btn" onclick="formatDoc('justifyLeft', '${editorId}')" title="Align Left">${sym.alignLeft}</button>`;
+            if (cfg.features.alignCenter) html += `<button class="editor-btn" onclick="formatDoc('justifyCenter', '${editorId}')" title="Align Center">${sym.alignCenter}</button>`;
+            if (cfg.features.alignRight) html += `<button class="editor-btn" onclick="formatDoc('justifyRight', '${editorId}')" title="Align Right">${sym.alignRight}</button>`;
+            if (cfg.features.alignLeft || cfg.features.alignCenter || cfg.features.alignRight) html += '<div class="editor-divider"></div>';
+            
+            // List buttons
+            if (cfg.features.bulletList) html += `<button class="editor-btn" onclick="formatDoc('insertUnorderedList', '${editorId}')" title="Bullet List">${sym.bulletList} List</button>`;
+            if (cfg.features.numberedList) html += `<button class="editor-btn" onclick="formatDoc('insertOrderedList', '${editorId}')" title="Numbered List">${sym.numberedList} List</button>`;
+            if (cfg.features.bulletList || cfg.features.numberedList) html += '<div class="editor-divider"></div>';
+            
+            // Clear formatting
+            if (cfg.features.clearFormat) html += `<button class="editor-btn" onclick="formatDoc('removeFormat', '${editorId}')" title="Clear Formatting">${sym.clearFormat} Clear</button>`;
+            
+            return html;
+        }
+
+        // Select and display a sutra
+        function selectSutra(sutraId) {
+            currentSutraId = sutraId;
+            renderSutraList();
+            renderEditor(sutraId);
+        }
+
+        // Render editor panel for selected sutra
+        function renderEditor(sutraId) {
+            const panel = document.getElementById('editorPanel');
+            const sutra = sutraData[sutraId];
+            
+            // Get all parts
+            const parts = Object.keys(sutra)
+                .filter(key => key.startsWith('Part#'))
+                .sort((a, b) => {
+                    const numA = parseInt(a.replace('Part#', ''));
+                    const numB = parseInt(b.replace('Part#', ''));
+                    return numA - numB;
+                });
+            
+            // Set default part if not already set or invalid
+            const hasPersonalNotes = sutra['व्यक्तिगत-टिपाणी'] !== undefined;
+            if (!currentPart || (!parts.includes(currentPart) && currentPart !== 'व्यक्तिगत-टिपाणी')) {
+                currentPart = parts[0] || 'Part#1';
+            }
+            
+            // Build part dropdown options
+            let partOptions = '';
+            if (hasPersonalNotes || parts.length > 0) {
+                if (hasPersonalNotes) {
+                    partOptions += `<option value="व्यक्तिगत-टिपाणी" ${currentPart === 'व्यक्तिगत-टिपाणी' ? 'selected' : ''}>Notes</option>`;
+                } else {
+                    partOptions += `<option value="__add_notes__">+ Add Notes</option>`;
+                }
+                partOptions += parts.map(part => `<option value="${part}" ${part === currentPart ? 'selected' : ''}>${part}</option>`).join('');
+                
+                // Add "Add New Part" option
+                const nextPartNum = parts.length > 0 ? parseInt(parts[parts.length - 1].replace('Part#', '')) + 1 : 1;
+                partOptions += `<option value="__add_part__">+ Add Part#${nextPartNum}</option>`;
+            }
+            
+            panel.classList.remove('empty');
+            panel.innerHTML = `
+                <div class="sutra-header" style="display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 15px; background: #f9fafb; border-radius: 5px; margin-bottom: 20px;">
+                    <h2 style="margin: 0; font-size: 18px;">Sutra ${sutraId}</h2>
+                    ${(hasPersonalNotes || parts.length > 0) ? `
+                        <select id="partSelector" onchange="switchPart(this.value)" style="padding: 8px; font-size: 14px; min-width: 150px;">
+                            ${partOptions}
+                        </select>
+                    ` : '<span style="color: #9ca3af; font-size: 14px;">No content</span>'}
+                    <button class="btn btn-success" onclick="saveCurrentSutra()">💾 Save</button>
+                </div>
+
+                <div id="vyakhyanasList"></div>
+            `;
+
+            renderVyakhyanas(sutraId);
+        }
+
+        // Scroll to specific part
+        function scrollToPart(partName) {
+            const partElements = document.querySelectorAll('h3');
+            for (let element of partElements) {
+                if (element.textContent.includes(partName)) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Highlight briefly
+                    element.style.backgroundColor = '#fef3c7';
+                    setTimeout(() => {
+                        element.style.backgroundColor = '';
+                    }, 1000);
+                    break;
+                }
+            }
+        }
+
+        // Switch to different part
+        function switchPart(partName) {
+            if (partName === '__add_notes__') {
+                // Create personal notes section
+                if (currentSutraId && !sutraData[currentSutraId]['व्यक्तिगत-टिपाणी']) {
+                    sutraData[currentSutraId]['व्यक्तिगत-टिपाणी'] = {
+                        moola: ''
+                    };
+                    currentPart = 'व्यक्तिगत-टिपाणी';
+                    renderEditor(currentSutraId);
+                    showStatus('Personal notes section created!', 'success');
+                }
+                return;
+            }
+            
+            if (partName === '__add_part__') {
+                // Create new part
+                if (currentSutraId) {
+                    const parts = Object.keys(sutraData[currentSutraId])
+                        .filter(key => key.startsWith('Part#'))
+                        .sort((a, b) => {
+                            const numA = parseInt(a.replace('Part#', ''));
+                            const numB = parseInt(b.replace('Part#', ''));
+                            return numA - numB;
+                        });
+                    
+                    const nextPartNum = parts.length > 0 ? parseInt(parts[parts.length - 1].replace('Part#', '')) + 1 : 1;
+                    const nextPartName = `Part#${nextPartNum}`;
+                    
+                    // Create the new part with all 10 standard vyakhyanas
+                    sutraData[currentSutraId][nextPartName] = {};
+                    Object.keys(STANDARD_VYAKHYANAS).forEach(vyakhyanaName => {
+                        sutraData[currentSutraId][nextPartName][vyakhyanaName] = {
+                            author: STANDARD_VYAKHYANAS[vyakhyanaName],
+                            moola: ''
+                        };
+                    });
+                    
+                    currentPart = nextPartName;
+                    renderEditor(currentSutraId);
+                    showStatus(`${nextPartName} created with all standard vyakhyanas!`, 'success');
+                }
+                return;
+            }
+            
+            currentPart = partName;
+            renderVyakhyanas(currentSutraId);
+        }
+
+        // Add personal notes section
+        function addPersonalNotes() {
+            if (!currentSutraId) return;
+            
+            if (!sutraData[currentSutraId]['व्यक्तिगत-टिपाणी']) {
+                sutraData[currentSutraId]['व्यक्तिगत-टिपाणी'] = {
+                    moola: ''
+                };
+            }
+            
+            renderEditor(currentSutraId);
+            viewPersonalNotes();
+            showStatus('Personal notes section added!', 'success');
+        }
+
+        // View personal notes
+        function viewPersonalNotes() {
+            if (!currentSutraId || !sutraData[currentSutraId]['\u0935\u094d\u092f\u0915\u094d\u0924\u093f\u0917\u0924-\u091f\u093f\u092a\u093e\u0923\u0940']) return;
+            
+            const container = document.getElementById('vyakhyanasList');
+            const notesData = sutraData[currentSutraId]['\u0935\u094d\u092f\u0915\u094d\u0924\u093f\u0917\u0924-\u091f\u093f\u092a\u093e\u0923\u0940'];
+            const content = notesData.moola || notesData.content || '';
+            const editorId = `editor_${currentSutraId}_personal_notes`.replace(/[^a-zA-Z0-9_]/g, '_');
+            const contentField = notesData.moola !== undefined ? 'moola' : 'content';
+            
+            container.innerHTML = `
+                <div style="margin-bottom: 30px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background: #fef3c7; border-radius: 5px;">
+                        <h3 style="color: #92400e; margin: 0;">📋 व्यक्तिगत-टिपाणी (Personal Notes)</h3>
+                        <button class="btn btn-danger btn-small" onclick="deletePersonalNotes()">🗑️ Delete Notes</button>
+                    </div>
+                    <div class="vyakhyana-section">
+                        <div class="form-group">
+                            <label>Content (${contentField})</label>
+                            <div class="editor-toolbar" data-editor="${editorId}">
+                                <button class="editor-btn" onclick="formatDoc('bold', '${editorId}')" title="Bold"><b>B</b></button>
+                                <button class="editor-btn" onclick="formatDoc('italic', '${editorId}')" title="Italic"><i>I</i></button>
+                                <button class="editor-btn" onclick="formatDoc('underline', '${editorId}')" title="Underline"><u>U</u></button>
+                                <div class="editor-divider"></div>
+                                <select class="editor-select" onchange="formatDoc('fontSize', '${editorId}', this.value); this.selectedIndex=0;" title="Font Size">
+                                    <option value="" selected>Size</option>
+                                    <option value="1">Small</option>
+                                    <option value="3">Normal</option>
+                                    <option value="5">Large</option>
+                                    <option value="7">Huge</option>
+                                </select>
+                                <div class="color-picker-wrapper">
+                                    <div class="color-picker-btn" title="Text Color">
+                                        <input type="color" onchange="formatDoc('foreColor', '${editorId}', this.value)">
+                                    </div>
+                                </div>
+                                <div class="color-picker-wrapper">
+                                    <div class="color-picker-btn" title="Background Color" style="background: #f3f4f6;">
+                                        <input type="color" onchange="formatDoc('backColor', '${editorId}', this.value)">
+                                    </div>
+                                </div>
+                                <div class="editor-divider"></div>
+                                <button class="editor-btn" onclick="formatDoc('justifyLeft', '${editorId}')" title="Align Left">?</button>
+                                <button class="editor-btn" onclick="formatDoc('justifyCenter', '${editorId}')" title="Align Center">?</button>
+                                <button class="editor-btn" onclick="formatDoc('justifyRight', '${editorId}')" title="Align Right">?</button>
+                                <div class="editor-divider"></div>
+                                <button class="editor-btn" onclick="formatDoc('insertUnorderedList', '${editorId}')" title="Bullet List">� List</button>
+                                <button class="editor-btn" onclick="formatDoc('insertOrderedList', '${editorId}')" title="Numbered List">1. List</button>
+                                <div class="editor-divider"></div>
+                                <button class="editor-btn" onclick="formatDoc('removeFormat', '${editorId}')" title="Clear Formatting">? Clear</button>
+                            </div>
+                            <div id="${editorId}" 
+                                 class="editor-content" 
+                                 contenteditable="true"
+                                 onblur="updatePersonalNotesContent(this.innerHTML)">${content}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Centralized function to clean HTML content before saving
+        function cleanHTMLContent(content) {
+            // Remove extra newlines and whitespace between HTML tags that come from formatted HTML
+            return content.replace(/>\s+</g, '><');
+        }
+
+        // Update personal notes content
+        function updatePersonalNotesContent(content) {
+            if (!currentSutraId || !sutraData[currentSutraId]['व्यक्तिगत-टिपाणी']) return;
+            
+            content = cleanHTMLContent(content);
+            
+            const contentField = sutraData[currentSutraId]['व्यक्तिगत-टिपाणी'].moola !== undefined ? 'moola' : 'content';
+            sutraData[currentSutraId]['व्यक्तिगत-टिपाणी'][contentField] = content;
+        }
+
+        // Delete personal notes
+        function deletePersonalNotes() {
+            if (!currentSutraId) return;
+            
+            if (confirm('Are you sure you want to delete personal notes for this sutra?')) {
+                delete sutraData[currentSutraId]['व्यक्तिगत-टिपाणी'];
+                renderEditor(currentSutraId);
+                renderVyakhyanas(currentSutraId);
+                showStatus('Personal notes deleted!', 'success');
+            }
+        }
+
+        // Scroll to specific part
+        function scrollToPart(partName) {
+            currentPart = partName;
+            renderVyakhyanas(currentSutraId);
+        }
+
+        // Ensure standard vyakhyanas exist in Part#1
+        function ensureStandardVyakhyanas(sutraId) {
+            if (!sutraData[sutraId]) return;
+            
+            // Ensure Part#1 exists
+            if (!sutraData[sutraId]['Part#1']) {
+                sutraData[sutraId]['Part#1'] = {};
+            }
+            
+            // Add missing standard vyakhyanas
+            Object.keys(STANDARD_VYAKHYANAS).forEach(vyakhyanaName => {
+                if (!sutraData[sutraId]['Part#1'][vyakhyanaName]) {
+                    sutraData[sutraId]['Part#1'][vyakhyanaName] = {
+                        author: STANDARD_VYAKHYANAS[vyakhyanaName],
+                        moola: ''
+                    };
+                }
+            });
+        }
+
+        // Render vyakhyanas for a sutra
+        function renderVyakhyanas(sutraId) {
+            // Ensure all standard vyakhyanas exist
+            ensureStandardVyakhyanas(sutraId);
+            
+            const container = document.getElementById('vyakhyanasList');
+            const sutra = sutraData[sutraId];
+            
+            if (!sutra || Object.keys(sutra).length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #9ca3af; padding: 40px;">No content available.</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            
+            // Render the currently selected part or personal notes
+            if (currentPart && sutra[currentPart]) {
+                const sectionKey = currentPart;
+                const sectionData = sutra[sectionKey];
+                
+                if (typeof sectionData !== 'object' || sectionData === null) return;
+                
+                // Create section container
+                const sectionDiv = document.createElement('div');
+                sectionDiv.style.marginBottom = '30px';
+                
+                // Different header for personal notes vs parts
+                if (currentPart === 'व्यक्तिगत-टिपाणी') {
+                    sectionDiv.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background: #fef3c7; border-radius: 5px;">
+                            <h3 style="color: #92400e; margin: 0;">📋 व्यक्तिगत-टिपाणी (Personal Notes)</h3>
+                            <button class="btn btn-danger btn-small" onclick="deleteSection('${sutraId}', 'व्यक्तिगत-टिपाणी')">🗑️ Delete Notes</button>
+                        </div>
+                    `;
+                } else {
+                    sectionDiv.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background: #f9fafb; border-radius: 5px;">
+                            <h3 style="color: #667eea; margin: 0;">📝 ${currentPart}</h3>
+                            <button class="btn btn-danger btn-small" onclick="deleteSection('${sutraId}', '${currentPart}')">🗑️ Delete Part</button>
+                        </div>
+                    `;
+                }
+                
+                // Check if this section itself has direct content (like personal notes)
+                if (sectionData.moola !== undefined || sectionData.content !== undefined || sectionData.author) {
+                    // This section is itself a vyakhyana (has direct content)
+                    const content = sectionData.moola || sectionData.content || '';
+                    const author = sectionData.author || 'Unknown';
+                    const editorId = `editor_${sutraId}_${sectionKey}_direct`.replace(/[^a-zA-Z0-9_]/g, '_');
+                    const contentField = sectionData.moola !== undefined ? 'moola' : 'content';
+                    
+                    const directSection = document.createElement('div');
+                    directSection.className = 'vyakhyana-section';
+                    directSection.innerHTML = `
+                        <div class="vyakhyana-header">
+                            <h3>Content <span style="font-size: 14px; color: #6b7280;">(${author})</span></h3>
+                        </div>
+                        <div class="form-group">
+                            <label>Content (${contentField})</label>
+                            <div class="editor-toolbar" data-editor="${editorId}">
+                                ${getEditorToolbar(editorId)}
+                            </div>
+                            <div id="${editorId}" 
+                                 class="editor-content" 
+                                 contenteditable="true"
+                                 onblur="updateSectionContent('${sutraId}', '${sectionKey}', this.innerHTML)">${content}</div>
+                        </div>
+                    `;
+                    sectionDiv.appendChild(directSection);
+                }
+                
+                // Iterate through vyakhyanas in this section
+                Object.keys(sectionData).forEach(vyakhyanaKey => {
+                    const vyakhyanaData = sectionData[vyakhyanaKey];
+                    
+                    if (typeof vyakhyanaData !== 'object' || vyakhyanaData === null) return;
+                    
+                    const section = document.createElement('div');
+                    section.className = 'vyakhyana-section';
+                    
+                    // Get content - could be in 'moola' or 'content' field
+                    const content = vyakhyanaData.moola || vyakhyanaData.content || '';
+                    const author = vyakhyanaData.author || 'Unknown';
+                    
+                    const editorId = `editor_${sutraId}_${sectionKey}_${vyakhyanaKey}`.replace(/[^a-zA-Z0-9_]/g, '_');
+                    const contentField = vyakhyanaData.moola !== undefined ? 'moola' : 'content';
+                    
+                    section.innerHTML = `
+                        <div class="vyakhyana-header">
+                            <h3>${vyakhyanaKey} <span style="font-size: 14px; color: #6b7280;">(${author})</span></h3>
+                            <button class="btn btn-danger btn-small" 
+                                    onclick="deleteVyakhyana('${sutraId}', '${sectionKey}', '${vyakhyanaKey}')">
+                                ??? Delete
+                            </button>
+                        </div>
+                        <div class="form-group">
+                            <label>Content (${contentField})</label>
+                            <div class="editor-toolbar" data-editor="${editorId}">
+                                ${getEditorToolbar(editorId)}
+                            </div>
+                            <div id="${editorId}" 
+                                 class="editor-content" 
+                                 contenteditable="true"
+                                 onblur="updateVyakhyanaContent('${sutraId}', '${sectionKey}', '${vyakhyanaKey}', this.innerHTML)">${content}</div>
+                        </div>
+                    `;
+                    sectionDiv.appendChild(section);
+                });
+                
+                container.appendChild(sectionDiv);
+            } else {
+                container.innerHTML = '<p style="text-align: center; color: #9ca3af; padding: 40px;">Part not found.</p>';
+            }
+        }
+
+        // Format document (rich text editor)
+        function formatDoc(command, editorId, value = null) {
+            const editor = document.getElementById(editorId);
+            if (!editor) return;
+            
+            editor.focus();
+            
+            if (value) {
+                document.execCommand(command, false, value);
+            } else {
+                document.execCommand(command, false, null);
+            }
+        }
+
+        // Update section content (for direct section content like adhikarana, व्यक्तिगत-टिपाणी)
+        function updateSectionContent(sutraId, sectionKey, content) {
+            if (sutraData[sutraId] && sutraData[sutraId][sectionKey]) {
+                content = cleanHTMLContent(content);
+                
+                const contentField = sutraData[sutraId][sectionKey].moola !== undefined ? 'moola' : 'content';
+                sutraData[sutraId][sectionKey][contentField] = content;
+                console.log(`Updated ${sectionKey} content for ${sutraId}`);
+            }
+        }
+
+        // Rename section key
+        function renameSectionKey(sutraId, oldSectionKey) {
+            const newName = prompt(`Rename section "${oldSectionKey}" to:`, oldSectionKey);
+            if (!newName || newName === oldSectionKey) return;
+            
+            if (sutraData[sutraId] && sutraData[sutraId][oldSectionKey]) {
+                // Check if new name already exists
+                if (sutraData[sutraId][newName]) {
+                    alert('A section with this name already exists!');
+                    return;
+                }
+                
+                // Create new key with same content
+                sutraData[sutraId][newName] = sutraData[sutraId][oldSectionKey];
+                // Delete old key
+                delete sutraData[sutraId][oldSectionKey];
+                
+                alert(`Section renamed from "${oldSectionKey}" to "${newName}"`);
+                renderVyakhyanas(sutraId);
+            }
+        }
+
+        // Delete entire section
+        function deleteSection(sutraId, sectionKey) {
+            if (!confirm(`Are you sure you want to delete "${sectionKey}"? This will remove all vyakhyanas in this part.`)) {
+                return;
+            }
+            
+            if (sutraData[sutraId] && sutraData[sutraId][sectionKey]) {
+                delete sutraData[sutraId][sectionKey];
+                
+                // Get remaining parts and switch to first one
+                const remainingParts = Object.keys(sutraData[sutraId])
+                    .filter(key => key.startsWith('Part#'))
+                    .sort((a, b) => {
+                        const numA = parseInt(a.replace('Part#', ''));
+                        const numB = parseInt(b.replace('Part#', ''));
+                        return numA - numB;
+                    });
+                
+                if (remainingParts.length > 0) {
+                    currentPart = remainingParts[0];
+                } else {
+                    currentPart = 'Part#1';
+                }
+                
+                showStatus(`"${sectionKey}" deleted successfully!`, 'success');
+                renderEditor(sutraId);
+            }
+        }
+
+        // Update vyakhyana content
+        function updateVyakhyanaContent(sutraId, sectionKey, vyakhyanaKey, content) {
+            if (!sutraData[sutraId][sectionKey]) {
+                sutraData[sutraId][sectionKey] = {};
+            }
+            if (!sutraData[sutraId][sectionKey][vyakhyanaKey]) {
+                sutraData[sutraId][sectionKey][vyakhyanaKey] = {};
+            }
+            
+            content = cleanHTMLContent(content);
+            
+            // Update moola field if it exists, otherwise update content
+            if (sutraData[sutraId][sectionKey][vyakhyanaKey].moola !== undefined) {
+                sutraData[sutraId][sectionKey][vyakhyanaKey].moola = content;
+            } else {
+                sutraData[sutraId][sectionKey][vyakhyanaKey].content = content;
+            }
+            
+            showStatus('Content updated', 'success');
+        }
+
+        // Update part dropdown based on selected sutra
+        function updatePartDropdown() {
+            const sutraNumber = document.getElementById('newSutraNumber').value.trim();
+            const partSelect = document.getElementById('newPartNumber');
+            const newPartGroup = document.getElementById('newPartGroup');
+            const newPartBtn = document.getElementById('newPartBtn');
+            const newPartHint = document.getElementById('newPartHint');
+            
+            // Clear existing options
+            partSelect.innerHTML = '';
+            document.getElementById('newPartName').value = '';
+            
+            if (sutraNumber && sutraData[sutraNumber]) {
+                // Get all existing parts for this sutra
+                const parts = Object.keys(sutraData[sutraNumber])
+                    .filter(key => key.startsWith('Part#'))
+                    .sort((a, b) => {
+                        const numA = parseInt(a.replace('Part#', ''));
+                        const numB = parseInt(b.replace('Part#', ''));
+                        return numA - numB;
+                    });
+                
+                if (parts.length > 0) {
+                    // Add existing parts to dropdown
+                    parts.forEach(part => {
+                        const option = document.createElement('option');
+                        option.value = part;
+                        option.textContent = part;
+                        partSelect.appendChild(option);
+                    });
+                    
+                    // Calculate next part number
+                    const lastPartNum = parseInt(parts[parts.length - 1].replace('Part#', ''));
+                    const nextPartNum = lastPartNum + 1;
+                    const nextPartName = `Part#${nextPartNum}`;
+                    
+                    // Update button text and show group
+                    newPartBtn.textContent = `+ Create ${nextPartName}`;
+                    newPartGroup.style.display = 'block';
+                } else {
+                    // No parts exist, default to Part#1
+                    const option = document.createElement('option');
+                    option.value = 'Part#1';
+                    option.textContent = 'Part#1';
+                    partSelect.appendChild(option);
+                    newPartGroup.style.display = 'none';
+                }
+            } else {
+                // Sutra doesn't exist, default to Part#1
+                const option = document.createElement('option');
+                option.value = 'Part#1';
+                option.textContent = 'Part#1';
+                partSelect.appendChild(option);
+                newPartGroup.style.display = 'none';
+            }
+        }
+
+        // Create new part
+        function createNewPart() {
+            const sutraNumber = document.getElementById('newSutraNumber').value.trim();
+            const newPartBtn = document.getElementById('newPartBtn');
+            const newPartHint = document.getElementById('newPartHint');
+            
+            if (!sutraNumber || !sutraData[sutraNumber]) return;
+            
+            // Get all existing parts
+            const parts = Object.keys(sutraData[sutraNumber])
+                .filter(key => key.startsWith('Part#'))
+                .sort((a, b) => {
+                    const numA = parseInt(a.replace('Part#', ''));
+                    const numB = parseInt(b.replace('Part#', ''));
+                    return numA - numB;
+                });
+            
+            // Calculate next part number
+            const lastPartNum = parseInt(parts[parts.length - 1].replace('Part#', ''));
+            const nextPartNum = lastPartNum + 1;
+            const nextPartName = `Part#${nextPartNum}`;
+            
+            // Set the hidden field
+            document.getElementById('newPartName').value = nextPartName;
+            
+            // Update UI
+            newPartBtn.textContent = `✓ Creating ${nextPartName}`;
+            newPartBtn.style.background = '#10b981';
+            newPartBtn.style.color = 'white';
+            newPartHint.textContent = `New vyakhyana will be added to ${nextPartName}`;
+            newPartHint.style.display = 'block';
+        }
+
+        // Auto-fill author when vyakhyana is selected
+        function autoFillAuthor() {
+            const vyakhyanaName = document.getElementById('newVyakhyanaName').value;
+            const authorField = document.getElementById('newAuthorName');
+            
+            if (STANDARD_VYAKHYANAS[vyakhyanaName]) {
+                authorField.value = STANDARD_VYAKHYANAS[vyakhyanaName];
+            }
+        }
+
+        // Show add vyakhyana modal
+        function showAddVyakhyanaModal() {
+            document.getElementById('addVyakhyanaModal').classList.add('active');
+            if (currentSutraId) {
+                document.getElementById('newSutraNumber').value = currentSutraId;
+                updatePartDropdown();
+            }
+        }
+
+        // Add vyakhyana to current sutra
+        function addVyakhyanaToCurrentSutra() {
+            if (!currentSutraId) {
+                alert('Please select a sutra first');
+                return;
+            }
+            document.getElementById('addVyakhyanaModal').classList.add('active');
+            document.getElementById('newSutraNumber').value = currentSutraId;
+            updatePartDropdown();
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('addVyakhyanaModal').classList.remove('active');
+        }
+
+        // Confirm add vyakhyana
+        function confirmAddVyakhyana() {
+            const sutraNumber = document.getElementById('newSutraNumber').value.trim();
+            const newPartName = document.getElementById('newPartName').value.trim();
+            const partNumber = newPartName || document.getElementById('newPartNumber').value.trim() || 'Part#1';
+
+            if (!sutraNumber) {
+                alert('Please enter Sutra Number');
+                return;
+            }
+
+            // Create sutra if it doesn't exist
+            if (!sutraData[sutraNumber]) {
+                sutraData[sutraNumber] = {};
+            }
+
+            // Create part/section if it doesn't exist
+            if (!sutraData[sutraNumber][partNumber]) {
+                sutraData[sutraNumber][partNumber] = {};
+                
+                // Add all 10 standard vyakhyanas with empty content
+                Object.keys(STANDARD_VYAKHYANAS).forEach(vyakhyanaName => {
+                    sutraData[sutraNumber][partNumber][vyakhyanaName] = {
+                        author: STANDARD_VYAKHYANAS[vyakhyanaName],
+                        moola: ''
+                    };
+                });
+            }
+
+            closeModal();
+            
+            // Clear form
+            document.getElementById('newSutraNumber').value = '';
+            document.getElementById('newPartNumber').innerHTML = '<option value="Part#1">Part#1</option>';
+            document.getElementById('newPartName').value = '';
+            document.getElementById('newPartGroup').style.display = 'none';
+            
+            // Reset create part button
+            const newPartBtn = document.getElementById('newPartBtn');
+            const newPartHint = document.getElementById('newPartHint');
+            newPartBtn.textContent = '+ Create New Part';
+            newPartBtn.style.background = '';
+            newPartBtn.style.color = '';
+            if (newPartHint) newPartHint.style.display = 'none';
+
+            // Set current part and refresh display
+            currentPart = partNumber;
+            renderSutraList();
+            selectSutra(sutraNumber);
+
+            showStatus(`${partNumber} created with all standard vyakhyanas!`, 'success');
+        }
+
+        // Save current sutra changes
+        function saveCurrentSutra() {
+            if (!currentSutraId) {
+                alert('No sutra selected');
+                return;
+            }
+            showStatus(`Changes to Sutra ${currentSutraId} are ready. Click "Download JSON" to save.`, 'success');
+        }
+
+        // Save all changes and download
+        function saveAllChanges() {
+            saveData();
+        }
+
+        // Delete vyakhyana
+        function deleteVyakhyana(sutraId, sectionKey, vyakhyanaKey) {
+            if (!confirm(`Delete "${vyakhyanaKey}" from ${sectionKey}?`)) return;
+            
+            delete sutraData[sutraId][sectionKey][vyakhyanaKey];
+            
+            // If section is now empty, delete it
+            if (Object.keys(sutraData[sutraId][sectionKey]).length === 0) {
+                delete sutraData[sutraId][sectionKey];
+            }
+            
+            renderVyakhyanas(sutraId);
+            renderSutraList();
+            showStatus('Vyakhyana deleted', 'success');
+        }
+
+        // Save data as JSON file
+        function saveData() {
+            const dataStr = JSON.stringify(sutraData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'sutra-details.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatus('JSON file downloaded! Upload to sutra/ folder.', 'success');
+        }
+
+        // Show status message
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            
+            setTimeout(() => {
+                status.textContent = '';
+                status.className = 'status';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

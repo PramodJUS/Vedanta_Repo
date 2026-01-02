@@ -1,6 +1,14 @@
 # Release Notes
 
-## Version 1.0.4 - January 1, 2026
+## Version 1.0.4 - January 2, 2026
+
+### Personal Notes Improvements
+- **Fixed**: Font size controls now work for personal notes popup
+- **Fixed**: Extra line spacing removed from personal notes display
+- **Enhanced**: Centralized HTML content cleanup function in admin panel
+- **Enhanced**: Reduced paragraph spacing for better readability
+- Font size increase/decrease buttons now apply to personal notes
+- Cleaner JSON output with no extra whitespace
 
 ### Performance Optimization System
 - **New**: Virtual scrolling for large vyākhyānas (automatically enabled for 5000+ lines)

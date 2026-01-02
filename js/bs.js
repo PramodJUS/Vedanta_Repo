@@ -855,6 +855,12 @@ function applyVyakhyanaFontSize() {
         //     return false;
         // });
     });
+    
+    // Also apply to personal notes popup if it's open
+    const personalNotesBody = document.querySelector('.personal-notes-body');
+    if (personalNotesBody) {
+        personalNotesBody.style.fontSize = `${vyakhyanaFontSize}%`;
+    }
 }
 
 function splitTextIntoPages(text, charsPerPage) {
@@ -4084,7 +4090,7 @@ function showPersonalNotes() {
                    notes['moola'];
     }
     
-    // Convert line breaks to HTML
+    // Convert line breaks to HTML (in case of manually edited JSON with actual newlines)
     notesText = notesText.replace(/\\r\\n\\r\\n|\\n\\n|\\r\\r/g, '<br><br>');
     notesText = notesText.replace(/\\r\\n|\\n|\\r/g, '<br>');
     
@@ -4102,9 +4108,7 @@ function showPersonalNotes() {
                 <h3>📝 ${notesLabel}</h3>
                 <button class="close-notes-btn" onclick="closePersonalNotes()">×</button>
             </div>
-            <div class="personal-notes-body">
-                ${notesText}
-            </div>
+            <div class="personal-notes-body" style="font-size: ${vyakhyanaFontSize}%;">${notesText}</div>
             <div class="resize-handle"></div>
         </div>
     `;
