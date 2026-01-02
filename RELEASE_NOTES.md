@@ -2,10 +2,32 @@
 
 ## Version 1.0.4 - January 2, 2026
 
+### Admin Panel (NEW)
+- **New**: Complete admin interface for managing sutra content (`admin.html`)
+  - Access via 🔐 Admin link in footer
+- **Content Management**:
+  - Add/edit/delete vyākhyānas and commentaries
+  - Rich text editor with formatting tools (bold, italic, colors, alignment, lists)
+  - Support for multiple commentaries per sutra part
+  - Personal notes editing with live preview
+- **Data Management**:
+  - Download JSON file with all changes
+  - Upload to `sutra/` folder to publish updates
+  - Centralized HTML content cleanup (removes formatting artifacts)
+  - Clean JSON output without extra whitespace
+- **Navigation**:
+  - Browse sutras by Adhyāya, Pāda, Adhikaraṇa
+  - Part-based organization (Part#1, Part#2, etc.)
+  - Switch between parts and commentary types
+- **Visual Features**:
+  - Collapsible header and sidebar for more workspace
+  - Side-by-side editor and preview
+  - Status notifications for all actions
+  - Responsive design
+
 ### Personal Notes Improvements
 - **Fixed**: Font size controls now work for personal notes popup
 - **Fixed**: Extra line spacing removed from personal notes display
-- **Enhanced**: Centralized HTML content cleanup function in admin panel
 - **Enhanced**: Reduced paragraph spacing for better readability
 - Font size increase/decrease buttons now apply to personal notes
 - Cleaner JSON output with no extra whitespace
