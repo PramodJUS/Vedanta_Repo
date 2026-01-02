@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug JSON Loading</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #7f1d1d;
+            border-bottom: 2px solid #7f1d1d;
+            padding-bottom: 10px;
+        }
+        .sutra-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f9fafb;
+            border-left: 3px solid #7f1d1d;
+        }
+        .key {
+            font-weight: bold;
+            color: #1e40af;
+        }
+        .value {
+            color: #15803d;
+            margin-left: 20px;
+        }
+        .error {
+            color: #dc2626;
+            background: #fee2e2;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            color: #15803d;
+            background: #dcfce7;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        button {
+            background: #7f1d1d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #991b1b;
+        }
+        pre {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 JSON Data Debug Panel</h1>
+    
+    <div class="section">
+        <h2>1. Load JSON Data</h2>
+        <button onclick="loadJSON()">Load JSON File</button>
+        <button onclick="clearCache()">Clear Cache & Reload</button>
+        <div id="loadStatus" style="margin-top: 10px;"></div>
+    </div>
+
+    <div class="section">
+        <h2>2. Data Summary</h2>
+        <div id="dataSummary"></div>
+    </div>
+
+    <div class="section">
+        <h2>3. Check Specific Sutras</h2>
+        <div id="sutraCheck"></div>
+    </div>
+
+    <div class="section">
+        <h2>4. Personal Notes Check (1.1.1)</h2>
+        <div id="notesCheck"></div>
+    </div>
+
+    <div class="section">
+        <h2>5. Raw JSON for 1.1.1</h2>
+        <pre id="rawJSON111"></pre>
+    </div>
+
+    <div class="section">
+        <h2>6. Raw JSON for 1.1.2</h2>
+        <pre id="rawJSON112"></pre>
+    </div>
+
+    <script>
+        let sutraData = null;
+
+        async function loadJSON() {
+            const statusDiv = document.getElementById('loadStatus');
+            try {
+                statusDiv.innerHTML = '<div>Loading...</div>';
+                
+                // Add timestamp to prevent caching
+                const timestamp = new Date().getTime();
+                const response = await fetch(`sutra/sutra-details.json?t=${timestamp}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const text = await response.text();
+                statusDiv.innerHTML = `<div class="success">✓ File loaded (${text.length} characters)</div>`;
+                
+                sutraData = JSON.parse(text);
+                statusDiv.innerHTML += `<div class="success">✓ JSON parsed successfully</div>`;
+                
+                analyzeData();
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="error">✗ Error: ${error.message}</div>`;
+                console.error('Load error:', error);
+            }
+        }
+
+        function analyzeData() {
+            if (!sutraData) return;
+
+            // Data Summary
+            const summaryDiv = document.getElementById('dataSummary');
+            const sutraIds = Object.keys(sutraData);
+            summaryDiv.innerHTML = `
+                <div class="success">Total Sutras Found: ${sutraIds.length}</div>
+                <div>Sutra IDs: ${sutraIds.join(', ')}</div>
+            `;
+
+            // Check specific sutras
+            const checkDiv = document.getElementById('sutraCheck');
+            let checkHTML = '';
+            
+            // Check 1.1.1
+            if (sutraData['1.1.1']) {
+                checkHTML += '<div class="sutra-item"><span class="key">1.1.1:</span> <span class="value">✓ EXISTS</span></div>';
+            } else {
+                checkHTML += '<div class="error">1.1.1: ✗ NOT FOUND</div>';
+            }
+
+            // Check 1.1.2
+            if (sutraData['1.1.2']) {
+                checkHTML += '<div class="sutra-item"><span class="key">1.1.2:</span> <span class="value">✓ EXISTS</span></div>';
+            } else {
+                checkHTML += '<div class="error">1.1.2: ✗ NOT FOUND</div>';
+            }
+
+            checkDiv.innerHTML = checkHTML;
+
+            // Personal Notes Check
+            const notesDiv = document.getElementById('notesCheck');
+            if (sutraData['1.1.1']) {
+                const sutra = sutraData['1.1.1'];
+                const keys = Object.keys(sutra);
+                
+                let notesHTML = `<div><strong>Keys in 1.1.1:</strong></div>`;
+                keys.forEach(key => {
+                    notesHTML += `<div class="key">"${key}"`;
+                    
+                    // Check byte representation
+                    const bytes = [];
+                    for (let i = 0; i < key.length; i++) {
+                        bytes.push(key.charCodeAt(i).toString(16));
+                    }
+                    notesHTML += ` (bytes: ${bytes.join(' ')})`;
+                    
+                    // Check if it's personal notes
+                    if (key.includes('व्यक्तिगत') || key.includes('टिपाणी')) {
+                        notesHTML += ' <span class="success">← Likely Personal Notes</span>';
+                    }
+                    notesHTML += '</div>';
+                });
+
+                // Try different key variations
+                const variations = [
+                    'व्यक्तिगत-टिपाणी',
+                    'वयकतगत-टपण',
+                    'व्यक्तिगत टिपाणी',
+                    'Personal Notes'
+                ];
+
+                notesHTML += '<div style="margin-top: 20px;"><strong>Testing key variations:</strong></div>';
+                variations.forEach(v => {
+                    const found = sutra[v] !== undefined;
+                    notesHTML += `<div class="${found ? 'success' : 'error'}">`;
+                    notesHTML += `"${v}": ${found ? '✓ FOUND' : '✗ NOT FOUND'}`;
+                    notesHTML += '</div>';
+                });
+
+                notesDiv.innerHTML = notesHTML;
+            }
+
+            // Raw JSON display
+            if (sutraData['1.1.1']) {
+                document.getElementById('rawJSON111').textContent = 
+                    JSON.stringify(sutraData['1.1.1'], null, 2).substring(0, 2000) + '\n...';
+            }
+
+            if (sutraData['1.1.2']) {
+                document.getElementById('rawJSON112').textContent = 
+                    JSON.stringify(sutraData['1.1.2'], null, 2).substring(0, 2000) + '\n...';
+            }
+        }
+
+        function clearCache() {
+            // Clear session storage
+            sessionStorage.clear();
+            
+            // Reload with cache bypass
+            location.reload(true);
+        }
+
+        // Auto-load on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadJSON();
+        });
+    </script>
+</body>
+</html>
