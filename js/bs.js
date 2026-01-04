@@ -868,7 +868,6 @@ function splitTextIntoPages(text, charsPerPage) {
         return [text];
     }
     
-    const pageBreakMarker = '<PB>';
     const isSanskrit = text.includes('॥') || text.includes('।');
     
     // Helper function to split a section using automatic logic
@@ -975,17 +974,12 @@ function splitTextIntoPages(text, charsPerPage) {
         return sectionPages;
     }
     
-    // Find all <PB> markers
+    // Find all <PB> markers (case-insensitive)
+    const pbRegex = /<PB>/gi;
     const pbPositions = [];
-    let searchPos = 0;
-    while (searchPos < text.length) {
-        const pbPos = text.indexOf(pageBreakMarker, searchPos);
-        if (pbPos !== -1) {
-            pbPositions.push(pbPos + pageBreakMarker.length);
-            searchPos = pbPos + pageBreakMarker.length;
-        } else {
-            break;
-        }
+    let match;
+    while ((match = pbRegex.exec(text)) !== null) {
+        pbPositions.push(match.index + match[0].length);
     }
     
     // If there are <PB> markers, split text into sections at <PB> positions
@@ -1054,7 +1048,7 @@ function navigateVyakhyanaPage(sutraNum, vyakhyaKey, direction, event, shouldScr
     vyakhyanaPagination[paginationKey] = newPage;
     
     // Update content with pratika grahana bold formatting
-    contentElement.innerHTML = makePratikaGrahanaBold(pages[newPage].replace(/<PB>/g, ''), sutraNum);
+    contentElement.innerHTML = makePratikaGrahanaBold(pages[newPage].replace(/<PB>/gi, ''), sutraNum);
     
     // Reapply search if there's an active search term
     const searchKey = `${sutraNum}-${vyakhyaKey}`;
@@ -1069,7 +1063,7 @@ function navigateVyakhyanaPage(sutraNum, vyakhyaKey, direction, event, shouldScr
         console.log('  Search results:', results);
         if (results && results.count > 0 && results.matches.length > 0) {
             const highlightedText = sanskritSearcher.highlightMatches(pages[newPage], results.matches);
-            contentElement.innerHTML = makePratikaGrahanaBold(highlightedText.replace(/<PB>/g, ''), sutraNum);
+            contentElement.innerHTML = makePratikaGrahanaBold(highlightedText.replace(/<PB>/gi, ''), sutraNum);
             console.log('  ✓ Highlights applied!', results.count, 'matches');
         } else {
             console.log('  ✗ No matches on this page');
@@ -1128,7 +1122,7 @@ function selectVyakhyanaPage(sutraNum, vyakhyaKey, pageIndex, event, shouldScrol
     vyakhyanaPagination[paginationKey] = pageIndex;
     
     // Update content with pratika grahana bold formatting
-    contentElement.innerHTML = makePratikaGrahanaBold(pages[pageIndex].replace(/<PB>/g, ''), sutraNum);
+contentElement.innerHTML = makePratikaGrahanaBold(pages[pageIndex].replace(/<PB>/gi, ''), sutraNum);
     
     // Reapply search if there's an active search term
     const searchKey = `${sutraNum}-${vyakhyaKey}`;
@@ -1143,7 +1137,7 @@ function selectVyakhyanaPage(sutraNum, vyakhyaKey, pageIndex, event, shouldScrol
         console.log('  Search results on new page:', results.count, 'matches');
         if (results.count > 0 && results.matches.length > 0) {
             const highlightedText = sanskritSearcher.highlightMatches(pages[pageIndex], results.matches);
-            contentElement.innerHTML = makePratikaGrahanaBold(highlightedText.replace(/<PB>/g, ''), sutraNum);
+            contentElement.innerHTML = makePratikaGrahanaBold(highlightedText.replace(/<PB>/gi, ''), sutraNum);
             console.log('  ✓ Highlights applied!');
         } else {
             console.log('  ✗ No matches on this page');
@@ -2706,7 +2700,7 @@ function showSutraDetail(sutra, partKey = null) {
                         <div class="commentary-content" id="commentary-${num}" style="display: none;">
                             ${resizeHandleTop}
                             ${watermarkDiv}
-                            <p class="commentary-text" data-pages="${JSON.stringify(pages).replace(/"/g, '&quot;')}">${makePratikaGrahanaBold(pages[currentPage].replace(/<PB>/g, ''), num)}</p>
+                            <p class="commentary-text" data-pages="${JSON.stringify(pages).replace(/"/g, '&quot;')}">${makePratikaGrahanaBold(pages[currentPage].replace(/<PB>/gi, ''), num)}</p>
                             ${bottomPaginationControls}
                             <div class="resize-handle" onmousedown="startResize(event, ${num})"></div>
                         </div>
@@ -2903,7 +2897,7 @@ function searchInVyakhyana(vyakhyanaNum, vyakhyaKey, searchTerm) {
         return;
     }
     
-    const originalText = currentPageText.replace(/<PB>/g, '');
+    const originalText = currentPageText.replace(/<PB>/gi, '');
     console.log(`Current page ${currentPage + 1}/${pages.length}, text length: ${originalText.length} chars`);
     
     // If search is cleared, restore original current page
@@ -3054,7 +3048,7 @@ function searchInVyakhyanaWithPratika(vyakhyanaNum, vyakhyaKey, searchTerm, isPr
     }
     
     const currentPageText = pages[currentPage];
-    const originalText = currentPageText.replace(/<PB>/g, '');
+    const originalText = currentPageText.replace(/<PB>/gi, '');
     
     // If search is cleared, restore original current page
     if (!searchTerm || searchTerm.trim() === '') {
