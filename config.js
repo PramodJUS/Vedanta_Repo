@@ -149,8 +149,19 @@ const UI_CONFIG = {
 // 📁 DATA CONFIGURATION
 // ========================================
 const DATA_CONFIG = {
-    // Data file location
+    // Data file locations
     dataPath: 'sutra/sutra-details.json',
+    csvPath: 'sutra/bs.csv',
+    adhikaranaPath: 'sutra/adhikarana-details.json',
+    
+    // CSV column mapping (0-indexed)
+    csvColumns: {
+        adhyaya: 0,
+        pada: 1,
+        sutraNumber: 2,
+        sutraText: 3,
+        adhikarana: 4
+    },
     
     // Auto-save settings (future feature)
     autoSave: {

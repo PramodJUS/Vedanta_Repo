@@ -1,5 +1,34 @@
 # Release Notes
 
+## Version 1.0.6 - January 4, 2026
+*Updated: January 4, 2026*
+
+### Admin Panel Enhancements
+- **Enhanced**: Sutra header now displays actual sutra text from bs.csv
+  - Shows format: "Sutra 1.1.1 - (ॐ ॐ अथातो ब्रह्मजिज्ञासा ॐ)"
+  - Preserves exact spacing with `white-space: pre`
+  - Text displayed in black within brackets
+  - Single source of truth: bs.csv
+- **Enhanced**: CSV data loading with proper parsing
+  - Handles quoted fields correctly
+  - Preserves all whitespace in sutra text
+  - No trimming of sutra_text column
+- **Improved**: Header behavior
+  - Header scrolls normally with content (removed sticky positioning)
+  - Better UX for long commentary sections
+- **Removed**: "Add New Sutra" button (sutras managed via bs.csv)
+
+### Configuration Updates
+- **New**: Centralized CSV configuration in config.js
+  - `csvPath`: Location of bs.csv file (configurable)
+  - `csvColumns`: Column index mapping (adhyaya, pada, sutraNumber, sutraText, adhikarana)
+  - `adhikaranaPath`: Location of adhikarana-details.json
+  - No hardcoded values - all configurable
+- **Architecture**: Established single source of truth
+  - bs.csv for sutra metadata and text
+  - sutra-details.json for commentary content
+  - No duplication between files
+
 ## Version 1.0.5 - January 4, 2026
 *Updated: January 4, 2026*
 

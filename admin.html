@@ -290,19 +290,85 @@
             list-style: none;
         }
 
+        .adhikarana-item {
+            margin-bottom: 5px;
+        }
+
+        .adhikarana-header {
+            padding: 12px 15px;
+            background: #f3f4f6;
+            border-left: 4px solid #3b82f6;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .adhikarana-header:hover {
+            background: #e5e7eb;
+        }
+
+        .adhikarana-header.active {
+            background: #3b82f6;
+            color: white;
+            border-left-color: #1e40af;
+        }
+
+        .adhikarana-toggle {
+            font-size: 14px;
+            font-weight: bold;
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            line-height: 18px;
+            text-align: center;
+            user-select: none;
+            border: 1px solid #9ca3af;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .adhikarana-toggle:hover {
+            background: #f3f4f6;
+            border-color: #6b7280;
+        }
+
+        .adhikarana-toggle::before {
+            content: '+';
+        }
+
+        .adhikarana-toggle.expanded::before {
+            content: '−';
+        }
+
+        .sutra-children {
+            display: none;
+            background: #fafafa;
+            border-left: 2px solid #e5e7eb;
+            margin-left: 10px;
+        }
+
+        .sutra-children.expanded {
+            display: block;
+        }
+
         .sutra-item {
-            padding: 15px 20px;
-            border-bottom: 1px solid #e0e0e0;
+            padding: 10px 15px 10px 30px;
+            border-bottom: 1px solid #e5e7eb;
             cursor: pointer;
             transition: background 0.2s;
+            font-size: 14px;
         }
 
         .sutra-item:hover {
-            background: #f0f0f0;
+            background: #f3f4f6;
         }
 
         .sutra-item.active {
-            background: #667eea;
+            background: #3b82f6;
             color: white;
         }
 
@@ -588,7 +654,25 @@
             max-height: 500px;
         }
 
+        .editor-content-editable {
+            min-height: 100px;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 0 0 5px 5px;
+            background: white;
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            line-height: 1.6;
+            outline: none;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
         .editor-content:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .editor-content-editable:focus {
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
@@ -668,8 +752,8 @@
 
         <div class="actions" id="actions">
             <button class="btn btn-primary" onclick="loadData()">📂 Load Data</button>
-            <button class="btn btn-success" onclick="saveData()">💾 Download JSON</button>
-            <button class="btn btn-secondary" onclick="showAddVyakhyanaModal()">➕ Add New Sutra</button>
+            <button class="btn btn-success" onclick="saveData()">💾 Download Sutra JSON</button>
+            <button class="btn btn-success" onclick="saveAdhikaranaData()">💾 Download Adhikarana JSON</button>
             <div id="status"></div>
         </div>
 
@@ -734,6 +818,26 @@
             if (sessionStorage.getItem('adminAuth') === 'true') {
                 document.getElementById('authOverlay').style.display = 'none';
             }
+            
+            // Handle Alt+T to insert tab character in contenteditable fields
+            document.addEventListener('keydown', function(e) {
+                if ((e.key === 't' || e.key === 'T') && e.altKey && !e.ctrlKey) {
+                    const activeElement = document.activeElement;
+                    if (activeElement && activeElement.contentEditable === 'true') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // Insert a special marker that will be preserved
+                        const selection = window.getSelection();
+                        const range = selection.getRangeAt(0);
+                        const textNode = document.createTextNode('\t');
+                        range.insertNode(textNode);
+                        range.setStartAfter(textNode);
+                        range.setEndAfter(textNode);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    }
+                }
+            }, true);
         });
 
         // Hash password using SHA-256
@@ -771,18 +875,83 @@
         // ====== END AUTHENTICATION ======
 
         let sutraData = {};
+        let adhikaranaData = {};
+        let sutraTextMap = {}; // Map of sutra ID to sutra text from CSV
         let currentSutraId = null;
+        let currentAdhikaranaId = null;
         let currentPart = 'Part#1'; // Track which part is currently displayed
+        let currentEditType = null; // 'sutra' or 'adhikarana'
+        let expandedAdhikaranas = new Set(); // Track which adhikaranas are expanded
 
         // Load data from JSON file
         async function loadData() {
             try {
                 showStatus('Loading data...', 'info');
-                const response = await fetch(DATA_CONFIG.dataPath);
-                if (!response.ok) throw new Error('Failed to load data');
                 
-                sutraData = await response.json();
-                renderSutraList();
+                // Load sutra text from CSV
+                try {
+                    const csvResponse = await fetch(DATA_CONFIG.csvPath);
+                    if (csvResponse.ok) {
+                        const csvText = await csvResponse.text();
+                        const lines = csvText.split('\n');
+                        // Skip header line
+                        for (let i = 1; i < lines.length; i++) {
+                            const line = lines[i].trim();
+                            if (!line) continue;
+                            
+                            // Parse CSV properly - split by comma but handle the format
+                            const cols = [];
+                            let current = '';
+                            let inQuotes = false;
+                            
+                            for (let j = 0; j < line.length; j++) {
+                                const char = line[j];
+                                if (char === '"') {
+                                    inQuotes = !inQuotes;
+                                } else if (char === ',' && !inQuotes) {
+                                    cols.push(current);
+                                    current = '';
+                                } else {
+                                    current += char;
+                                }
+                            }
+                            cols.push(current); // Add last column
+                            
+                            if (cols.length >= 4) {
+                                const adhyaya = cols[DATA_CONFIG.csvColumns.adhyaya].trim();
+                                const pada = cols[DATA_CONFIG.csvColumns.pada].trim();
+                                const sutraNum = cols[DATA_CONFIG.csvColumns.sutraNumber].trim();
+                                const sutraText = cols[DATA_CONFIG.csvColumns.sutraText]; // Don't trim - preserve exact spacing
+                                const sutraId = `${adhyaya}.${pada}.${sutraNum}`;
+                                sutraTextMap[sutraId] = sutraText;
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.warn('CSV not loaded:', err);
+                }
+                
+                // Load sutra data
+                const sutraResponse = await fetch(DATA_CONFIG.dataPath);
+                if (!sutraResponse.ok) throw new Error('Failed to load sutra data');
+                sutraData = await sutraResponse.json();
+                
+                // Load adhikarana data
+                try {
+                    const adhikaranaResponse = await fetch('sutra/adhikarana-details.json');
+                    if (adhikaranaResponse.ok) {
+                        adhikaranaData = await adhikaranaResponse.json();
+                    }
+                } catch (err) {
+                    console.warn('Adhikarana data not loaded:', err);
+                }
+                
+                // Expand all adhikaranas by default
+                expandedAdhikaranas = new Set(
+                    Object.keys(adhikaranaData).filter(key => !key.startsWith('_'))
+                );
+                
+                renderHierarchicalList();
                 showStatus('Data loaded successfully!', 'success');
             } catch (error) {
                 showStatus('Error loading data: ' + error.message, 'error');
@@ -843,7 +1012,170 @@
         // Filter sutras based on search
         function filterSutras() {
             const searchTerm = document.getElementById('searchSutra').value;
-            renderSutraList(searchTerm);
+            renderHierarchicalList(searchTerm);
+        }
+
+        // Render hierarchical adhikarana > sutra list
+        function renderHierarchicalList(filter = '') {
+            const list = document.getElementById('sutraList');
+            list.innerHTML = '';
+
+            // Get all adhikaranas sorted by sutra number
+            const adhikaranas = Object.keys(adhikaranaData)
+                .filter(key => !key.startsWith('_')) // Skip metadata
+                .sort((a, b) => {
+                    // Sort by the first sutra number in each adhikarana
+                    const getSutraNum = (adhikId) => {
+                        const adhik = adhikaranaData[adhikId];
+                        if (!adhik.sutras) return [999, 999, 999]; // Put at end if no sutras
+                        
+                        // Get first sutra (e.g., "3.1.19" from "3.1.19-3.1.23")
+                        const firstSutra = adhik.sutras.split('-')[0].trim();
+                        
+                        // Parse "3.1.19" into [3, 1, 19]
+                        return firstSutra.split('.').map(n => parseInt(n) || 0);
+                    };
+                    
+                    const numsA = getSutraNum(a);
+                    const numsB = getSutraNum(b);
+                    
+                    // Compare each part (adhyaya, pada, sutra_number)
+                    for (let i = 0; i < Math.max(numsA.length, numsB.length); i++) {
+                        const diff = (numsA[i] || 0) - (numsB[i] || 0);
+                        if (diff !== 0) return diff;
+                    }
+                    return 0;
+                });
+
+            adhikaranas.forEach(adhikaranaId => {
+                const adhik = adhikaranaData[adhikaranaId];
+                
+                // Parse sutras list (e.g., "1.1.1" or "1.1.1-1.1.3")
+                const sutraIds = parseSutraRange(adhik.sutras);
+                
+                // Filter check
+                if (filter) {
+                    const matchAdhik = adhik.name?.toLowerCase().includes(filter.toLowerCase()) ||
+                                      adhikaranaId.toLowerCase().includes(filter.toLowerCase());
+                    const matchSutra = sutraIds.some(id => id.toLowerCase().includes(filter.toLowerCase()));
+                    if (!matchAdhik && !matchSutra) return;
+                }
+
+                const adhikItem = document.createElement('li');
+                adhikItem.className = 'adhikarana-item';
+                
+                const isExpanded = expandedAdhikaranas.has(adhikaranaId);
+                const isAdhikActive = currentAdhikaranaId === adhikaranaId;
+                
+                adhikItem.innerHTML = `
+                    <div class="adhikarana-header ${isAdhikActive ? 'active' : ''}">
+                        <span class="adhikarana-toggle ${isExpanded ? 'expanded' : ''}" onclick="toggleAdhikaranaExpansion('${adhikaranaId}', event)"></span>
+                        <span onclick="selectAdhikarana('${adhikaranaId}', event)" style="cursor: pointer; flex: 1;">📚 ${adhik.name || adhikaranaId}</span>
+                    </div>
+                    <ul class="sutra-children ${isExpanded ? 'expanded' : ''}">
+                        ${renderSutraChildren(sutraIds, adhikaranaId)}
+                    </ul>
+                `;
+                
+                list.appendChild(adhikItem);
+            });
+
+            if (list.children.length === 0) {
+                list.innerHTML = '<li style="padding: 20px; text-align: center; color: #9ca3af;">No data found</li>';
+            }
+        }
+
+        // Parse sutra range (e.g., "1.1.1" or "1.1.1-1.1.3")
+        function parseSutraRange(sutraString) {
+            if (!sutraString) return [];
+            
+            const parts = sutraString.trim().split('-');
+            if (parts.length === 1) {
+                return [parts[0].trim()];
+            }
+            
+            // Handle range like "1.1.1-1.1.3"
+            // For now, just return the sutras that exist in sutraData
+            const allSutras = Object.keys(sutraData).sort();
+            const start = parts[0].trim();
+            const end = parts[1].trim();
+            
+            const inRange = allSutras.filter(id => {
+                return id >= start && id <= end;
+            });
+            
+            return inRange.length > 0 ? inRange : [start];
+        }
+
+        // Render sutra children for an adhikarana
+        function renderSutraChildren(sutraIds, adhikaranaId) {
+            return sutraIds.map(sutraId => {
+                const exists = sutraData[sutraId];
+                const isActive = currentSutraId === sutraId && currentEditType === 'sutra';
+                return `
+                    <li class="sutra-item ${isActive ? 'active' : ''}" 
+                        onclick="selectSutraFromHierarchy('${sutraId}', event)">
+                        <span>📖 Sutra ${sutraId}</span>
+                        ${!exists ? ' <span style="color: #ef4444; font-size: 12px;">(not found)</span>' : ''}
+                    </li>
+                `;
+            }).join('');
+        }
+
+        // Toggle adhikarana expansion only
+        function toggleAdhikaranaExpansion(adhikaranaId, event) {
+            event.stopPropagation();
+            
+            // Toggle expansion
+            if (expandedAdhikaranas.has(adhikaranaId)) {
+                expandedAdhikaranas.delete(adhikaranaId);
+            } else {
+                expandedAdhikaranas.add(adhikaranaId);
+            }
+            
+            renderHierarchicalList();
+        }
+        
+        // Select adhikarana for editing
+        function selectAdhikarana(adhikaranaId, event) {
+            event.stopPropagation();
+            
+            // Select adhikarana for editing
+            currentAdhikaranaId = adhikaranaId;
+            currentSutraId = null;
+            currentEditType = 'adhikarana';
+            
+            // Ensure it's expanded when selected
+            expandedAdhikaranas.add(adhikaranaId);
+            
+            renderHierarchicalList();
+            renderAdhikaranaEditor(adhikaranaId);
+        }
+
+        // Select sutra from hierarchy
+        function selectSutraFromHierarchy(sutraId, event) {
+            event.stopPropagation();
+            
+            if (!sutraData[sutraId]) {
+                showStatus(`Sutra ${sutraId} not found in data`, 'error');
+                return;
+            }
+            
+            currentSutraId = sutraId;
+            // Keep the adhikarana expanded - find which adhikarana this sutra belongs to
+            for (const [adhikId, adhik] of Object.entries(adhikaranaData)) {
+                if (adhikId.startsWith('_')) continue;
+                const sutraIds = parseSutraRange(adhik.sutras);
+                if (sutraIds.includes(sutraId)) {
+                    currentAdhikaranaId = adhikId;
+                    expandedAdhikaranas.add(adhikId);
+                    break;
+                }
+            }
+            currentEditType = 'sutra';
+            
+            renderHierarchicalList();
+            selectSutra(sutraId);
         }
 
         // Toggle sidebar collapse
@@ -951,6 +1283,26 @@
             }
         }
 
+        // Insert tab character
+        function insertTab(editorId) {
+            const editor = document.getElementById(editorId);
+            if (!editor) return;
+            
+            editor.focus();
+            const selection = window.getSelection();
+            const range = selection.getRangeAt(0);
+            // Insert a span with a tab marker that we can preserve
+            const span = document.createElement('span');
+            span.setAttribute('data-tab', 'true');
+            span.textContent = '\t';
+            span.style.whiteSpace = 'pre';
+            range.insertNode(span);
+            range.setStartAfter(span);
+            range.setEndAfter(span);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+
         // Generate editor toolbar HTML
         function getEditorToolbar(editorId) {
             const cfg = EDITOR_CONFIG;
@@ -1002,6 +1354,10 @@
             if (cfg.features.numberedList) html += `<button class="editor-btn" onclick="formatDoc('insertOrderedList', '${editorId}')" title="Numbered List">${sym.numberedList} List</button>`;
             if (cfg.features.bulletList || cfg.features.numberedList) html += '<div class="editor-divider"></div>';
             
+            // Tab button
+            html += `<button class="editor-btn" onclick="insertTab('${editorId}')" title="Insert Tab">⇥ Tab</button>`;
+            html += '<div class="editor-divider"></div>';
+            
             // Clear formatting
             if (cfg.features.clearFormat) html += `<button class="editor-btn" onclick="formatDoc('removeFormat', '${editorId}')" title="Clear Formatting">${sym.clearFormat} Clear</button>`;
             
@@ -1011,7 +1367,8 @@
         // Select and display a sutra
         function selectSutra(sutraId) {
             currentSutraId = sutraId;
-            renderSutraList();
+            // Don't re-render the list, it's already rendered by selectSutraFromHierarchy
+            // renderSutraList();
             renderEditor(sutraId);
         }
 
@@ -1050,10 +1407,15 @@
                 partOptions += `<option value="__add_part__">+ Add Part#${nextPartNum}</option>`;
             }
             
+            // Extract sutra text from CSV
+            let sutraText = sutraTextMap[sutraId] || '';
+            
             panel.classList.remove('empty');
             panel.innerHTML = `
-                <div class="sutra-header" style="display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 15px; background: #f9fafb; border-radius: 5px; margin-bottom: 20px;">
-                    <h2 style="margin: 0; font-size: 18px;">Sutra ${sutraId}</h2>
+                <div class="sutra-header" style="display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 15px; background: #f9fafb; border-radius: 5px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <h2 style="margin: 0; font-size: 18px; flex: 1;">
+                        Sutra ${sutraId}${sutraText ? ' - <span style="color: #000; font-family: \'Adishila San\', Mangal, serif; white-space: pre;">(' + sutraText + ')</span>' : ''}
+                    </h2>
                     ${(hasPersonalNotes || parts.length > 0) ? `
                         <select id="partSelector" onchange="switchPart(this.value)" style="padding: 8px; font-size: 14px; min-width: 150px;">
                             ${partOptions}
@@ -1212,9 +1574,13 @@
         // Centralized function to clean HTML content before saving
         function cleanHTMLContent(content) {
             // Convert HTML back to plain text with \n
-            // First preserve <PB> tags (case-insensitive)
+            // First preserve <PB> tags (case-insensitive) and tab markers
             const pbPlaceholder = '___PAGEBREAK___';
+            const tabPlaceholder = '___TAB___';
             content = content.replace(/<(pb|PB|Pb|pB)>/gi, pbPlaceholder);
+            // Preserve tabs from span[data-tab] elements
+            content = content.replace(/<span[^>]*data-tab="true"[^>]*>([^<]*)<\/span>/gi, tabPlaceholder);
+            content = content.replace(/\t/g, tabPlaceholder);
             
             // Replace <br> and block elements with \n
             content = content.replace(/<br\s*\/?>/gi, '\n');
@@ -1228,8 +1594,9 @@
             // Remove all other HTML tags
             content = content.replace(/<[^>]+>/g, '');
             
-            // Restore <PB> markers
+            // Restore <PB> markers and tabs
             content = content.replace(new RegExp(pbPlaceholder, 'g'), '<PB>');
+            content = content.replace(new RegExp(tabPlaceholder, 'g'), '\t');
             
             // Decode HTML entities
             content = content.replace(/&nbsp;/g, ' ');
@@ -1369,7 +1736,10 @@
                             <h3>Content <span style="font-size: 14px; color: #6b7280;">(${author})</span></h3>
                         </div>
                         <div class="form-group">
-                            <label>Content (${contentField})</label>
+                            <label style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>Content (${contentField})</span>
+                                <span style="font-size: 12px; color: #9ca3af; font-weight: normal;">* &lt;PB&gt; = Page Break</span>
+                            </label>
                             <div class="editor-toolbar" data-editor="${editorId}">
                                 ${getEditorToolbar(editorId)}
                             </div>
@@ -1404,7 +1774,10 @@
                             <h3>${vyakhyanaKey} <span style="font-size: 14px; color: #6b7280;">(${author})</span></h3>
                         </div>
                         <div class="form-group">
-                            <label>Content (${contentField})</label>
+                            <label style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>Content (${contentField})</span>
+                                <span style="font-size: 12px; color: #9ca3af; font-weight: normal;">* &lt;PB&gt; = Page Break</span>
+                            </label>
                             <div class="editor-toolbar" data-editor="${editorId}">
                                 ${getEditorToolbar(editorId)}
                             </div>
@@ -1742,7 +2115,257 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             
-            showStatus('JSON file downloaded! Upload to sutra/ folder.', 'success');
+            showStatus('Sutra JSON file downloaded! Upload to sutra/ folder.', 'success');
+        }
+
+        // Save adhikarana data as JSON file
+        function saveAdhikaranaData() {
+            const dataStr = JSON.stringify(adhikaranaData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'adhikarana-details.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showStatus('Adhikarana JSON file downloaded! Upload to sutra/ folder.', 'success');
+        }
+
+        // Render adhikarana editor
+        function renderAdhikaranaEditor(adhikaranaId) {
+            const panel = document.getElementById('editorPanel');
+            const adhik = adhikaranaData[adhikaranaId];
+            
+            if (!adhik) {
+                panel.innerHTML = '<div>Adhikarana not found</div>';
+                return;
+            }
+
+            // Get all fields except metadata fields
+            const metadataFields = ['name', 'sutras'];
+            const customFields = Object.keys(adhik).filter(key => !metadataFields.includes(key));
+
+            panel.className = 'editor-panel';
+            panel.innerHTML = `
+                <div class="editor-header">
+                    <h2>📚 ${adhik.name || adhikaranaId}</h2>
+                    <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+                        <span class="stat-badge">Adhyaya ${adhik.sutras ? adhik.sutras.split('.').slice(0, 2).join('.') : ''}</span>
+                        <span class="stat-badge">Sutras: ${adhik.sutras}</span>
+                    </div>
+                </div>
+
+                <div class="editor-content">
+                    ${customFields.map(fieldKey => {
+                        const fieldLabel = getFieldLabel(fieldKey);
+                        const isRichText = true; // All fields should be rich text editors
+                        return renderAdhikaranaField(adhikaranaId, fieldKey, fieldLabel, adhik[fieldKey], isRichText);
+                    }).join('')}
+                </div>
+
+                <div style="margin-top: 20px; padding: 15px; background: #f9fafb; border-radius: 6px; display: flex; gap: 10px;">
+                    <button class="btn btn-primary" id="btnAddCustomField">➕ Add Custom Field</button>
+                    <button class="btn btn-success" onclick="saveAdhikaranaData()">💾 Download Adhikarana JSON</button>
+                </div>
+            `;
+            
+            // Attach event listener after rendering
+            setTimeout(() => {
+                const addBtn = document.getElementById('btnAddCustomField');
+                if (addBtn) {
+                    addBtn.onclick = () => addCustomField(adhikaranaId);
+                }
+            }, 0);
+        }
+
+        // Render adhikarana field editor with controls
+        function renderAdhikaranaField(adhikaranaId, fieldKey, label, content, isRichText = false) {
+            const editorId = `editor_${adhikaranaId}_${fieldKey}`;
+            const displayContent = content || '';
+            
+            const headerControls = `
+                <div class="vyakhyana-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="vyakhyana-title" 
+                          contenteditable="true" 
+                          style="cursor: text; padding: 2px 5px; border-radius: 3px;"
+                          data-adhikarana-id="${adhikaranaId}"
+                          data-field-key="${fieldKey}"
+                          onblur="renameAdhikaranaFieldHandler(this)"
+                          title="Click to edit label">${label}</span>
+                    <button class="editor-btn btn-delete-field" 
+                            data-adhikarana-id="${adhikaranaId}"
+                            data-field-key="${fieldKey}"
+                            style="background: #ef4444; color: white; border: none; padding: 4px 8px; font-size: 12px;"
+                            title="Delete this field">🗑️ Delete</button>
+                </div>
+            `;
+            
+            if (isRichText) {
+                return `
+                    <div class="vyakhyana-section" style="margin-bottom: 20px;">
+                        ${headerControls}
+                        <div class="editor-toolbar">
+                            ${getEditorToolbar(editorId)}
+                        </div>
+                        <div class="editor-content-editable" 
+                             id="${editorId}" 
+                             contenteditable="true" 
+                             data-adhikarana-id="${adhikaranaId}"
+                             data-field-key="${fieldKey}"
+                             onblur="updateAdhikaranaFieldHandler(this)">${displayContent}</div>
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="vyakhyana-section" style="margin-bottom: 15px;">
+                        ${headerControls}
+                        <textarea 
+                            style="width: 100%; min-height: 80px; padding: 10px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 14px; font-family: inherit;"
+                            data-adhikarana-id="${adhikaranaId}"
+                            data-field-key="${fieldKey}"
+                            onblur="updateAdhikaranaFieldHandler(this)">${displayContent}</textarea>
+                    </div>
+                `;
+            }
+        }
+
+        // Handler functions to avoid issues with special characters in IDs
+        function renameAdhikaranaFieldHandler(element) {
+            const adhikaranaId = element.getAttribute('data-adhikarana-id');
+            const fieldKey = element.getAttribute('data-field-key');
+            renameAdhikaranaField(adhikaranaId, fieldKey, element.textContent);
+        }
+
+        function updateAdhikaranaFieldHandler(element) {
+            const adhikaranaId = element.getAttribute('data-adhikarana-id');
+            const fieldKey = element.getAttribute('data-field-key');
+            const value = element.tagName === 'TEXTAREA' ? element.value : element.innerHTML;
+            updateAdhikaranaField(adhikaranaId, fieldKey, value);
+        }
+
+        // Attach delete button handlers after render
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-delete-field') || e.target.closest('.btn-delete-field')) {
+                const btn = e.target.classList.contains('btn-delete-field') ? e.target : e.target.closest('.btn-delete-field');
+                const adhikaranaId = btn.getAttribute('data-adhikarana-id');
+                const fieldKey = btn.getAttribute('data-field-key');
+                deleteAdhikaranaField(adhikaranaId, fieldKey);
+            }
+        });
+
+        // Add custom field to adhikarana
+        function addCustomField(adhikaranaId) {
+            try {
+                console.log('addCustomField called for:', adhikaranaId);
+                
+                // Check if adhikarana exists first
+                if (!adhikaranaData[adhikaranaId]) {
+                    alert('Adhikarana not found!');
+                    console.error('Adhikarana not found:', adhikaranaId);
+                    return;
+                }
+                
+                // Single prompt - just ask for the label
+                const fieldLabel = prompt('Enter field name/label:\nExample: "व्युत्पत्ति" or "Custom Notes" or "अतिरिक्त-टिप्पणी"');
+                console.log('Field label entered:', fieldLabel);
+                
+                if (!fieldLabel || !fieldLabel.trim()) {
+                    console.log('No field label provided - user cancelled or left empty');
+                    return;
+                }
+                
+                // Use the label directly as the key (just trim and remove quotes/backslashes)
+                const normalizedKey = fieldLabel.trim()
+                    .replace(/["\\]/g, '');  // Only remove quotes and backslashes for JSON safety
+                
+                console.log('Field key:', normalizedKey);
+                
+                if (adhikaranaData[adhikaranaId][normalizedKey]) {
+                    alert('Field "' + normalizedKey + '" already exists!');
+                    return;
+                }
+                
+                // Add new field
+                adhikaranaData[adhikaranaId][normalizedKey] = '';
+                console.log('Field added to data');
+                
+                // Store custom label mapping
+                if (!adhikaranaData._fieldLabels) {
+                    adhikaranaData._fieldLabels = {};
+                }
+                adhikaranaData._fieldLabels[normalizedKey] = fieldLabel.trim();
+                console.log('Label stored:', fieldLabel.trim());
+                
+                // Re-render
+                console.log('Re-rendering editor...');
+                renderAdhikaranaEditor(adhikaranaId);
+                showStatus(`Field "${fieldLabel}" added successfully!`, 'success');
+                console.log('Done!');
+            } catch (error) {
+                console.error('Error in addCustomField:', error);
+                alert('Error adding field: ' + error.message);
+            }
+        }
+
+        // Rename adhikarana field label
+        function renameAdhikaranaField(adhikaranaId, fieldKey, newLabel) {
+            if (!newLabel || !newLabel.trim()) return;
+            
+            // Store custom label mapping
+            if (!adhikaranaData._fieldLabels) {
+                adhikaranaData._fieldLabels = {};
+            }
+            adhikaranaData._fieldLabels[fieldKey] = newLabel.trim();
+            
+            showStatus(`Field label updated to "${newLabel}"`, 'success');
+        }
+
+        // Delete adhikarana field
+        function deleteAdhikaranaField(adhikaranaId, fieldKey) {
+            if (!confirm(`Delete field "${fieldKey}"?`)) return;
+            
+            delete adhikaranaData[adhikaranaId][fieldKey];
+            
+            // Remove from label mapping if exists
+            if (adhikaranaData._fieldLabels && adhikaranaData._fieldLabels[fieldKey]) {
+                delete adhikaranaData._fieldLabels[fieldKey];
+            }
+            
+            renderAdhikaranaEditor(adhikaranaId);
+            showStatus(`Field "${fieldKey}" deleted`, 'success');
+        }
+
+        // Get field label with default mappings
+        function getFieldLabel(fieldKey) {
+            // Check custom labels first
+            if (adhikaranaData._fieldLabels && adhikaranaData._fieldLabels[fieldKey]) {
+                return adhikaranaData._fieldLabels[fieldKey];
+            }
+            
+            const labelMap = {
+                'vishaya': 'विषय (Topic)',
+                'samshaya': 'संशय (Doubt)',
+                'purvapaksha': 'पूर्वपक्ष (Objection)',
+                'siddhanta': 'सिद्धान्त (Conclusion)',
+                'prayojana': 'प्रयोजन (Purpose)',
+                'notes': 'टिप्पणी (Notes)',
+                'references': 'सन्दर्भ (References)'
+            };
+            return labelMap[fieldKey] || fieldKey;
+        }
+
+        // Update adhikarana field
+        function updateAdhikaranaField(adhikaranaId, fieldKey, value) {
+            if (!adhikaranaData[adhikaranaId]) {
+                adhikaranaData[adhikaranaId] = {};
+            }
+            
+            adhikaranaData[adhikaranaId][fieldKey] = value;
+            showStatus(`${fieldKey} updated for ${adhikaranaId}`, 'success');
         }
 
         // Show status message
