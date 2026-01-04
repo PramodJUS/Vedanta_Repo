@@ -1,51 +1,2153 @@
 {
-  "_glossary": {
-    "Brahman": "The Ultimate Reality, Supreme Being, the infinite, eternal, and unchanging consciousness that is the source of all existence",
-    "moksha": "Liberation, the ultimate goal of spiritual practice - freedom from the cycle of birth and death",
-    "karma": "Action, work, or ritual; also refers to the law of cause and effect",
-    "Vedas": "Ancient Hindu scriptures, considered the ultimate authority in spiritual knowledge",
-    "Vedanta": "The end or culmination of the Vedas; philosophical teachings found in the Upanishads",
-    "Upanishad": "Ancient philosophical texts forming the concluding part of the Vedas",
-    "liberation": "Freedom from the cycle of birth and death (moksha)",
-    "shabda pramana": "Scriptural testimony as a valid means of knowledge",
-    "Brahma-vidya": "Knowledge of Brahman, the supreme spiritual wisdom",
-    "pramana": "Valid means of knowledge or proof",
-    "brahma-jijnasa": "Inquiry into Brahman, the desire to know the Ultimate Reality",
-    "karma-kanda": "The section of the Vedas dealing with rituals and actions"
-  },
-  "_section_tooltips": {
-    "vishaya": "The main topic or subject matter under discussion in this adhikarana",
-    "samshaya": "The philosophical doubt or question that needs to be resolved",
-    "purvapaksha": "The preliminary view or objection that is raised before establishing the final conclusion",
-    "siddhanta": "The established conclusion or final verdict after examining all arguments",
-    "prayojana": "The purpose or benefit of this adhikarana discussion"
-  },
-  "1.1.जिज्ञासाधिकरणम्": {
-    "name": "जिज्ञासाधिकरणम्",
-    "name_en": "Jijnasa Adhikarana (Inquiry into Brahman)",
-    "adhyaya": 1,
-    "pada": 1,
-    "sutras": "1.1.1",
-    "vishaya": "The desire to know Brahman and the necessity of such <span class=\"contextual-tooltip\">inquiry<span class=\"info-tooltip\" title=\"A systematic and sustained effort to understand the nature of ultimate reality through study, reflection, and meditation\">ℹ️</span></span>",
-    "samshaya": "Is inquiry into Brahman necessary? Can one attain liberation through karma alone?",
-    "purvapaksha": "Karma (ritualistic actions) alone is sufficient for liberation. There is no need for knowledge of Brahman.",
-    "siddhanta": "Knowledge of Brahman is essential for liberation. Karma prepares the mind but cannot directly lead to moksha. Therefore, inquiry into Brahman (brahma-jijnasa) is necessary after acquiring the four-fold qualifications.",
-    "prayojana": "To establish the necessity and importance of Brahma-vidya (knowledge of Brahman) as the direct means to liberation",
-    "notes": "This is the first and foundational adhikarana that establishes the entire purpose of Vedanta study. The word 'atha' indicates auspicious beginning and 'athah' indicates sequence after karma-kanda.",
-    "references": "Bhagavad Gita 4.33-39, Taittiriya Upanishad Bhashya"
-  },
-  "1.1.शास्त्रयोनित्वाधिकरणम्": {
-    "name": "शास्त्रयोनित्वाधिकरणम्",
-    "name_en": "Shastra Yonitvam Adhikarana (Scriptures as Source)",
-    "adhyaya": 1,
-    "pada": 1,
-    "sutras": "1.1.2",
-    "vishaya": "The source of valid knowledge about Brahman",
-    "samshaya": "Can Brahman be known through perception, inference, or other means of knowledge? Or are the scriptures the only source?",
-    "purvapaksha": "Brahman can be known through inference and reasoning, similar to knowing the existence of atoms.",
-    "siddhanta": "The Vedas (shabda pramana) are the only valid means of knowing Brahman. Brahman is beyond the reach of perception and inference as it transcends the sensory and intellectual realm.",
-    "prayojana": "To establish the supreme authority of Vedas as the sole pramana for Brahma-vidya",
-    "notes": "This adhikarana establishes that scriptural testimony is indispensable for knowledge of Brahman, though reasoning can support and clarify scriptural teachings.",
-    "references": "Mundaka Upanishad 3.2.3, Katha Upanishad 2.23"
-  }
+    "_glossary": {
+        "Brahma-vidya": "Knowledge of Brahman, the supreme spiritual wisdom",
+        "brahma-jijnasa": "Inquiry into Brahman, the desire to know the Ultimate Reality",
+        "karma": "Action, work, or ritual; also refers to the law of cause and effect",
+        "karma-kanda": "The section of the Vedas dealing with rituals and actions",
+        "shabda pramana": "Scriptural testimony as a valid means of knowledge",
+        "pramana": "Valid means of knowledge or proof",
+        "Brahman": "The Ultimate Reality, Supreme Being, the infinite, eternal, and unchanging consciousness that is the source of all existence",
+        "Vedanta": "The end or culmination of the Vedas; philosophical teachings found in the Upanishads",
+        "liberation": "Freedom from the cycle of birth and death (moksha)",
+        "Upanishad": "Ancient philosophical texts forming the concluding part of the Vedas",
+        "Vedas": "Ancient Hindu scriptures, considered the ultimate authority in spiritual knowledge",
+        "moksha": "Liberation, the ultimate goal of spiritual practice - freedom from the cycle of birth and death"
+    },
+    "_section_tooltips": {
+        "samshaya": "The philosophical doubt or question that needs to be resolved",
+        "purvapaksha": "The preliminary view or objection that is raised before establishing the final conclusion",
+        "prayojana": "The purpose or benefit of this adhikarana discussion",
+        "vishaya": "The main topic or subject matter under discussion in this adhikarana",
+        "siddhanta": "The established conclusion or final verdict after examining all arguments"
+    },
+    "Adhikarana_1": {
+        "name": "जिज्ञासाधिकरणम्",
+        "sutras": "1.1.1",
+        "वषय - Topic": "The desire to know Brahman and the necessity of such <span class=\"contextual-tooltip\">inquiry<span class=\"info-tooltip\" title=\"A systematic and sustained effort to understand the nature of ultimate reality through study, reflection, and meditation\">ℹ</span></span>",
+        "सशय - Samshaya": "Is inquiry into Brahman necessary? Can one attain liberation through karma alone?",
+        "परवपकष - Purvapaksha": "Karma (ritualistic actions) alone is sufficient for liberation. There is no need for knowledge of Brahman.",
+        "सधदनत - Siddhanta": "Knowledge of Brahman is essential for liberation. Karma prepares the mind but cannot directly lead to moksha. Therefore, inquiry into Brahman (brahma-jijnasa) is necessary after acquiring the four-fold qualifications.",
+        "notes": "This is the first and foundational adhikarana that establishes the entire purpose of Vedanta study. The word 'atha' indicates auspicious beginning and 'athah' indicates sequence after karma-kanda.",
+        "references": "Bhagavad Gita 4.33-39, Taittiriya Upanishad Bhashya"
+    },
+    "Adhikarana_2": {
+        "name": "जन्माधिकरणम्",
+        "sutras": "1.1.2",
+        "वषय - Topic": "The origin of the universe and Brahman as the source of creation, sustenance, and dissolution",
+        "सशय - Samshaya": "What is the meaning of 'janmādyasya yataḥ' (from which the origin etc. of this)? Does it refer to Pradhāna (primordial matter) or Brahman?",
+        "परवपकष - Purvapaksha": "Pradhāna (Prakṛti), the inert primordial matter of Sāṅkhya philosophy, is the cause of the universe. The word 'yataḥ' indicates material cause, not conscious cause.",
+        "सधदनत - Siddhanta": "Brahman alone is the cause of the universe - both material and efficient. The phrase 'janmādyasya yataḥ' means 'that from which the origin, sustenance, and dissolution of this universe proceeds.' Only omniscient Brahman, not inert Pradhāna, can be this cause because creation requires knowledge and deliberation (īkṣati).",
+        "notes": "This is the lakṣaṇa (definition) sūtra of Brahman. It establishes Brahman as both intelligent (nimitta) and material (upādāna) cause. The term 'janma' (birth/origin) implies systematic creation requiring consciousness.",
+        "references": "Taittirīya Upaniṣad 3.1, Chāndogya Upaniṣad 6.2.1-3"
+    },
+    "Adhikarana_3": {
+        "name": "शास्त्रयोनित्वाधिकरणम्",
+        "sutras": "1.1.3",
+        "वषय - Topic": "The source of valid knowledge about Brahman",
+        "सशय - Samshaya": "Can Brahman be known through perception, inference, or other means of knowledge? Or are the scriptures the only source?",
+        "परवपकष - Purvapaksha": "Brahman can be known through inference and reasoning, similar to knowing the existence of atoms.",
+        "सधदनत - Siddhanta": "The Vedas (shabda pramana) are the only valid means of knowing Brahman. Brahman is beyond the reach of perception and inference as it transcends the sensory and intellectual realm.",
+        "notes": "This adhikarana establishes that scriptural testimony is indispensable for knowledge of Brahman, though reasoning can support and clarify scriptural teachings.",
+        "references": "Mundaka Upanishad 3.2.3, Katha Upanishad 2.23"
+    },
+    "Adhikarana_4": {
+        "name": "समन्वयाधिकरणम्",
+        "sutras": "1.1.4",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_5": {
+        "name": "ईक्षत्यधिकरणम्",
+        "sutras": "1.1.5-1.1.11",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_6": {
+        "name": "आनन्दमयाधिकरणम्",
+        "sutras": "1.1.12-1.1.19",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_7": {
+        "name": "अन्तःस्तत्थ्वाधिकरणम्",
+        "sutras": "1.1.20-1.1.21",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_8": {
+        "name": "आकाशाधिकरणम्",
+        "sutras": "1.1.22-1.4.15",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_9": {
+        "name": "प्राणाधिकरणम्",
+        "sutras": "1.1.23-2.4.3",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_10": {
+        "name": "ज्योतिरधिकरणम्",
+        "sutras": "1.1.24-1.3.40",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_11": {
+        "name": "गायत्र्यधिकरणम्",
+        "sutras": "1.1.25-1.1.27",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_12": {
+        "name": "पादान्त्यप्राणाधिकरणम्",
+        "sutras": "1.1.28-1.1.31",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_13": {
+        "name": "सर्वगतत्वाधिकरणम्",
+        "sutras": "1.2.1-3.2.38",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_14": {
+        "name": "अत्तृत्वाधिकरणम्",
+        "sutras": "1.2.9-1.2.10",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_15": {
+        "name": "गुहाधिकरणम्",
+        "sutras": "1.2.11-1.2.12",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_16": {
+        "name": "इत्यन्तराधिकरणम्",
+        "sutras": "1.2.13-1.2.17",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_17": {
+        "name": "इत्यन्तर्याम्यधिकरणम्",
+        "sutras": "1.2.18-1.2.20",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_18": {
+        "name": "अदृश्यत्वाधिकरणम्",
+        "sutras": "1.2.21-1.2.23",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_19": {
+        "name": "वैश्वानराधिकरणम्",
+        "sutras": "1.2.24-1.2.32",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_20": {
+        "name": "द्युभ्वाधिकरणम्",
+        "sutras": "1.3.1-1.3.7",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_21": {
+        "name": "भूमाधिकरणम्",
+        "sutras": "1.3.8-3.3.59",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_22": {
+        "name": "अक्षराधिकरणम्",
+        "sutras": "1.3.10-1.3.12",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_23": {
+        "name": "सदधिकरणम्",
+        "sutras": "1.3.13",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_24": {
+        "name": "दहराधिकरणम्",
+        "sutras": "1.3.14-1.3.21",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_25": {
+        "name": "अनुकृत्यधिकरणम्",
+        "sutras": "1.3.22-1.3.23",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_26": {
+        "name": "वामनाधिकरणम्",
+        "sutras": "1.3.24-1.3.25",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_27": {
+        "name": "देवताधिकरणम्",
+        "sutras": "1.3.26-1.3.33",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_28": {
+        "name": "अपशूद्राधिकरणम्",
+        "sutras": "1.3.34-1.3.38",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_29": {
+        "name": "कम्पनाधिकरणम्",
+        "sutras": "1.3.39",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_30": {
+        "name": "सुषुप्त्यधिकरणम्",
+        "sutras": "1.3.42",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_31": {
+        "name": "ब्राह्मणाधिकरणम्",
+        "sutras": "1.3.43",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_32": {
+        "name": "अनुमानिकाधिकरणम्",
+        "sutras": "1.4.1-1.4.9",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_33": {
+        "name": "ज्योतिरुपक्रमाधिकरणम्",
+        "sutras": "1.4.10-1.4.11",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_34": {
+        "name": "नसङ्ख्योपसङ्ग्रहाधिकरणम्",
+        "sutras": "1.4.12-1.4.14",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_35": {
+        "name": "समाकर्षाधिकरणम्",
+        "sutras": "1.4.16-1.4.23",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_36": {
+        "name": "प्रकृत्यधिकरणम्",
+        "sutras": "1.4.24-1.4.28",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_37": {
+        "name": "सर्वेव्याख्याताधिकरणम्",
+        "sutras": "1.4.29",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_38": {
+        "name": "स्मृत्यधिकरणम्",
+        "sutras": "2.1.1-2.1.3",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_39": {
+        "name": "नविलक्षणत्वाधिकरणम्",
+        "sutras": "2.1.4-2.1.5",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_40": {
+        "name": "अभिमान्यधिकरणम्",
+        "sutras": "2.1.6-2.1.7",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_41": {
+        "name": "असदधिकरणम्",
+        "sutras": "2.1.8-2.2.29",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_42": {
+        "name": "भोक्त्राधिकरणम्",
+        "sutras": "2.1.14",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_43": {
+        "name": "आरम्भणाधिकरणम्",
+        "sutras": "2.1.15-2.1.21",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_44": {
+        "name": "इतरव्यपदेशाधिकरणम्",
+        "sutras": "2.1.22-2.1.27",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_45": {
+        "name": "शब्दमूलत्वाधिकरणम्",
+        "sutras": "2.1.28-2.1.32",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_46": {
+        "name": "नप्रयोजनाधिकरणम्",
+        "sutras": "2.1.33-2.1.34",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_47": {
+        "name": "वैषम्यनैर्घृण्याधिकरणम्",
+        "sutras": "2.1.35-2.1.37",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_48": {
+        "name": "सर्वधर्मोपपत्यधिकरणम्",
+        "sutras": "2.1.38",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_49": {
+        "name": "रचनानुपपत्त्यधिकरणम्",
+        "sutras": "2.2.1-2.2.4",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_50": {
+        "name": "अन्यत्रभावाधिकरणम्",
+        "sutras": "2.2.5",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_51": {
+        "name": "अभ्युपगमाधिकरणम्",
+        "sutras": "2.2.6",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_52": {
+        "name": "पुरुषाश्माधिकरणम्",
+        "sutras": "2.2.7-2.2.8",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_53": {
+        "name": "अन्यथानुमित्यधिकरणम्",
+        "sutras": "2.2.9-2.2.10",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_54": {
+        "name": "वैशेषिकाधिकरणम्",
+        "sutras": "2.2.11-2.2.17",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_55": {
+        "name": "समुदायाधिकरणम्",
+        "sutras": "2.2.18-2.2.25",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_56": {
+        "name": "अनुपलब्द्यधिकरणम्",
+        "sutras": "2.2.30-2.2.32",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_57": {
+        "name": "नैकस्मिन्नधिकरणम्",
+        "sutras": "2.2.33-2.2.36",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_58": {
+        "name": "पत्युरधिकरणम्",
+        "sutras": "2.2.37-2.2.41",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_59": {
+        "name": "उत्पत्त्य(शक्त्य)धिकरणम्",
+        "sutras": "2.2.42-2.2.45",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_60": {
+        "name": "वियदधिकरणम्",
+        "sutras": "2.3.1-2.3.7",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_61": {
+        "name": "मातरिश्वाधिकरणम्",
+        "sutras": "2.3.8",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_62": {
+        "name": "असम्भवाधिकरणम्",
+        "sutras": "2.3.9",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_63": {
+        "name": "तेजोऽधिकरणम्",
+        "sutras": "2.3.10",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_64": {
+        "name": "अबधिकरणम्",
+        "sutras": "2.3.11",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_65": {
+        "name": "पृथिव्यधिकरणम्",
+        "sutras": "2.3.12",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_66": {
+        "name": "तदभिध्यानाधिकरणम्",
+        "sutras": "2.3.13",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_67": {
+        "name": "विपर्ययाधिकरणम्",
+        "sutras": "2.3.14",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_68": {
+        "name": "अन्तराधिकरणम्",
+        "sutras": "2.3.15-2.3.16",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_69": {
+        "name": "आत्माधिकरणम्",
+        "sutras": "2.3.17-4.4.3",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_70": {
+        "name": "ज्ञाधिकरणम्",
+        "sutras": "2.3.18-2.3.19",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_71": {
+        "name": "उत्क्रान्त्यधिकरणम्",
+        "sutras": "2.3.20-2.3.26",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_72": {
+        "name": "व्यतिरेकाधिकरणम्",
+        "sutras": "2.3.27",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_73": {
+        "name": "पृथगुपदेशाधिकरणम्",
+        "sutras": "2.3.28-2.3.29",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_74": {
+        "name": "यावदधिकरणम्",
+        "sutras": "2.3.30",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_75": {
+        "name": "पुंस्त्वाधिकरणम्",
+        "sutras": "2.3.31-2.3.32",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_76": {
+        "name": "कर्तृत्वाधिकरणम्",
+        "sutras": "2.3.33-2.3.42",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_77": {
+        "name": "अंशाधिकरणम्",
+        "sutras": "2.3.43-2.3.50",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_78": {
+        "name": "अदृष्टाधिकरणम्",
+        "sutras": "2.3.51-2.3.53",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_79": {
+        "name": "मनोधिकरणम्",
+        "sutras": "2.4.4",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_80": {
+        "name": "वागधिकरणम्",
+        "sutras": "2.4.5",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_81": {
+        "name": "सप्तगत्यधिकरणम्",
+        "sutras": "2.4.6-2.4.7",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_82": {
+        "name": "अण्व(णुत्वा)धिकरणम्",
+        "sutras": "2.4.8",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_83": {
+        "name": "मुख्यप्राणाधिकरणम्",
+        "sutras": "2.4.9-2.4.10",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_84": {
+        "name": "चक्षुराद्यधिकरणम्",
+        "sutras": "2.4.11-2.4.12",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_85": {
+        "name": "पञ्चवृत्त्यधिकरणम्",
+        "sutras": "2.4.13",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_86": {
+        "name": "प्राणाणुत्वाधिकरणम्",
+        "sutras": "2.4.14",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_87": {
+        "name": "ज्योतिराद्यधिकरणम्",
+        "sutras": "2.4.15-2.4.17",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_88": {
+        "name": "इन्द्रियाधिकरणम्",
+        "sutras": "2.4.18-2.4.20",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_89": {
+        "name": "सङ्ज्ञाधिकरणम्",
+        "sutras": "2.4.21",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_90": {
+        "name": "मांसा(ध्य)धिकरणम्",
+        "sutras": "2.4.22-2.4.23",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_91": {
+        "name": "तदन्तराधिकरणम्",
+        "sutras": "3.1.1",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_92": {
+        "name": "त्र्यात्मकत्वाधिकरणम्",
+        "sutras": "3.1.2",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_93": {
+        "name": "प्राणागत्यधिकरणम्",
+        "sutras": "3.1.3",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_94": {
+        "name": "अग्न्याद्यधिकरणम्",
+        "sutras": "3.1.4",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_95": {
+        "name": "प्रथमश्रवणाधिकरणम्",
+        "sutras": "3.1.5",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_96": {
+        "name": "अश्रुतत्वाधिकरणम्",
+        "sutras": "3.1.6",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_97": {
+        "name": "भाक्ताधिकरणम्",
+        "sutras": "3.1.7",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_98": {
+        "name": "कृतात्ययाधिकरणम्",
+        "sutras": "3.1.8",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_99": {
+        "name": "यथेताधिकरणम्",
+        "sutras": "3.1.9",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_100": {
+        "name": "चरणाधिकरणम्",
+        "sutras": "3.1.10-3.1.12",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_101": {
+        "name": "अनिष्टादिकार्यधिकरणम्",
+        "sutras": "3.1.13-3.1.15",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_102": {
+        "name": "सप्ताधिकरणम्",
+        "sutras": "3.1.16",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_103": {
+        "name": "तद्व्यापाराधिकरणम्",
+        "sutras": "3.1.17",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_104": {
+        "name": "विद्याकर्माधिकरणम्",
+        "sutras": "3.1.18",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_105": {
+        "name": "महातमोऽधिकरणम्",
+        "sutras": "3.1.19-3.1.23",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_106": {
+        "name": "तत्स्वाभाव्याधिकरणम्",
+        "sutras": "3.1.24",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_107": {
+        "name": "नातिचिरेणाधिकरणम्",
+        "sutras": "3.1.25",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_108": {
+        "name": "अन्या(धिष्ठिता)धिकरणम्",
+        "sutras": "3.1.26-3.1.27",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_109": {
+        "name": "रेतोऽधिकरणम्",
+        "sutras": "3.1.28",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_110": {
+        "name": "योन्यधिकरणम्",
+        "sutras": "3.1.29",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_111": {
+        "name": "सन्ध्याधिकरणम्",
+        "sutras": "3.2.1-3.2.4",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_112": {
+        "name": "पराभिध्यानाधिकरणम्",
+        "sutras": "3.2.5",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_113": {
+        "name": "देहयोगाधिकरणम्",
+        "sutras": "3.2.6",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_114": {
+        "name": "तदभावाधिकरणम्",
+        "sutras": "3.2.7",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_115": {
+        "name": "प्रभोधाधिकरणम्",
+        "sutras": "3.2.8",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_116": {
+        "name": "कर्मानुस्मृत्यधिकरणम्",
+        "sutras": "3.2.9",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_117": {
+        "name": "सम्पत्त्यधिकरणम्",
+        "sutras": "3.2.10",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_118": {
+        "name": "स्थान(तोऽप्य)भेदाधिकरणम्",
+        "sutras": "3.2.11-3.2.13",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_119": {
+        "name": "अरूपाधिकरणम्",
+        "sutras": "3.2.14-3.2.17",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_120": {
+        "name": "उपमाधिकरणम्",
+        "sutras": "3.2.18",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_121": {
+        "name": "अम्बुवदधिकरणम्",
+        "sutras": "3.2.19",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_122": {
+        "name": "वृद्धिह्रासाधिकरणम्",
+        "sutras": "3.2.20-3.2.21",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_123": {
+        "name": "पालकत्वाधिकरणम्",
+        "sutras": "3.2.22",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_124": {
+        "name": "अव्यक्ताधिकरणम्",
+        "sutras": "3.2.23-3.2.27",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_125": {
+        "name": "उभयव्यपदेशाधिकरणम्",
+        "sutras": "3.2.28-3.2.31",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_126": {
+        "name": "परानन्दा(परमता)धिकरणम्",
+        "sutras": "3.2.32-3.2.34",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_127": {
+        "name": "स्थानविशेषाधिकरणम्",
+        "sutras": "3.2.35-3.2.36",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_128": {
+        "name": "तथान्यत्वाधिकरणम्",
+        "sutras": "3.2.37",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_129": {
+        "name": "फलदानाधिकरणम्",
+        "sutras": "3.2.39-3.2.42",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_130": {
+        "name": "सर्वेवेदा(न्तप्रत्यया)धिकरणम्",
+        "sutras": "3.3.1-3.3.5",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_131": {
+        "name": "उपसंहाराधिकरणम्",
+        "sutras": "3.3.6-3.3.9",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_132": {
+        "name": "प्राप्तैधिकरणम्",
+        "sutras": "3.3.10",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_133": {
+        "name": "सर्वाभेदाधिकरणम्",
+        "sutras": "3.3.11",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_134": {
+        "name": "आनन्दाद्यधिकरणम्",
+        "sutras": "3.3.12",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_135": {
+        "name": "प्रियशिरस्त्वाधिकरणम्",
+        "sutras": "3.3.13",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_136": {
+        "name": "इतराधिकरणम्",
+        "sutras": "3.3.14",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_137": {
+        "name": "अध्यानाधिकरणम्",
+        "sutras": "3.3.15-3.3.16",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_138": {
+        "name": "आत्मगृहीत्यधिकरणम्",
+        "sutras": "3.3.17",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_139": {
+        "name": "अन्वयाधिकरणम्",
+        "sutras": "3.3.18",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_140": {
+        "name": "कार्या(ख्यान)धिकरणम्",
+        "sutras": "3.3.19",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_141": {
+        "name": "समानाधिकरणम्",
+        "sutras": "3.3.20",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_142": {
+        "name": "नवाधिकरणम्",
+        "sutras": "3.3.21-3.3.68",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_143": {
+        "name": "सम्भृत्यधिकरणम्",
+        "sutras": "3.3.24",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_144": {
+        "name": "पुरुषविद्याधिकरणम्",
+        "sutras": "3.3.25",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_145": {
+        "name": "वेधाद्यधिकरणम्",
+        "sutras": "3.3.26",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_146": {
+        "name": "मुक्तोपासनाधिकरणम् (हान्यधिकरणम्)",
+        "sutras": "3.3.27-3.3.28",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_147": {
+        "name": "छन्दादिकरणम्",
+        "sutras": "3.3.29-3.3.31",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_148": {
+        "name": "अनियमाधिकरणम्",
+        "sutras": "3.3.32",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_149": {
+        "name": "यावदधिकाराधिकरणम्",
+        "sutras": "3.3.33-3.3.34",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_150": {
+        "name": "इयदामननाधिकरणम्",
+        "sutras": "3.3.35-3.3.37",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_151": {
+        "name": "व्यतिहाराधिकरणम्",
+        "sutras": "3.3.38",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_152": {
+        "name": "सत्याद्यधिकरणम्",
+        "sutras": "3.3.29",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_153": {
+        "name": "कामाधिकरणम्",
+        "sutras": "3.3.40-3.3.42",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_154": {
+        "name": "निर्धारणाधिकरणम्",
+        "sutras": "3.3.43",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_155": {
+        "name": "प्रदानाधिकरणम्",
+        "sutras": "3.3.44",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_156": {
+        "name": "गुरुप्रसादाधिकरणम् (लिङ्गभूयस्त्वाधिकरणम्)",
+        "sutras": "3.3.45",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_157": {
+        "name": "पूर्वविकल्पाधिकरणम्",
+        "sutras": "3.3.46-3.3.47",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_158": {
+        "name": "विद्याधिकरणम्",
+        "sutras": "3.3.48-3.3.49",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_159": {
+        "name": "अबाधाधिकरणम् (श्रुत्यधिकरणम्)",
+        "sutras": "3.3.50",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_160": {
+        "name": "अनुबन्धाद्यधिकरणम्",
+        "sutras": "3.3.51",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_161": {
+        "name": "दर्शनबेधादिकरणम् (प्रज्ञान्तराधिकरणम्)",
+        "sutras": "3.3.52",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_162": {
+        "name": "न सामान्याधिकरणम्",
+        "sutras": "3.3.53",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_163": {
+        "name": "ताद्विध्याधिकरणम् (परेणाधिकरणम्)",
+        "sutras": "3.3.54",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_164": {
+        "name": "एकाधिकरणम्",
+        "sutras": "3.3.55-3.3.56",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_165": {
+        "name": "अङ्गावबद्धाधिकरणम्",
+        "sutras": "3.3.57-3.3.58",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_166": {
+        "name": "नाना(शब्दा)धिकरणम्",
+        "sutras": "3.3.60",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_167": {
+        "name": "विकल्पाधिकरणम्",
+        "sutras": "3.3.61",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_168": {
+        "name": "काम्याधिकरणम्",
+        "sutras": "3.3.62",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_169": {
+        "name": "यथाश्रयभावाधिकरणम् (अङ्गाधिकरणम्)",
+        "sutras": "3.3.63-3.3.66",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_170": {
+        "name": "पुरुषार्थाधिकरणम्",
+        "sutras": "3.4.1-3.4.9",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_171": {
+        "name": "अधिकाराधिकरणम् (असार्वत्रिकाधिकरणम्)",
+        "sutras": "3.4.10-3.4.12",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_172": {
+        "name": "अधिकारविशेषाधिकरणम् (अविशेषाधिकरणम्)",
+        "sutras": "3.4.13",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_173": {
+        "name": "कामचाराधिकरणम् (स्तुत्यधिकरणम्)",
+        "sutras": "3.4.14-3.4.33",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_174": {
+        "name": "उभयलिङ्गाधिकरणम्",
+        "sutras": "3.4.34-3.4.40",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_175": {
+        "name": "अधिकारिकाधिकरणम्",
+        "sutras": "3.4.41-3.4.43",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_176": {
+        "name": "फलश्रुत्यधिकरणम्",
+        "sutras": "3.4.44-3.4.49",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_177": {
+        "name": "कृत्स्नभावाधिकरणम्",
+        "sutras": "3.4.47-3.4.48",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_178": {
+        "name": "अनाविष्काराधिकरणम्",
+        "sutras": "3.4.49",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_179": {
+        "name": "ऐहिकाधिकरणम्",
+        "sutras": "3.4.50",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_180": {
+        "name": "मुक्तिफलाधिकरणम्",
+        "sutras": "3.4.51",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_181": {
+        "name": "आवृत्यधिकरणम्",
+        "sutras": "4.1.1-4.1.2",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_182": {
+        "name": "आत्मोपगमाधिकरणम्",
+        "sutras": "4.1.3",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_183": {
+        "name": "नप्रतीकाधिकरणम्",
+        "sutras": "4.1.4",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_184": {
+        "name": "ब्रह्मदृष्ट्यधिकरणम्",
+        "sutras": "4.1.5",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_185": {
+        "name": "आदित्यादिमत्यधिकरणम्",
+        "sutras": "4.1.6",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_186": {
+        "name": "आसनाधिकरणम्",
+        "sutras": "4.1.7-4.1.11",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_187": {
+        "name": "प्रायणाधिकरणम्",
+        "sutras": "4.1.12",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_188": {
+        "name": "तदधिगमाधिकरणम्",
+        "sutras": "4.1.13-4.1.19",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_189": {
+        "name": "वाङ्मनसाधिकरणम्",
+        "sutras": "4.2.1-4.2.2",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_190": {
+        "name": "मनोऽधिकरणम्",
+        "sutras": "4.2.3",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_191": {
+        "name": "अध्यक्षाधिकरणम्",
+        "sutras": "4.2.4",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_192": {
+        "name": "भूताधिकरणम्",
+        "sutras": "4.2.5",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_193": {
+        "name": "अनेकलयाधिकरणम् (नैकस्मिन्नधिकरणम्)",
+        "sutras": "4.2.6",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_194": {
+        "name": "समनाधिकरणम्",
+        "sutras": "4.2.7-4.2.14",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_195": {
+        "name": "परा(लया)धिकरणम्",
+        "sutras": "4.2.15",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_196": {
+        "name": "अविभागाधिकरणम्",
+        "sutras": "4.2.16-4.4.4",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_197": {
+        "name": "हृदयाग्रज्वलना(तदोकोऽ)धिकरणम्",
+        "sutras": "4.2.17-4.2.21",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_198": {
+        "name": "प्रतिस्मरणाधिकरणम् (योग्यधिकरणम्)",
+        "sutras": "4.2.22",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_199": {
+        "name": "अर्चिराद्यधिकरणम्",
+        "sutras": "4.3.1",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_200": {
+        "name": "वायुगत्यधिकरणम्",
+        "sutras": "4.3.2",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_201": {
+        "name": "तटिदधिकरणम्",
+        "sutras": "4.3.3",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_202": {
+        "name": "अतिवाहिकाधिकरणम्",
+        "sutras": "4.3.4-4.3.5",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_203": {
+        "name": "वैद्युताधिकरणम्",
+        "sutras": "4.3.6",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_204": {
+        "name": "कार्याधिकरणम्",
+        "sutras": "4.3.7-4.3.16",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_205": {
+        "name": "सम्पद्याधिकरणम्",
+        "sutras": "4.4.1",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_206": {
+        "name": "मुक्ताधिकरणम्",
+        "sutras": "4.4.2",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_207": {
+        "name": "चितिमात्राधिकरणम् (ब्रह्माधिकरणम्)",
+        "sutras": "4.4.5-4.4.7",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_208": {
+        "name": "सङ्कल्पाधिकरणम्",
+        "sutras": "4.4.8",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_209": {
+        "name": "अनन्याधिपतित्वाधिकरणम्",
+        "sutras": "4.4.9",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_210": {
+        "name": "उभयविधभोगाधिकरणम्",
+        "sutras": "4.4.10-4.4.16",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_211": {
+        "name": "सर्वकामाधिकरणम् (जगद्व्यापाराधिकरणम्)",
+        "sutras": "4.4.17-4.4.20",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_212": {
+        "name": "स्थित्य(एकरूपा)धिकरणम्",
+        "sutras": "4.4.21-4.4.22",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    },
+    "Adhikarana_213": {
+        "name": "अनावृत्यधिकरणम्",
+        "sutras": "4.4.23",
+        "वषय - Topic": "",
+        "सशय - Samshaya": "",
+        "परवपकष - Purvapaksha": "",
+        "सधदनत - Siddhanta": "",
+        "notes": "",
+        "references": ""
+    }
 }

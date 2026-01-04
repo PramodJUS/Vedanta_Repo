@@ -1263,6 +1263,12 @@ function onLanguageChange() {
         showSutraDetail(currentSutra);
     }
     
+    // Refresh adhikarana popup if it's open
+    const adhikaranaPopup = document.getElementById('adhikaranaPopup');
+    if (adhikaranaPopup && adhikaranaPopup.style.display === 'flex' && currentSutra) {
+        showAdhikaranaInfo(currentSutra);
+    }
+    
     // Refresh personal notes popup if it's open
     const personalNotesModal = document.getElementById('personalNotesModal');
     if (personalNotesModal && currentSutra) {
@@ -3592,12 +3598,17 @@ function showAdhikaranaInfo(sutra) {
                            transliterateText('अधिकरणम्', currentLanguage) : 
                            'अधिकरणम्';
     
-    // Get adhikarana details from JSON
-    const adhikaranaKey = `${sutra.adhyaya}.${sutra.pada}.${sutra.adhikarana}`;
-    const details = adhikaranaDetails[adhikaranaKey] || {};
-    console.log('Adhikarana key:', adhikaranaKey);
+    // Get adhikarana details from JSON - find by matching name
+    let details = {};
+    for (const [key, value] of Object.entries(adhikaranaDetails)) {
+        if (key.startsWith('_')) continue; // Skip _glossary and _section_tooltips
+        if (value.name === sutra.adhikarana) {
+            details = value;
+            break;
+        }
+    }
+    console.log('Adhikarana name:', sutra.adhikarana);
     console.log('Adhikarana details:', details);
-    console.log('All adhikarana keys:', Object.keys(adhikaranaDetails));
     
     // Get all sutras in the same adhikarana
     const sutrasInAdhikarana = allSutras.filter(s => 
@@ -3632,62 +3643,30 @@ function showAdhikaranaInfo(sutra) {
         return result;
     }
     
-    // Build details sections
+    // Build details sections - dynamically display all fields except metadata
     let detailsHTML = '';
     
     // Get section tooltips from adhikarana details
     const sectionTooltips = adhikaranaDetails?._section_tooltips || {};
     
-    if (details.name_en) {
-        detailsHTML += `<div class="adhikarana-detail-section">
-            <strong>English Name:</strong> ${addTermTooltips(details.name_en)}
-        </div>`;
-    }
+    // Fields to skip
+    const metadataFields = ['name', 'sutras'];
     
-    if (details.vishaya) {
-        const tooltip = sectionTooltips.vishaya || '';
+    // Display all custom fields
+    for (const [fieldKey, fieldValue] of Object.entries(details)) {
+        if (metadataFields.includes(fieldKey)) continue;
+        
+        // Transliterate field label and value based on current language
+        const fieldLabel = currentLanguage !== 'sa' ? transliterateText(fieldKey, currentLanguage) : fieldKey;
+        const transliteratedValue = currentLanguage !== 'sa' ? transliterateText(fieldValue, currentLanguage) : fieldValue;
+        
+        // Add tooltip if available (try to find matching tooltip by extracting Sanskrit part)
+        const sanskritPart = fieldKey.split(' - ')[0].trim().replace(/ः$/, ''); // Remove trailing visarga
+        const tooltip = sectionTooltips[sanskritPart.toLowerCase()] || '';
+        const tooltipHTML = tooltip ? `<span class="info-tooltip" title="${tooltip}">ℹ️</span>` : '';
+        
         detailsHTML += `<div class="adhikarana-detail-section">
-            <strong>विषयः (Subject):<span class="info-tooltip" title="${tooltip}">ℹ️</span></strong> ${addTermTooltips(details.vishaya)}
-        </div>`;
-    }
-    
-    if (details.samshaya) {
-        const tooltip = sectionTooltips.samshaya || '';
-        detailsHTML += `<div class="adhikarana-detail-section">
-            <strong>संशयः (Doubt):<span class="info-tooltip" title="${tooltip}">ℹ️</span></strong> ${addTermTooltips(details.samshaya)}
-        </div>`;
-    }
-    
-    if (details.purvapaksha) {
-        const tooltip = sectionTooltips.purvapaksha || '';
-        detailsHTML += `<div class="adhikarana-detail-section">
-            <strong>पूर्वपक्षः (Objection):<span class="info-tooltip" title="${tooltip}">ℹ️</span></strong> ${addTermTooltips(details.purvapaksha)}
-        </div>`;
-    }
-    
-    if (details.siddhanta) {
-        const tooltip = sectionTooltips.siddhanta || '';
-        detailsHTML += `<div class="adhikarana-detail-section">
-            <strong>सिद्धान्तः (Conclusion):<span class="info-tooltip" title="${tooltip}">ℹ️</span></strong> ${addTermTooltips(details.siddhanta)}
-        </div>`;
-    }
-    
-    if (details.prayojana) {
-        const tooltip = sectionTooltips.prayojana || '';
-        detailsHTML += `<div class="adhikarana-detail-section">
-            <strong>प्रयोजनम् (Purpose):<span class="info-tooltip" title="${tooltip}">ℹ️</span></strong> ${addTermTooltips(details.prayojana)}
-        </div>`;
-    }
-    
-    if (details.notes) {
-        detailsHTML += `<div class="adhikarana-detail-section">
-            <strong>Notes:</strong> ${addTermTooltips(details.notes)}
-        </div>`;
-    }
-    
-    if (details.references) {
-        detailsHTML += `<div class="adhikarana-detail-section">
-            <strong>References:</strong> ${addTermTooltips(details.references)}
+            <strong>${fieldLabel}:${tooltipHTML}</strong> ${addTermTooltips(transliteratedValue)}
         </div>`;
     }
     
@@ -3702,11 +3681,11 @@ function showAdhikaranaInfo(sutra) {
                 <div class="adhikarana-location">
                     <strong>अध्यायः ${sutra.adhyaya}, पादः ${sutra.pada}</strong>
                 </div>
-                ${detailsHTML}
                 <h4>Sutras in this adhikarana:</h4>
                 <ul class="adhikarana-sutra-list">
                     ${sutraList}
                 </ul>
+                ${detailsHTML}
             </div>
         </div>
     `;
