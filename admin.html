@@ -1211,8 +1211,56 @@
 
         // Centralized function to clean HTML content before saving
         function cleanHTMLContent(content) {
-            // Remove extra newlines and whitespace between HTML tags that come from formatted HTML
-            return content.replace(/>\s+</g, '><');
+            // Convert HTML back to plain text with \n
+            // First preserve <PB> tags (case-insensitive)
+            const pbPlaceholder = '___PAGEBREAK___';
+            content = content.replace(/<(pb|PB|Pb|pB)>/gi, pbPlaceholder);
+            
+            // Replace <br> and block elements with \n
+            content = content.replace(/<br\s*\/?>/gi, '\n');
+            content = content.replace(/<\/div><div>/gi, '\n');
+            content = content.replace(/<div>/gi, '\n');
+            content = content.replace(/<\/div>/gi, '');
+            content = content.replace(/<\/p><p>/gi, '\n\n');
+            content = content.replace(/<p>/gi, '');
+            content = content.replace(/<\/p>/gi, '\n');
+            
+            // Remove all other HTML tags
+            content = content.replace(/<[^>]+>/g, '');
+            
+            // Restore <PB> markers
+            content = content.replace(new RegExp(pbPlaceholder, 'g'), '<PB>');
+            
+            // Decode HTML entities
+            content = content.replace(/&nbsp;/g, ' ');
+            content = content.replace(/&amp;/g, '&');
+            content = content.replace(/&lt;/g, '<');
+            content = content.replace(/&gt;/g, '>');
+            content = content.replace(/&quot;/g, '"');
+            
+            return content.trim();
+        }
+        
+        // Prepare content for editor (convert \n to <br>)
+        function prepareContentForEditor(content) {
+            if (!content) return '';
+            
+            // First preserve <PB> tags (case-insensitive)
+            const pbPlaceholder = '___PAGEBREAK___';
+            content = content.replace(/<(pb|PB|Pb|pB)>/gi, pbPlaceholder);
+            
+            // Escape HTML
+            content = content.replace(/&/g, '&amp;');
+            content = content.replace(/</g, '&lt;');
+            content = content.replace(/>/g, '&gt;');
+            
+            // Restore <PB> markers (escaped)
+            content = content.replace(new RegExp(pbPlaceholder, 'g'), '&lt;PB&gt;');
+            
+            // Convert \n to <br>
+            content = content.replace(/\n/g, '<br>');
+            
+            return content;
         }
 
         // Update personal notes content
@@ -1349,6 +1397,7 @@
                     
                     const editorId = `editor_${sutraId}_${sectionKey}_${vyakhyanaKey}`.replace(/[^a-zA-Z0-9_]/g, '_');
                     const contentField = vyakhyanaData.moola !== undefined ? 'moola' : 'content';
+                    const displayContent = prepareContentForEditor(content);
                     
                     section.innerHTML = `
                         <div class="vyakhyana-header">
@@ -1362,7 +1411,7 @@
                             <div id="${editorId}" 
                                  class="editor-content" 
                                  contenteditable="true"
-                                 onblur="updateVyakhyanaContent('${sutraId}', '${sectionKey}', '${vyakhyanaKey}', this.innerHTML)">${content}</div>
+                                 onblur="updateVyakhyanaContent('${sutraId}', '${sectionKey}', '${vyakhyanaKey}', this.innerHTML)">${displayContent}</div>
                         </div>
                     `;
                     sectionDiv.appendChild(section);

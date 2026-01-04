@@ -1,5 +1,38 @@
 # Release Notes
 
+## Version 1.0.5 - January 4, 2026
+
+### Backend Architecture Planning
+- **Documented**: Comprehensive backend migration strategy for future multi-user collaboration
+- **Evaluated Solutions**:
+  - File-based backend with Git version control
+  - SQLite and SQL Server database options
+  - Graph databases for relationship queries
+  - Headless CMS solutions (Strapi, Directus, Payload)
+  - Cloud database options (Firebase, Supabase, Neon, PlanetScale)
+- **Selected Architecture**: Strapi Cloud + Neon PostgreSQL
+  - **Strapi Cloud**: Free tier headless CMS (5GB assets, 2 admin users, 1M API calls/month)
+  - **Neon PostgreSQL**: Free tier cloud database (10GB storage)
+  - **GitHub Pages**: Static site hosting (current setup)
+- **Key Features**:
+  - Draft/Publish workflow with approval chain
+  - Role-based permissions (Editor, Reviewer, Admin)
+  - Automatic version history and audit logs
+  - Real-time multi-user collaboration
+  - No software installation required (browser-based)
+  - Easy migration path to on-premise MSSQL when needed
+- **Implementation Strategy**:
+  - Keep GitHub Pages for public website (index.html)
+  - Strapi Cloud provides admin interface and API
+  - Neon stores all content data
+  - Single source of truth: bs.csv for sutra metadata
+- **Benefits**:
+  - 100% free for current scale
+  - No server management required
+  - Built-in approval workflows
+  - Database-agnostic (easy to migrate later)
+  - Multi-user editing with conflict resolution
+
 ## Version 1.0.4 - January 2, 2026
 
 ### Admin Panel (NEW)
