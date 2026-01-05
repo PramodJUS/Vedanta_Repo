@@ -1,5 +1,71 @@
 # Release Notes
 
+## Version 1.0.7 - January 5, 2026
+*Updated: January 5, 2026*
+
+### Multi-Language Translation Support
+- **New**: Comprehensive translation framework for all content types
+  - Translation dropdown with "Translation (optional):" label
+  - Support for 8 languages: Sanskrit (default), English, Kannada, Telugu, Tamil, Malayalam, Gujarati, Odia, Bengali
+  - Consistent implementation across all editors
+
+- **Vyākhyāna Commentaries**:
+  - Language dropdown for each commentary section
+  - Translations stored as separate fields (Ka_Translation, Te_Translation, etc.)
+  - Auto-save translations when switching languages
+  - Field name updates in label to show current language
+
+- **व्यक्तिगत-टिपाणी (Personal Notes)**:
+  - Full translation support added to personal notes
+  - Same language dropdown interface
+  - Translations persist across sessions
+
+- **Adhikarana Editor**:
+  - Translation dropdown for all adhikarana fields
+  - Translations stored with field-specific keys (e.g., विषयः_Ka_Translation)
+  - Seamless language switching per field
+
+### Author Data Centralization
+- **New**: Author.csv for centralized author management
+  - Columns: Grantha, Commentry_Name, Author_Name, Image_Name
+  - Single source of truth for all author information
+  - Maps 11 commentaries to their authors
+
+- **Data Cleanup**:
+  - Removed 2,821 author fields from sutra-details.json
+  - Reduced JSON file size by 257 KB (from 2,044 KB to 1,787 KB)
+  - Preserved UTF-8 Devanagari encoding throughout
+  - Python-based cleanup script for safe data processing
+
+- **Dynamic Author Loading**:
+  - Both admin.html and bs.js load Author.csv on startup
+  - Author names display correctly in commentary headers
+  - Watermark images load from Image_Name column
+  - Proper CSV parsing handles quoted fields with Devanagari script
+
+### Bug Fixes
+- **Fixed**: Admin panel author display showing "Unknown"
+  - Implemented proper CSV parser for quoted fields
+  - Commentary names with Devanagari now correctly matched
+- **Fixed**: Watermark images not displaying
+  - Image_Name column now includes .jpg extension
+  - Code updated to use filename as-is without appending extension
+- **Fixed**: Translation field name mismatch
+  - Changed from Kn_Translation to Ka_Translation for Kannada
+  - Matches existing JSON data structure
+
+### Code Quality
+- **Enhanced**: CSV parsing throughout application
+  - Proper handling of quoted fields
+  - Supports Devanagari characters in CSV values
+  - Consistent parser implementation in both admin and main app
+- **Documentation**: Created AUTHOR_CSV_MIGRATION.md
+  - Complete migration details
+  - Benefits and architecture changes
+  - Testing checklist for validation
+
+---
+
 ## Version 1.0.6 - January 4, 2026
 *Updated: January 4, 2026*
 
