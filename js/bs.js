@@ -3,6 +3,7 @@ let allSutras = [];
 let filteredSutras = [];
 let sutraDetails = {};
 let adhikaranaDetails = {};
+let authorMap = {}; // Map of commentary name to author details from Author.csv
 let currentView = 'list'; // 'list' or 'detail'
 let currentSpeech = null; // Track current speech synthesis
 let currentAudio = null; // Track current audio element
@@ -1973,6 +1974,49 @@ async function loadSutras() {
     try {
         showLoading();
         
+        // Load Author.csv for author/image mapping
+        try {
+            const authorResponse = await fetch('sutra/Author.csv');
+            const authorCsvText = await authorResponse.text();
+            const authorLines = authorCsvText.trim().split('\n');
+            // Skip header line
+            for (let i = 1; i < authorLines.length; i++) {
+                const line = authorLines[i].trim();
+                if (!line) continue;
+                
+                // Parse CSV properly: Grantha,Commentry_Name,Author_Name,Image_Name
+                const cols = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let j = 0; j < line.length; j++) {
+                    const char = line[j];
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        cols.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                cols.push(current.trim()); // Add last column
+                
+                if (cols.length >= 4) {
+                    const commentaryName = cols[1]; // Already without quotes
+                    const authorName = cols[2];
+                    const imageName = cols[3]; // Image_Name includes extension (.jpg) or is empty
+                    authorMap[commentaryName] = {
+                        author: authorName,
+                        image: imageName // Store as-is (with extension or empty)
+                    };
+                }
+            }
+            console.log('Loaded author mappings:', authorMap);
+        } catch (authorError) {
+            console.warn('Author.csv not loaded:', authorError);
+        }
+        
         // Load CSV data
         const csvResponse = await fetch('sutra/bs.csv');
         const csvText = await csvResponse.text();
@@ -2609,9 +2653,10 @@ function showSutraDetail(sutra, partKey = null) {
                     commentaryText = commentaryText.replace(/\\r\\n|\\n|\\r/g, '<br>');
                 }
                 
-                // Get author for watermark
-                const author = vyakhyaData && vyakhyaData.author ? vyakhyaData.author.toLowerCase() : '';
-                const authorAttr = author ? `data-author="${author}"` : '';
+                // Get author image for watermark from Author.csv
+                const authorInfo = authorMap[vyakhyaKey];
+                const authorImageName = authorInfo && authorInfo.image ? authorInfo.image : '';
+                const authorAttr = authorImageName ? `data-author="${authorImageName}"` : '';
                 
                 // Split content into pages
                 const pages = splitTextIntoPages(commentaryText, CHARS_PER_PAGE);
@@ -2670,10 +2715,9 @@ function showSutraDetail(sutra, partKey = null) {
                     </div>
                 ` : '';
                 
-                // Add watermark div if author exists
-                // Use lazy loading for watermark images
-                const authorImageName = author || '';
-                const watermarkDiv = authorImageName ? `<div class="watermark lazy-bg" data-bg="images/${authorImageName}.jpg"></div>` : '';
+                // Add watermark div if author image exists
+                // Use lazy loading for watermark images (Image_Name already includes extension)
+                const watermarkDiv = authorImageName ? `<div class="watermark lazy-bg" data-bg="images/${authorImageName}"></div>` : '';
 
                 
                 // Add resize handle only if not the first vyakhyana

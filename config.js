@@ -86,6 +86,8 @@ const EDITOR_CONFIG = {
 // 📚 VYAKHYANA CONFIGURATION
 // ========================================
 // Standard vyakhyanas that are auto-created for every part
+// NOTE: This is now loaded from Author.csv at runtime
+// This object is kept for backward compatibility
 const STANDARD_VYAKHYANAS = {
     'भाष्यम्': 'madhwacharya',
     'तत्त्वप्रकाशिका': 'jayateerth',
@@ -153,6 +155,7 @@ const DATA_CONFIG = {
     dataPath: 'sutra/sutra-details.json',
     csvPath: 'sutra/bs.csv',
     adhikaranaPath: 'sutra/adhikarana-details.json',
+    authorCsvPath: 'sutra/Author.csv',
     
     // CSV column mapping (0-indexed)
     csvColumns: {

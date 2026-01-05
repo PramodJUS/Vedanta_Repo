@@ -722,6 +722,34 @@
         .color-btn-group:hover {
             border-color: #9ca3af;
         }
+        
+        .language-dropdown {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 15px;
+            padding: 5px 10px;
+            background: #f3f4f6;
+            border-radius: 5px;
+            font-size: 13px;
+        }
+        
+        .language-dropdown label {
+            margin: 0;
+            font-weight: 500;
+            color: #6b7280;
+            font-size: 13px;
+        }
+        
+        .language-dropdown select {
+            padding: 4px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            background: white;
+            font-size: 13px;
+            cursor: pointer;
+            min-width: 120px;
+        }
     </style>
 </head>
 <body>
@@ -870,7 +898,7 @@
         // Logout function
         function logout() {
             sessionStorage.removeItem('adminAuth');
-            location.reload();
+            window.location.href = 'index.html';
         }
         // ====== END AUTHENTICATION ======
 
@@ -878,6 +906,7 @@
         let adhikaranaData = {};
         let sutraTextMap = {}; // Map of sutra ID to sutra text from CSV
         let sutraOrderMap = {}; // Map of sutra ID to order from CSV id column
+        let authorMap = {}; // Map of commentary name to author details from Author.csv
         let currentSutraId = null;
         let currentAdhikaranaId = null;
         let currentPart = 'Part#1'; // Track which part is currently displayed
@@ -888,6 +917,51 @@
         async function loadData() {
             try {
                 showStatus('Loading data...', 'info');
+                
+                // Load Author mapping from CSV
+                try {
+                    const authorResponse = await fetch(DATA_CONFIG.authorCsvPath);
+                    if (authorResponse.ok) {
+                        const authorCsvText = await authorResponse.text();
+                        const authorLines = authorCsvText.split('\n');
+                        // Skip header line
+                        for (let i = 1; i < authorLines.length; i++) {
+                            const line = authorLines[i].trim();
+                            if (!line) continue;
+                            
+                            // Parse CSV properly: Grantha,Commentry_Name,Author_Name,Image_Name
+                            const cols = [];
+                            let current = '';
+                            let inQuotes = false;
+                            
+                            for (let j = 0; j < line.length; j++) {
+                                const char = line[j];
+                                if (char === '"') {
+                                    inQuotes = !inQuotes;
+                                } else if (char === ',' && !inQuotes) {
+                                    cols.push(current.trim());
+                                    current = '';
+                                } else {
+                                    current += char;
+                                }
+                            }
+                            cols.push(current.trim()); // Add last column
+                            
+                            if (cols.length >= 4) {
+                                const commentaryName = cols[1]; // Already without quotes
+                                const authorName = cols[2];
+                                const imageName = cols[3]; // Image_Name includes extension (.jpg) or is empty
+                                authorMap[commentaryName] = {
+                                    author: authorName,
+                                    image: imageName // Store as-is (with extension or empty)
+                                };
+                            }
+                        }
+                        console.log('Loaded author mappings:', authorMap);
+                    }
+                } catch (err) {
+                    console.warn('Author.csv not loaded:', err);
+                }
                 
                 // Load sutra text from CSV
                 try {
@@ -1518,7 +1592,6 @@
                     sutraData[currentSutraId][nextPartName] = {};
                     Object.keys(STANDARD_VYAKHYANAS).forEach(vyakhyanaName => {
                         sutraData[currentSutraId][nextPartName][vyakhyanaName] = {
-                            author: STANDARD_VYAKHYANAS[vyakhyanaName],
                             moola: ''
                         };
                     });
@@ -1761,10 +1834,10 @@
                 }
                 
                 // Check if this section itself has direct content (like personal notes)
-                if (sectionData.moola !== undefined || sectionData.content !== undefined || sectionData.author) {
+                if (sectionData.moola !== undefined || sectionData.content !== undefined) {
                     // This section is itself a vyakhyana (has direct content)
                     const content = sectionData.moola || sectionData.content || '';
-                    const author = sectionData.author || 'Unknown';
+                    const author = 'Personal Notes';
                     const editorId = `editor_${sutraId}_${sectionKey}_direct`.replace(/[^a-zA-Z0-9_]/g, '_');
                     const contentField = sectionData.moola !== undefined ? 'moola' : 'content';
                     
@@ -1772,11 +1845,27 @@
                     directSection.className = 'vyakhyana-section';
                     directSection.innerHTML = `
                         <div class="vyakhyana-header">
-                            <h3>Content <span style="font-size: 14px; color: #6b7280;">(${author})</span></h3>
+                            <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                <h3 style="margin: 0;">Content <span style="font-size: 14px; color: #6b7280;">(${author})</span></h3>
+                                <div class="language-dropdown">
+                                    <label for="lang_${editorId}">Translation (optional):</label>
+                                    <select id="lang_${editorId}" onchange="switchPersonalNotesLanguage('${sutraId}', '${sectionKey}', '${editorId}', this.value)">
+                                        <option value="sa" selected>संस्कृतम् (Sanskrit)</option>
+                                        <option value="en">English</option>
+                                        <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                                        <option value="te">తెలుగు (Telugu)</option>
+                                        <option value="ta">தமிழ் (Tamil)</option>
+                                        <option value="ml">മലയാളം (Malayalam)</option>
+                                        <option value="gu">ગુજરાતી (Gujarati)</option>
+                                        <option value="or">ଓଡ଼ିଆ (Odia)</option>
+                                        <option value="bn">বাংলা (Bengali)</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>Content (${contentField})</span>
+                                <span id="label_${editorId}">Content (${contentField})</span>
                                 <span style="font-size: 12px; color: #9ca3af; font-weight: normal;">* &lt;PB&gt; = Page Break</span>
                             </label>
                             <div class="editor-toolbar" data-editor="${editorId}">
@@ -1785,7 +1874,8 @@
                             <div id="${editorId}" 
                                  class="editor-content" 
                                  contenteditable="true"
-                                 onblur="updateSectionContent('${sutraId}', '${sectionKey}', this.innerHTML)">${content}</div>
+                                 data-current-lang="sa"
+                                 onblur="updatePersonalNotesTranslation(this)">${content}</div>
                         </div>
                     `;
                     sectionDiv.appendChild(directSection);
@@ -1802,7 +1892,13 @@
                     
                     // Get content - could be in 'moola' or 'content' field
                     const content = vyakhyanaData.moola || vyakhyanaData.content || '';
-                    const author = vyakhyanaData.author || 'Unknown';
+                    // Get author from authorMap based on vyakhyana key
+                    const authorInfo = authorMap[vyakhyanaKey];
+                    const author = authorInfo ? authorInfo.author : 'Unknown';
+                    // Debug: log if author not found
+                    if (!authorInfo) {
+                        console.log('Author not found for vyakhyana:', vyakhyanaKey, 'Available keys:', Object.keys(authorMap));
+                    }
                     
                     const editorId = `editor_${sutraId}_${sectionKey}_${vyakhyanaKey}`.replace(/[^a-zA-Z0-9_]/g, '_');
                     const contentField = vyakhyanaData.moola !== undefined ? 'moola' : 'content';
@@ -1810,11 +1906,27 @@
                     
                     section.innerHTML = `
                         <div class="vyakhyana-header">
-                            <h3>${vyakhyanaKey} <span style="font-size: 14px; color: #6b7280;">(${author})</span></h3>
+                            <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                <h3 style="margin: 0;">${vyakhyanaKey} <span style="font-size: 14px; color: #6b7280;">(${author})</span></h3>
+                                <div class="language-dropdown">
+                                    <label for="lang_${editorId}">Translation (optional):</label>
+                                    <select id="lang_${editorId}" onchange="switchLanguageTranslation('${sutraId}', '${sectionKey}', '${vyakhyanaKey}', '${editorId}', this.value)">
+                                        <option value="sa" selected>संस्कृतम् (Sanskrit)</option>
+                                        <option value="en">English</option>
+                                        <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                                        <option value="te">తెలుగు (Telugu)</option>
+                                        <option value="ta">தமிழ் (Tamil)</option>
+                                        <option value="ml">മലയാളം (Malayalam)</option>
+                                        <option value="gu">ગુજરાતી (Gujarati)</option>
+                                        <option value="or">ଓଡ଼ିଆ (Odia)</option>
+                                        <option value="bn">বাংলা (Bengali)</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>Content (${contentField})</span>
+                                <span id="label_${editorId}">Content (${contentField})</span>
                                 <span style="font-size: 12px; color: #9ca3af; font-weight: normal;">* &lt;PB&gt; = Page Break</span>
                             </label>
                             <div class="editor-toolbar" data-editor="${editorId}">
@@ -1823,7 +1935,11 @@
                             <div id="${editorId}" 
                                  class="editor-content" 
                                  contenteditable="true"
-                                 onblur="updateVyakhyanaContent('${sutraId}', '${sectionKey}', '${vyakhyanaKey}', this.innerHTML)">${displayContent}</div>
+                                 data-sutra-id="${sutraId}"
+                                 data-section-key="${sectionKey}"
+                                 data-vyakhyana-key="${vyakhyanaKey}"
+                                 data-current-lang="sa"
+                                 onblur="updateTranslationContent(this)">${displayContent}</div>
                         </div>
                     `;
                     sectionDiv.appendChild(section);
@@ -2027,8 +2143,10 @@
             const vyakhyanaName = document.getElementById('newVyakhyanaName').value;
             const authorField = document.getElementById('newAuthorName');
             
-            if (STANDARD_VYAKHYANAS[vyakhyanaName]) {
-                authorField.value = STANDARD_VYAKHYANAS[vyakhyanaName];
+            // Use authorMap from Author.csv
+            const authorInfo = authorMap[vyakhyanaName];
+            if (authorInfo) {
+                authorField.value = authorInfo.author;
             }
         }
 
@@ -2080,7 +2198,6 @@
                 // Add all 10 standard vyakhyanas with empty content
                 Object.keys(STANDARD_VYAKHYANAS).forEach(vyakhyanaName => {
                     sutraData[sutraNumber][partNumber][vyakhyanaName] = {
-                        author: STANDARD_VYAKHYANAS[vyakhyanaName],
                         moola: ''
                     };
                 });
@@ -2223,18 +2340,34 @@
 
         // Render adhikarana field editor with controls
         function renderAdhikaranaField(adhikaranaId, fieldKey, label, content, isRichText = false) {
-            const editorId = `editor_${adhikaranaId}_${fieldKey}`;
+            const editorId = `editor_${adhikaranaId}_${fieldKey}`.replace(/[^a-zA-Z0-9_]/g, '_');
             const displayContent = content || '';
             
             const headerControls = `
-                <div class="vyakhyana-header" style="display: flex; justify-content: space-between; align-items: center;">
-                    <span class="vyakhyana-title" 
-                          contenteditable="true" 
-                          style="cursor: text; padding: 2px 5px; border-radius: 3px;"
-                          data-adhikarana-id="${adhikaranaId}"
-                          data-field-key="${fieldKey}"
-                          onblur="renameAdhikaranaFieldHandler(this)"
-                          title="Click to edit label">${label}</span>
+                <div class="vyakhyana-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <span class="vyakhyana-title" 
+                              contenteditable="true" 
+                              style="cursor: text; padding: 2px 5px; border-radius: 3px;"
+                              data-adhikarana-id="${adhikaranaId}"
+                              data-field-key="${fieldKey}"
+                              onblur="renameAdhikaranaFieldHandler(this)"
+                              title="Click to edit label">${label}</span>
+                        <div class="language-dropdown">
+                            <label for="lang_${editorId}">Translation (optional):</label>
+                            <select id="lang_${editorId}" onchange="switchAdhikaranaLanguageTranslation('${adhikaranaId}', '${fieldKey}', '${editorId}', this.value)">
+                                <option value="sa" selected>संस्कृतम् (Sanskrit)</option>
+                                <option value="en">English</option>
+                                <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                                <option value="te">తెలుగు (Telugu)</option>
+                                <option value="ta">தமிழ் (Tamil)</option>
+                                <option value="ml">മലയാളം (Malayalam)</option>
+                                <option value="gu">ગુજરાતી (Gujarati)</option>
+                                <option value="or">ଓଡ଼ିଆ (Odia)</option>
+                                <option value="bn">বাংলা (Bengali)</option>
+                            </select>
+                        </div>
+                    </div>
                     <button class="editor-btn btn-delete-field" 
                             data-adhikarana-id="${adhikaranaId}"
                             data-field-key="${fieldKey}"
@@ -2255,6 +2388,7 @@
                              contenteditable="true" 
                              data-adhikarana-id="${adhikaranaId}"
                              data-field-key="${fieldKey}"
+                             data-current-lang="sa"
                              onblur="updateAdhikaranaFieldHandler(this)">${displayContent}</div>
                     </div>
                 `;
@@ -2266,6 +2400,7 @@
                             style="width: 100%; min-height: 80px; padding: 10px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 14px; font-family: inherit;"
                             data-adhikarana-id="${adhikaranaId}"
                             data-field-key="${fieldKey}"
+                            data-current-lang="sa"
                             onblur="updateAdhikaranaFieldHandler(this)">${displayContent}</textarea>
                     </div>
                 `;
@@ -2282,8 +2417,24 @@
         function updateAdhikaranaFieldHandler(element) {
             const adhikaranaId = element.getAttribute('data-adhikarana-id');
             const fieldKey = element.getAttribute('data-field-key');
+            const currentLang = element.getAttribute('data-current-lang') || 'sa';
             const value = element.tagName === 'TEXTAREA' ? element.value : element.innerHTML;
-            updateAdhikaranaField(adhikaranaId, fieldKey, value);
+            
+            if (!adhikaranaData[adhikaranaId]) return;
+            
+            const cleanedValue = element.tagName === 'TEXTAREA' ? value : cleanHTMLContent(value);
+            
+            if (currentLang === 'sa') {
+                // Update default Sanskrit field
+                adhikaranaData[adhikaranaId][fieldKey] = cleanedValue;
+            } else {
+                // Update translation field
+                const translationField = LANG_FIELD_MAP[currentLang];
+                if (translationField) {
+                    const translationKey = `${fieldKey}_${translationField}`;
+                    adhikaranaData[adhikaranaId][translationKey] = cleanedValue;
+                }
+            }
         }
 
         // Attach delete button handlers after render
@@ -2407,6 +2558,180 @@
             showStatus(`${fieldKey} updated for ${adhikaranaId}`, 'success');
         }
 
+        // Language code to field suffix mapping
+        const LANG_FIELD_MAP = {
+            'sa': null,  // Default Sanskrit (moola/content)
+            'en': 'En_Translation',
+            'kn': 'Ka_Translation',  // Note: Using Ka_Translation (not Kn) to match JSON
+            'te': 'Te_Translation',
+            'ta': 'Ta_Translation',
+            'ml': 'Ml_Translation',
+            'gu': 'Gu_Translation',
+            'or': 'Or_Translation',
+            'bn': 'Bn_Translation'
+        };
+        
+        // Switch language translation display
+        function switchLanguageTranslation(sutraId, sectionKey, vyakhyanaKey, editorId, targetLang) {
+            const editor = document.getElementById(editorId);
+            const label = document.getElementById(`label_${editorId}`);
+            if (!editor || !sutraData[sutraId] || !sutraData[sutraId][sectionKey] || !sutraData[sutraId][sectionKey][vyakhyanaKey]) return;
+            
+            const vyakhyanaData = sutraData[sutraId][sectionKey][vyakhyanaKey];
+            let content = '';
+            let fieldName = '';
+            
+            if (targetLang === 'sa') {
+                // Show default Sanskrit content
+                const contentField = vyakhyanaData.moola !== undefined ? 'moola' : 'content';
+                content = vyakhyanaData[contentField] || '';
+                fieldName = contentField;
+            } else {
+                // Show translation if exists
+                const translationField = LANG_FIELD_MAP[targetLang];
+                if (translationField) {
+                    // Get translation or create empty field
+                    if (!vyakhyanaData[translationField]) {
+                        vyakhyanaData[translationField] = '';
+                    }
+                    content = vyakhyanaData[translationField] || '';
+                    fieldName = translationField;
+                }
+            }
+            
+            // Update editor content and label
+            editor.innerHTML = prepareContentForEditor(content);
+            editor.setAttribute('data-current-lang', targetLang);
+            if (label) {
+                label.textContent = `Content (${fieldName})`;
+            }
+        }
+        
+        // Update translation content when editor loses focus
+        function updateTranslationContent(editor) {
+            const sutraId = editor.getAttribute('data-sutra-id');
+            const sectionKey = editor.getAttribute('data-section-key');
+            const vyakhyanaKey = editor.getAttribute('data-vyakhyana-key');
+            const currentLang = editor.getAttribute('data-current-lang') || 'sa';
+            
+            if (!sutraData[sutraId] || !sutraData[sutraId][sectionKey] || !sutraData[sutraId][sectionKey][vyakhyanaKey]) return;
+            
+            const content = cleanHTMLContent(editor.innerHTML);
+            const vyakhyanaData = sutraData[sutraId][sectionKey][vyakhyanaKey];
+            
+            if (currentLang === 'sa') {
+                // Update default Sanskrit field
+                const contentField = vyakhyanaData.moola !== undefined ? 'moola' : 'content';
+                vyakhyanaData[contentField] = content;
+            } else {
+                // Update translation field
+                const translationField = LANG_FIELD_MAP[currentLang];
+                if (translationField) {
+                    vyakhyanaData[translationField] = content;
+                }
+            }
+            
+            console.log(`Updated ${currentLang} translation for ${vyakhyanaKey}`);
+        }
+
+        // Switch language translation for adhikarana fields
+        function switchAdhikaranaLanguageTranslation(adhikaranaId, fieldKey, editorId, targetLang) {
+            const editor = document.getElementById(editorId);
+            if (!editor || !adhikaranaData[adhikaranaId]) return;
+            
+            const adhik = adhikaranaData[adhikaranaId];
+            let content = '';
+            let fieldName = '';
+            
+            if (targetLang === 'sa') {
+                // Show default Sanskrit content
+                content = adhik[fieldKey] || '';
+                fieldName = fieldKey;
+            } else {
+                // Show translation if exists
+                const translationField = LANG_FIELD_MAP[targetLang];
+                if (translationField) {
+                    const translationKey = `${fieldKey}_${translationField}`;
+                    // Get translation or create empty field
+                    if (!adhik[translationKey]) {
+                        adhik[translationKey] = '';
+                    }
+                    content = adhik[translationKey] || '';
+                    fieldName = translationKey;
+                }
+            }
+            
+            // Update editor content
+            editor.innerHTML = prepareContentForEditor(content);
+            editor.setAttribute('data-current-lang', targetLang);
+            
+            console.log(`Switched adhikarana field ${fieldKey} to ${targetLang} (${fieldName})`);
+        }
+
+        // Switch language translation for personal notes
+        function switchPersonalNotesLanguage(sutraId, sectionKey, editorId, targetLang) {
+            const editor = document.getElementById(editorId);
+            const label = document.getElementById(`label_${editorId}`);
+            if (!editor || !sutraData[sutraId] || !sutraData[sutraId][sectionKey]) return;
+            
+            const sectionData = sutraData[sutraId][sectionKey];
+            let content = '';
+            let fieldName = '';
+            
+            if (targetLang === 'sa') {
+                // Show default Sanskrit content
+                const contentField = sectionData.moola !== undefined ? 'moola' : 'content';
+                content = sectionData[contentField] || '';
+                fieldName = contentField;
+            } else {
+                // Show translation if exists
+                const translationField = LANG_FIELD_MAP[targetLang];
+                if (translationField) {
+                    // Get translation or create empty field
+                    if (!sectionData[translationField]) {
+                        sectionData[translationField] = '';
+                    }
+                    content = sectionData[translationField] || '';
+                    fieldName = translationField;
+                }
+            }
+            
+            // Update editor content and label
+            editor.innerHTML = prepareContentForEditor(content);
+            editor.setAttribute('data-current-lang', targetLang);
+            if (label) {
+                label.textContent = `Content (${fieldName})`;
+            }
+            
+            console.log(`Switched personal notes to ${targetLang} (${fieldName})`);
+        }
+
+        // Update personal notes translation when editor loses focus
+        function updatePersonalNotesTranslation(editor) {
+            const sutraId = currentSutraId;
+            const sectionKey = currentPart;
+            const currentLang = editor.getAttribute('data-current-lang') || 'sa';
+            
+            if (!sutraData[sutraId] || !sutraData[sutraId][sectionKey]) return;
+            
+            const content = cleanHTMLContent(editor.innerHTML);
+            const sectionData = sutraData[sutraId][sectionKey];
+            
+            if (currentLang === 'sa') {
+                // Update default Sanskrit field
+                const contentField = sectionData.moola !== undefined ? 'moola' : 'content';
+                sectionData[contentField] = content;
+            } else {
+                // Update translation field
+                const translationField = LANG_FIELD_MAP[currentLang];
+                if (translationField) {
+                    sectionData[translationField] = content;
+                }
+            }
+            
+            console.log(`Updated ${currentLang} translation for personal notes`);
+        }
+        
         // Show status message
         function showStatus(message, type) {
             const status = document.getElementById('status');
