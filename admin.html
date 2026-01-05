@@ -877,6 +877,7 @@
         let sutraData = {};
         let adhikaranaData = {};
         let sutraTextMap = {}; // Map of sutra ID to sutra text from CSV
+        let sutraOrderMap = {}; // Map of sutra ID to order from CSV id column
         let currentSutraId = null;
         let currentAdhikaranaId = null;
         let currentPart = 'Part#1'; // Track which part is currently displayed
@@ -917,13 +918,15 @@
                             }
                             cols.push(current); // Add last column
                             
-                            if (cols.length >= 4) {
-                                const adhyaya = cols[DATA_CONFIG.csvColumns.adhyaya].trim();
-                                const pada = cols[DATA_CONFIG.csvColumns.pada].trim();
-                                const sutraNum = cols[DATA_CONFIG.csvColumns.sutraNumber].trim();
-                                const sutraText = cols[DATA_CONFIG.csvColumns.sutraText]; // Don't trim - preserve exact spacing
+                            if (cols.length >= 5) {
+                                const id = cols[0].trim(); // First column is now id
+                                const adhyaya = cols[DATA_CONFIG.csvColumns.adhyaya + 1].trim(); // Offset by 1
+                                const pada = cols[DATA_CONFIG.csvColumns.pada + 1].trim();
+                                const sutraNum = cols[DATA_CONFIG.csvColumns.sutraNumber + 1].trim();
+                                const sutraText = cols[DATA_CONFIG.csvColumns.sutraText + 1]; // Don't trim - preserve exact spacing
                                 const sutraId = `${adhyaya}.${pada}.${sutraNum}`;
                                 sutraTextMap[sutraId] = sutraText;
+                                sutraOrderMap[sutraId] = parseInt(id) || 0; // Store order from id column
                             }
                         }
                     }
@@ -965,7 +968,13 @@
             list.innerHTML = '';
 
             const sutras = Object.keys(sutraData).sort((a, b) => {
-                // Handle both formats: "1.1.1" and "sutra_1"
+                // Use CSV id column order if available
+                const orderA = sutraOrderMap[a];
+                const orderB = sutraOrderMap[b];
+                if (orderA !== undefined && orderB !== undefined) {
+                    return orderA - orderB;
+                }
+                // Fallback to numeric comparison for sutras not in CSV
                 const getNum = (id) => {
                     if (id.includes('.')) {
                         return id.split('.').map(n => parseInt(n));
@@ -1095,13 +1104,43 @@
             }
             
             // Handle range like "1.1.1-1.1.3"
-            // For now, just return the sutras that exist in sutraData
-            const allSutras = Object.keys(sutraData).sort();
+            const allSutras = Object.keys(sutraData).sort((a, b) => {
+                // Use CSV id column order if available
+                const orderA = sutraOrderMap[a];
+                const orderB = sutraOrderMap[b];
+                if (orderA !== undefined && orderB !== undefined) {
+                    return orderA - orderB;
+                }
+                // Fallback to numeric comparison
+                const compareSutras = (x, y) => {
+                    const xParts = x.split('.').map(Number);
+                    const yParts = y.split('.').map(Number);
+                    for (let i = 0; i < Math.max(xParts.length, yParts.length); i++) {
+                        const xVal = xParts[i] || 0;
+                        const yVal = yParts[i] || 0;
+                        if (xVal !== yVal) return xVal - yVal;
+                    }
+                    return 0;
+                };
+                return compareSutras(a, b);
+            });
             const start = parts[0].trim();
             const end = parts[1].trim();
             
+            // Helper function to compare sutra numbers numerically
+            const compareSutras = (a, b) => {
+                const aParts = a.split('.').map(Number);
+                const bParts = b.split('.').map(Number);
+                for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
+                    const aVal = aParts[i] || 0;
+                    const bVal = bParts[i] || 0;
+                    if (aVal !== bVal) return aVal - bVal;
+                }
+                return 0;
+            };
+            
             const inRange = allSutras.filter(id => {
-                return id >= start && id <= end;
+                return compareSutras(id, start) >= 0 && compareSutras(id, end) <= 0;
             });
             
             return inRange.length > 0 ? inRange : [start];
