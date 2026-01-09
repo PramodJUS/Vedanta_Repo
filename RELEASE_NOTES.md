@@ -1,4 +1,10 @@
 # Release Notes
+## January 09, 2026
+
+### New Changes
+- Update this section with your changes before committing
+
+---
 
 ## Version 1.0.7 - January 5, 2026
 *Updated: January 5, 2026*
