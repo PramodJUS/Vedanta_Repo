@@ -1946,6 +1946,238 @@ Graceful degradation at every level:
 
 ---
 
+## Database Integration & Node.js Backend Setup
+
+### Overview
+Plan to connect the Vedanta application to a MySQL database hosted on Bluehost using Node.js with Express. This section documents the conversation, strategy, and implementation approach.
+
+### Conversation Summary (Jan 16, 2026)
+
+#### Project Context
+- **Application**: Multi-language Vedanta content framework (Gita & Sutra)
+- **Current File**: [gita/bg.csv](gita/bg.csv)
+- **Environment**: Local development on Windows, production on Bluehost
+- **Database**: MySQL hosted on Bluehost
+- **Server Runtime**: Node.js v22.21.1 (already installed)
+
+#### Key Concepts Clarified
+1. **Node.js Role**: JavaScript runtime that enables server-side execution and database connectivity
+2. **GitHub vs Bluehost**: 
+   - GitHub = Code storage (no execution)
+   - Bluehost = Where code actually runs
+3. **Deployment Model**: Code → GitHub (backup) → Bluehost (live execution)
+4. **Database Credentials Security**: `.env` file (never committed to GitHub)
+
+### Architecture Strategy
+
+#### Development Environment
+```
+Local Machine (Windows)
+├── Node.js Server
+├── .env (Development credentials)
+└── Connects to Bluehost MySQL (Remote)
+    ├── Host: mysql.bluehost.com (or remote IP)
+    ├── Username: [from Bluehost cPanel]
+    ├── Password: [from Bluehost cPanel]
+    └── Access: Enabled via "%" wildcard (all IPs)
+```
+
+#### Production Environment (On Bluehost)
+```
+Bluehost Server
+├── Node.js Server
+├── .env (Production credentials)
+└── Connects to Bluehost MySQL (Local)
+    ├── Host: localhost or 127.0.0.1
+    ├── Username: [same as development]
+    ├── Password: [same as development]
+    └── Access: No remote access needed (local connection)
+```
+
+### Environment Variable Strategy
+
+#### Development (.env - Local Computer)
+```env
+# Development - Remote connection to Bluehost
+DB_HOST=mysql.bluehost.com
+DB_USER=your_username
+DB_PASSWORD=your_password
+DB_NAME=your_database
+DB_PORT=3306
+NODE_ENV=development
+```
+
+#### Production (.env - On Bluehost)
+```env
+# Production - Local connection on Bluehost server
+DB_HOST=localhost
+DB_USER=your_username
+DB_PASSWORD=your_password
+DB_NAME=your_database
+DB_PORT=3306
+NODE_ENV=production
+```
+
+**Key Insight**: Same code, different .env files. Production uses `localhost` because the database is on the same server.
+
+### Remote MySQL Access Configuration
+
+#### The "%" Wildcard Approach
+- **What**: `%` = Allow connections from any IP address
+- **Why**: Avoids issues with dynamic IP addresses during development
+- **Security**: Only for development; production uses `localhost` (no remote access)
+- **Steps**:
+  1. Log into Bluehost cPanel
+  2. Find "Remote MySQL" → "Add Access Host"
+  3. Enter: `%` (instead of specific IP)
+  4. Click "Add Host"
+
+**Why Not Use Specific IP?**
+- ISP-assigned IPs change periodically
+- Would lose connection if IP changes
+- `%` allows testing without worrying about IP changes
+- Later restricted when deployed to production
+
+### Files to Create
+
+#### 1. `server.js` - Express Server
+```javascript
+const express = require('express');
+const mysql = require('mysql2/promise');
+require('dotenv').config();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// MySQL Connection Pool
+const pool = mysql.createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+});
+
+// Test endpoint
+app.get('/api/test', async (req, res) => {
+    try {
+        const connection = await pool.getConnection();
+        const rows = await connection.query('SELECT 1 as value');
+        connection.release();
+        res.json({ success: true, message: 'Connected to database' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+});
+```
+
+#### 2. `package.json` - Dependencies
+```json
+{
+  "name": "vedanta-backend",
+  "version": "1.0.0",
+  "description": "Node.js backend for Vedanta content application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mysql2": "^3.6.0",
+    "dotenv": "^16.3.1"
+  }
+}
+```
+
+#### 3. `.env` - Environment Variables (Local Development)
+```env
+DB_HOST=mysql.bluehost.com
+DB_USER=your_bluehost_username
+DB_PASSWORD=your_bluehost_password
+DB_NAME=your_database_name
+DB_PORT=3306
+NODE_ENV=development
+```
+
+**Important**: Add `.env` to `.gitignore` (never commit credentials to GitHub)
+
+### Deployment Flow
+
+**Step 1: Local Development**
+- Create server.js, package.json, .env locally
+- Run: `npm install` (installs mysql2, express, dotenv)
+- Run: `npm start` or `node server.js`
+- Test: Visit `http://localhost:3000/api/test`
+
+**Step 2: Push to GitHub**
+```bash
+# .gitignore includes .env (credentials stay safe)
+git add .
+git commit -m "Add Node.js backend with database connection"
+git push origin main
+```
+
+**Step 3: Deploy to Bluehost**
+1. Clone repository on Bluehost server (via SSH or Git integration)
+2. Create `.env` file on Bluehost with `localhost` as host
+3. Run: `npm install` on Bluehost
+4. Configure Node.js application in cPanel (Bluehost provides setup wizard)
+5. Application runs at: `yourwebsite.com:port`
+
+### Next Steps (Waiting on User)
+
+**Information Needed from Bluehost cPanel:**
+1. **MySQL Host** - Remote MySQL hostname
+2. **Username** - Database username
+3. **Password** - Database password
+4. **Database Name** - Name of created database
+5. **Port** - Usually 3306 (confirm in cPanel)
+
+**Once Provided:**
+- Create `server.js` with test endpoint
+- Create `package.json` with dependencies
+- Create `.env` with credentials
+- Install packages: `npm install`
+- Test connection: `npm start` → Visit `http://localhost:3000/api/test`
+- Build API endpoints for loading/querying data
+
+### Key Technical Decisions
+
+1. **mysql2/promise**: Async/await support, modern API
+2. **Connection Pooling**: Handles multiple requests efficiently
+3. **dotenv**: Secure credential management
+4. **Express**: Lightweight, familiar framework
+5. **Development vs Production Hosts**: Same credentials, different host addresses
+
+### Security Considerations
+
+- ✅ Credentials in `.env` (not in code)
+- ✅ `.env` in `.gitignore` (not in GitHub)
+- ✅ Production uses `localhost` (no remote access)
+- ✅ Connection pooling (resource efficient)
+- ⚠️ Need to implement CORS, input validation, rate limiting (Phase 2)
+
+### Success Criteria
+
+- [x] Understand Node.js role
+- [x] Plan development vs production architecture
+- [x] Understand environment variable strategy
+- [ ] Obtain Bluehost database credentials
+- [ ] Create and test server.js locally
+- [ ] Verify connection to Bluehost MySQL
+- [ ] Build API endpoints for data retrieval
+- [ ] Deploy to Bluehost production
+
+---
+
 ## Section 12: Footer Timestamp with Build Automation
 
 ### Overview
