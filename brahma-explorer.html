@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brahmasūtras Explorer - Madhwācārya Dvaita Vedānta</title>
+    <link rel="stylesheet" href="css/explorer.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Loading state -->
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Loading Brahmasūtras data...</p>
+        </div>
+
+        <!-- Main explorer (hidden until loaded) -->
+        <div id="explorer" class="explorer" style="display: none;">
+            <!-- Top bar -->
+            <div class="top-bar">
+                <span class="title">BRAHMASŪTRAS</span>
+                <span class="separator">◆</span>
+                <span class="subtitle">MADHWĀCĀRYA · DVAITA VEDĀNTA</span>
+                <span class="instructions">HOVER TO EXPLORE · CLICK ANYWHERE TO PIN</span>
+            </div>
+
+            <!-- Three columns -->
+            <div class="columns-container">
+                <!-- Column 1: Adhyāyas -->
+                <div id="adhyaya-col" class="column adhyaya-column"></div>
+
+                <!-- Column 2: Adhikaraṇas -->
+                <div id="adhikarana-col" class="column adhikarana-column">
+                    <div class="empty-state">
+                        <span>HOVER ADHYĀYA ›</span>
+                    </div>
+                </div>
+
+                <!-- Column 3: Sūtras -->
+                <div id="sutra-col" class="column sutra-column">
+                    <div class="empty-state">
+                        <span>HOVER ADHIKARAṆA ›</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom meaning window -->
+            <div id="meaning-window" class="meaning-window">
+                <div id="resize-handle" class="resize-handle">
+                    <div class="resize-pill"></div>
+                </div>
+                <div class="meaning-gradient"></div>
+                <div id="meaning-content" class="meaning-content">
+                    <div class="meaning-empty">
+                        <span>MEANING · OBJECTIVE · COMMENTARY</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/explorer.js"></script>
+</body>
+</html>
