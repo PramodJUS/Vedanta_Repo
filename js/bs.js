@@ -39,7 +39,7 @@ if (typeof PerformanceUtils !== 'undefined') {
 const debouncedSearchHandlers = {}; // Store per-vyakhyana debounced functions
 
 function getOrCreateDebouncedSearch(vyakhyanaNum, vyakhyaKey) {
-    const key = `${vyakhyanaNum}-${vyakhyaKey}`;
+    const key = `${vyakhyanaNum}-${currentPart}-${vyakhyaKey}`;
     if (!debouncedSearchHandlers[key]) {
         // Use debounce if available, otherwise return direct function
         if (typeof PerformanceUtils !== 'undefined' && PerformanceUtils.debounce) {
@@ -1028,8 +1028,8 @@ function navigateVyakhyanaPage(sutraNum, vyakhyaKey, direction, event, shouldScr
     if (event) {
         event.stopPropagation();
     }
-    
-    const paginationKey = `${sutraNum}-${vyakhyaKey}`;
+
+    const paginationKey = `${sutraNum}-${currentPart}-${vyakhyaKey}`;
     const currentPage = vyakhyanaPagination[paginationKey] || 0;
     const commentaryItem = document.querySelector(`[data-pagination-key="${paginationKey}"]`);
     const contentElement = commentaryItem?.querySelector('.commentary-text');
@@ -1052,7 +1052,7 @@ function navigateVyakhyanaPage(sutraNum, vyakhyaKey, direction, event, shouldScr
     contentElement.innerHTML = makePratikaGrahanaBold(pages[newPage].replace(/<PB>/gi, ''), sutraNum);
     
     // Reapply search if there's an active search term
-    const searchKey = `${sutraNum}-${vyakhyaKey}`;
+    const searchKey = `${sutraNum}-${currentPart}-${vyakhyaKey}`;
     const activeSearchTerm = vyakhyanaSearchTerms[searchKey];
     console.log('🔄 Page navigation - checking for active search:');
     console.log('  Search key:', searchKey);
@@ -1107,8 +1107,8 @@ function selectVyakhyanaPage(sutraNum, vyakhyaKey, pageIndex, event, shouldScrol
     if (event) {
         event.stopPropagation();
     }
-    
-    const paginationKey = `${sutraNum}-${vyakhyaKey}`;
+
+    const paginationKey = `${sutraNum}-${currentPart}-${vyakhyaKey}`;
     const commentaryItem = document.querySelector(`[data-pagination-key="${paginationKey}"]`);
     const contentElement = commentaryItem?.querySelector('.commentary-text');
     const paginationInfos = document.querySelectorAll(`[data-pagination-key="${paginationKey}"] .pagination-info`);
@@ -1126,7 +1126,7 @@ function selectVyakhyanaPage(sutraNum, vyakhyaKey, pageIndex, event, shouldScrol
 contentElement.innerHTML = makePratikaGrahanaBold(pages[pageIndex].replace(/<PB>/gi, ''), sutraNum);
     
     // Reapply search if there's an active search term
-    const searchKey = `${sutraNum}-${vyakhyaKey}`;
+    const searchKey = `${sutraNum}-${currentPart}-${vyakhyaKey}`;
     const activeSearchTerm = vyakhyanaSearchTerms[searchKey];
     console.log('🔄 Radio button page selection - checking for active search:');
     console.log('  Search key:', searchKey);
@@ -1336,53 +1336,8 @@ function navigateToPreviousVyakhyana() {
     );
     
     if (currentIndex > 0) {
-        // Keep track of which vyakhyanas are currently open (by key name)
-        const openVyakhyanasArray = Array.from(openVyakhyanas);
         const previousSutra = filteredSutras[currentIndex - 1];
-        showSutraDetail(previousSutra);
-        
-        // After navigation, open the same vyakhyanas (only if they exist in new sutra) and scroll to first one
-        setTimeout(() => {
-            // Get available vyakhyanas for the new sutra to check which ones exist
-            const sutraKey = `${previousSutra.adhyaya}.${previousSutra.pada}.${previousSutra.sutra_number}`;
-            const details = sutraDetails[sutraKey] || {};
-            // Access vyakhyanas from Part#1
-            const vyakhyanaContainer = details['Part#1'] || details;
-            
-            let firstOpenedVyakhyana = null;
-            openVyakhyanasArray.forEach(vyakhyanaKey => {
-                // Only try to open if this vyakhyana key exists in the new sutra
-                if (vyakhyanaContainer[vyakhyanaKey]) {
-                    // Find the index of this vyakhyana in the new sutra
-                    const vyakhyanaKeys = Object.keys(vyakhyanaContainer).filter(key => {
-                        const excludeKeys = ['meaning', 'meaningKn', 'meaningTe', 'meaningDetails', 'meaningDetailsKn', 'meaningDetailsTe', 
-                                             'commentary', 'commentaryKn', 'commentaryTe'];
-                        if (excludeKeys.includes(key)) return false;
-                        const value = vyakhyanaContainer[key];
-                        return value && typeof value === 'object' && 
-                               (value.hasOwnProperty('moola') || value.hasOwnProperty('Ka_Translation') || 
-                                value.hasOwnProperty('Te_Translation') || value.hasOwnProperty('En_Translation'));
-                    });
-                    const num = vyakhyanaKeys.indexOf(vyakhyanaKey) + 1;
-                    
-                    if (num > 0) {
-                        const toggle = document.getElementById(`toggle-${num}`);
-                        const content = document.getElementById(`commentary-${num}`);
-                        if (toggle && content) {
-                            content.style.display = 'block';
-                            toggle.textContent = '▲';
-                            openVyakhyanas.add(vyakhyanaKey);
-                            if (!firstOpenedVyakhyana) firstOpenedVyakhyana = content;
-                        }
-                    }
-                }
-            });
-            
-            // Scroll to first opened vyakhyana
-            if (firstOpenedVyakhyana) {
-                firstOpenedVyakhyana.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }, 100);
+        showSutraDetail(previousSutra, null, true);
     }
 }
 
@@ -1397,53 +1352,8 @@ function navigateToNextVyakhyana() {
     );
     
     if (currentIndex < filteredSutras.length - 1) {
-        // Keep track of which vyakhyanas are currently open (by key name)
-        const openVyakhyanasArray = Array.from(openVyakhyanas);
         const nextSutra = filteredSutras[currentIndex + 1];
-        showSutraDetail(nextSutra);
-        
-        // After navigation, open the same vyakhyanas (only if they exist in new sutra) and scroll to first one
-        setTimeout(() => {
-            // Get available vyakhyanas for the new sutra to check which ones exist
-            const sutraKey = `${nextSutra.adhyaya}.${nextSutra.pada}.${nextSutra.sutra_number}`;
-            const details = sutraDetails[sutraKey] || {};
-            // Access vyakhyanas from Part#1
-            const vyakhyanaContainer = details['Part#1'] || details;
-            
-            let firstOpenedVyakhyana = null;
-            openVyakhyanasArray.forEach(vyakhyanaKey => {
-                // Only try to open if this vyakhyana key exists in the new sutra
-                if (vyakhyanaContainer[vyakhyanaKey]) {
-                    // Find the index of this vyakhyana in the new sutra
-                    const vyakhyanaKeys = Object.keys(vyakhyanaContainer).filter(key => {
-                        const excludeKeys = ['meaning', 'meaningKn', 'meaningTe', 'meaningDetails', 'meaningDetailsKn', 'meaningDetailsTe', 
-                                             'commentary', 'commentaryKn', 'commentaryTe'];
-                        if (excludeKeys.includes(key)) return false;
-                        const value = vyakhyanaContainer[key];
-                        return value && typeof value === 'object' && 
-                               (value.hasOwnProperty('moola') || value.hasOwnProperty('Ka_Translation') || 
-                                value.hasOwnProperty('Te_Translation') || value.hasOwnProperty('En_Translation'));
-                    });
-                    const num = vyakhyanaKeys.indexOf(vyakhyanaKey) + 1;
-                    
-                    if (num > 0) {
-                        const toggle = document.getElementById(`toggle-${num}`);
-                        const content = document.getElementById(`commentary-${num}`);
-                        if (toggle && content) {
-                            content.style.display = 'block';
-                            toggle.textContent = '▲';
-                            openVyakhyanas.add(vyakhyanaKey);
-                            if (!firstOpenedVyakhyana) firstOpenedVyakhyana = content;
-                        }
-                    }
-                }
-            });
-            
-            // Scroll to first opened vyakhyana
-            if (firstOpenedVyakhyana) {
-                firstOpenedVyakhyana.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }, 100);
+        showSutraDetail(nextSutra, null, true);
     }
 }
 
@@ -1472,7 +1382,7 @@ function navigateToPreviousPart() {
     if (currentPartIndex > 0) {
         const prevPart = partKeys[currentPartIndex - 1];
         console.log(`Navigating to ${prevPart}`);
-        showSutraDetail(currentSutra, prevPart);
+        showSutraDetail(currentSutra, prevPart, true);
     } else {
         // At first part, navigate to previous sutra's last part
         if (filteredSutras.length === 0) return;
@@ -1497,7 +1407,7 @@ function navigateToPreviousPart() {
             
             const lastPart = prevPartKeys.length > 0 ? prevPartKeys[prevPartKeys.length - 1] : 'Part#1';
             console.log(`Navigating to previous sutra's ${lastPart}`);
-            showSutraDetail(previousSutra, lastPart);
+            showSutraDetail(previousSutra, lastPart, true);
         } else {
             console.log('Already at first sutra and first part');
         }
@@ -1529,7 +1439,7 @@ function navigateToNextPart() {
     if (currentPartIndex >= 0 && currentPartIndex < partKeys.length - 1) {
         const nextPart = partKeys[currentPartIndex + 1];
         console.log(`Navigating to ${nextPart}`);
-        showSutraDetail(currentSutra, nextPart);
+        showSutraDetail(currentSutra, nextPart, true);
     } else {
         // At last part, navigate to next sutra's first part
         if (filteredSutras.length === 0) return;
@@ -1543,7 +1453,7 @@ function navigateToNextPart() {
         if (currentIndex >= 0 && currentIndex < filteredSutras.length - 1) {
             const nextSutra = filteredSutras[currentIndex + 1];
             console.log('Navigating to next sutra\'s Part#1');
-            showSutraDetail(nextSutra, 'Part#1');
+            showSutraDetail(nextSutra, 'Part#1', true);
         } else {
             console.log('Already at last sutra and last part');
         }
@@ -1561,53 +1471,8 @@ function navigateToPrevious() {
     );
     
     if (currentIndex > 0) {
-        // Keep track of which vyakhyanas are currently open (by key name)
-        const openVyakhyanasArray = Array.from(openVyakhyanas);
         const previousSutra = filteredSutras[currentIndex - 1];
-        showSutraDetail(previousSutra);
-        
-        // After navigation, open the same vyakhyanas (only if they exist in new sutra) and scroll to first one
-        setTimeout(() => {
-            // Get available vyakhyanas for the new sutra to check which ones exist
-            const sutraKey = `${previousSutra.adhyaya}.${previousSutra.pada}.${previousSutra.sutra_number}`;
-            const details = sutraDetails[sutraKey] || {};
-            // Access vyakhyanas from Part#1
-            const vyakhyanaContainer = details['Part#1'] || details;
-            
-            let firstOpenedVyakhyana = null;
-            openVyakhyanasArray.forEach(vyakhyanaKey => {
-                // Only try to open if this vyakhyana key exists in the new sutra
-                if (vyakhyanaContainer[vyakhyanaKey]) {
-                    // Find the index of this vyakhyana in the new sutra
-                    const vyakhyanaKeys = Object.keys(vyakhyanaContainer).filter(key => {
-                        const excludeKeys = ['meaning', 'meaningKn', 'meaningTe', 'meaningDetails', 'meaningDetailsKn', 'meaningDetailsTe', 
-                                             'commentary', 'commentaryKn', 'commentaryTe'];
-                        if (excludeKeys.includes(key)) return false;
-                        const value = vyakhyanaContainer[key];
-                        return value && typeof value === 'object' && 
-                               (value.hasOwnProperty('moola') || value.hasOwnProperty('Ka_Translation') || 
-                                value.hasOwnProperty('Te_Translation') || value.hasOwnProperty('En_Translation'));
-                    });
-                    const num = vyakhyanaKeys.indexOf(vyakhyanaKey) + 1;
-                    
-                    if (num > 0) {
-                        const toggle = document.getElementById(`toggle-${num}`);
-                        const content = document.getElementById(`commentary-${num}`);
-                        if (toggle && content) {
-                            content.style.display = 'block';
-                            toggle.textContent = '▲';
-                            openVyakhyanas.add(vyakhyanaKey);
-                            if (!firstOpenedVyakhyana) firstOpenedVyakhyana = content;
-                        }
-                    }
-                }
-            });
-            
-            // Scroll to first opened vyakhyana
-            if (firstOpenedVyakhyana) {
-                firstOpenedVyakhyana.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }, 100);
+        showSutraDetail(previousSutra, null, true);
     }
 }
 
@@ -1622,53 +1487,8 @@ function navigateToNext() {
     );
     
     if (currentIndex < filteredSutras.length - 1) {
-        // Keep track of which vyakhyanas are currently open (by key name)
-        const openVyakhyanasArray = Array.from(openVyakhyanas);
         const nextSutra = filteredSutras[currentIndex + 1];
-        showSutraDetail(nextSutra);
-        
-        // After navigation, open the same vyakhyanas (only if they exist in new sutra) and scroll to first one
-        setTimeout(() => {
-            // Get available vyakhyanas for the new sutra to check which ones exist
-            const sutraKey = `${nextSutra.adhyaya}.${nextSutra.pada}.${nextSutra.sutra_number}`;
-            const details = sutraDetails[sutraKey] || {};
-            // Access vyakhyanas from Part#1
-            const vyakhyanaContainer = details['Part#1'] || details;
-            
-            let firstOpenedVyakhyana = null;
-            openVyakhyanasArray.forEach(vyakhyanaKey => {
-                // Only try to open if this vyakhyana key exists in the new sutra
-                if (vyakhyanaContainer[vyakhyanaKey]) {
-                    // Find the index of this vyakhyana in the new sutra
-                    const vyakhyanaKeys = Object.keys(vyakhyanaContainer).filter(key => {
-                        const excludeKeys = ['meaning', 'meaningKn', 'meaningTe', 'meaningDetails', 'meaningDetailsKn', 'meaningDetailsTe', 
-                                             'commentary', 'commentaryKn', 'commentaryTe'];
-                        if (excludeKeys.includes(key)) return false;
-                        const value = vyakhyanaContainer[key];
-                        return value && typeof value === 'object' && 
-                               (value.hasOwnProperty('moola') || value.hasOwnProperty('Ka_Translation') || 
-                                value.hasOwnProperty('Te_Translation') || value.hasOwnProperty('En_Translation'));
-                    });
-                    const num = vyakhyanaKeys.indexOf(vyakhyanaKey) + 1;
-                    
-                    if (num > 0) {
-                        const toggle = document.getElementById(`toggle-${num}`);
-                        const content = document.getElementById(`commentary-${num}`);
-                        if (toggle && content) {
-                            content.style.display = 'block';
-                            toggle.textContent = '▲';
-                            openVyakhyanas.add(vyakhyanaKey);
-                            if (!firstOpenedVyakhyana) firstOpenedVyakhyana = content;
-                        }
-                    }
-                }
-            });
-            
-            // Scroll to first opened vyakhyana
-            if (firstOpenedVyakhyana) {
-                firstOpenedVyakhyana.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }, 100);
+        showSutraDetail(nextSutra, null, true);
     }
 }
 
@@ -2379,19 +2199,19 @@ function restoreInfoPanel() {
 }
 
 // Show detailed view of a sutra
-function showSutraDetail(sutra, partKey = null) {
+function showSutraDetail(sutra, partKey = null, preserveExpanded = false) {
     // Check if we're switching to a different sutra
-    const isDifferentSutra = !currentSutra || 
-                             currentSutra.adhyaya !== sutra.adhyaya || 
-                             currentSutra.pada !== sutra.pada || 
+    const isDifferentSutra = !currentSutra ||
+                             currentSutra.adhyaya !== sutra.adhyaya ||
+                             currentSutra.pada !== sutra.pada ||
                              currentSutra.sutra_number !== sutra.sutra_number;
-    
-    // Clear open vyakhyanas only when switching to a different sutra
-    if (isDifferentSutra) {
+
+    // Clear open vyakhyanas only when switching to a different sutra (not via nav buttons)
+    if (isDifferentSutra && !preserveExpanded) {
         openVyakhyanas.clear();
         currentPart = 'Part#1'; // Reset to Part#1 when switching sutras
     }
-    
+
     // If partKey is provided, update currentPart
     if (partKey) {
         currentPart = partKey;
@@ -2661,8 +2481,8 @@ function showSutraDetail(sutra, partKey = null) {
                 // Split content into pages
                 const pages = splitTextIntoPages(commentaryText, CHARS_PER_PAGE);
                 const totalPages = pages.length;
-                const paginationKey = `${num}-${vyakhyaKey}`;
-                
+                const paginationKey = `${num}-${currentPart}-${vyakhyaKey}`;
+
                 // Initialize pagination state
                 if (!vyakhyanaPagination[paginationKey]) {
                     vyakhyanaPagination[paginationKey] = 0;
@@ -2786,19 +2606,19 @@ function showSutraDetail(sutra, partKey = null) {
     
     // Restore previously open vyakhyanas
     setTimeout(() => {
+        const excludeKeys = ['meaning', 'meaningKn', 'meaningTe', 'meaningDetails', 'meaningDetailsKn', 'meaningDetailsTe',
+                             'commentary', 'commentaryKn', 'commentaryTe'];
+        const vyakhyanaKeys = Object.keys(vyakhyanaContainer).filter(key => {
+            if (excludeKeys.includes(key)) return false;
+            const value = vyakhyanaContainer[key];
+            return value && typeof value === 'object' &&
+                   (value.hasOwnProperty('moola') || value.hasOwnProperty('Ka_Translation') ||
+                    value.hasOwnProperty('Te_Translation') || value.hasOwnProperty('En_Translation'));
+        });
+
+        let firstOpened = null;
         openVyakhyanas.forEach(vyakhyanaKey => {
-            // Find the position of this vyakhyana in the current part's container
-            const excludeKeys = ['meaning', 'meaningKn', 'meaningTe', 'meaningDetails', 'meaningDetailsKn', 'meaningDetailsTe', 
-                                 'commentary', 'commentaryKn', 'commentaryTe'];
-            const vyakhyanaKeys = Object.keys(vyakhyanaContainer).filter(key => {
-                if (excludeKeys.includes(key)) return false;
-                const value = vyakhyanaContainer[key];
-                return value && typeof value === 'object' && 
-                       (value.hasOwnProperty('moola') || value.hasOwnProperty('Ka_Translation') || 
-                        value.hasOwnProperty('Te_Translation') || value.hasOwnProperty('En_Translation'));
-            });
             const num = vyakhyanaKeys.indexOf(vyakhyanaKey) + 1;
-            
             if (num > 0) {
                 const content = document.getElementById(`commentary-${num}`);
                 const toggle = document.getElementById(`toggle-${num}`);
@@ -2807,14 +2627,18 @@ function showSutraDetail(sutra, partKey = null) {
                     content.style.display = 'block';
                     toggle.textContent = '▲';
                     item.classList.add('open');
-                    // Apply auto-hide class if enabled
                     if (autoHideHeaders) {
                         item.classList.add('auto-hide-enabled');
                     }
+                    if (!firstOpened) firstOpened = content;
                 }
             }
         });
-        
+
+        if (firstOpened && preserveExpanded) {
+            firstOpened.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         // Apply vyakhyana font size after rendering
         applyVyakhyanaFontSize();
     }, 0);
@@ -2891,7 +2715,7 @@ function searchInVyakhyana(vyakhyanaNum, vyakhyaKey, searchTerm) {
     initializePratikaIdentifier();
     
     // Store or clear the search term
-    const searchKey = `${vyakhyanaNum}-${vyakhyaKey}`;
+    const searchKey = `${vyakhyanaNum}-${currentPart}-${vyakhyaKey}`;
     if (searchTerm.trim()) {
         vyakhyanaSearchTerms[searchKey] = searchTerm.trim();
         console.log('Stored search term:', searchTerm.trim());
@@ -2924,9 +2748,9 @@ function searchInVyakhyana(vyakhyanaNum, vyakhyaKey, searchTerm) {
     console.log('Total pages in data:', pages.length);
     
     // Construct pagination key - MUST match the key used in rendering!
-    // The key format is: ${vyakhyanaNum}-${vyakhyaKey}
-    // NOT sutraKey! vyakhyanaNum is the sequential number (1, 2, 3...)
-    const paginationKey = `${vyakhyanaNum}-${vyakhyaKey}`;
+    // The key format is: ${vyakhyanaNum}-${currentPart}-${vyakhyaKey}
+    // Includes currentPart to distinguish pagination between parts
+    const paginationKey = `${vyakhyanaNum}-${currentPart}-${vyakhyaKey}`;
     const currentPage = vyakhyanaPagination[paginationKey] || 0;
     
     console.log('Pagination key:', paginationKey);
@@ -3058,7 +2882,7 @@ function searchInVyakhyanaWithPratika(vyakhyanaNum, vyakhyaKey, searchTerm, isPr
     console.log('Called with:', {vyakhyanaNum, vyakhyaKey, searchTerm, isPratikaGrahana});
     
     // Store or clear the search term
-    const searchKey = `${vyakhyanaNum}-${vyakhyaKey}`;
+    const searchKey = `${vyakhyanaNum}-${currentPart}-${vyakhyaKey}`;
     if (searchTerm.trim()) {
         vyakhyanaSearchTerms[searchKey] = searchTerm.trim();
         console.log('Stored search term:', searchTerm.trim());
@@ -3088,7 +2912,7 @@ function searchInVyakhyanaWithPratika(vyakhyanaNum, vyakhyaKey, searchTerm, isPr
     }
     
     const pages = JSON.parse(pagesAttr);
-    const paginationKey = `${vyakhyanaNum}-${vyakhyaKey}`;
+    const paginationKey = `${vyakhyanaNum}-${currentPart}-${vyakhyaKey}`;
     const currentPage = vyakhyanaPagination[paginationKey] || 0;
     
     // Validate current page
