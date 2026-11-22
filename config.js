@@ -153,6 +153,7 @@ const UI_CONFIG = {
 const DATA_CONFIG = {
     // Data file locations
     dataPath: 'sutra/sutra-details.json',
+    personalNotesPath: 'sutra/personal-notes.json',
     csvPath: 'sutra/bs.csv',
     adhikaranaPath: 'sutra/adhikarana-details.json',
     authorCsvPath: 'sutra/Author.csv',

@@ -1984,6 +1984,23 @@ span[data-type="direct"] {
 .personal-notes-body p { margin: 0.3em 0; }
 .personal-notes-body p:empty { margin: 0.2em 0; }
 .personal-notes-body strong { color: #5F9EA0; font-weight: 600; }
+.personal-notes-body .personal-note-document { font-family: 'Vesper Libre', 'Noto Serif Devanagari', 'Noto Sans Devanagari', serif; font-size: 1.25em; line-height: 1.2; color: #222; white-space: normal; }
+.personal-notes-body .personal-note-document p { margin: 0; line-height: 1.2; }
+.personal-notes-body .personal-note-pada { text-align: center; font-size: 0.7em; margin-bottom: 0.15em !important; }
+.personal-notes-body .personal-note-pada-topic { text-align: center; color: #212121; font-size: 1em; margin-bottom: 0.35em !important; }
+.personal-notes-body .personal-note-adhikarana-title { text-align: center; font-size: 0.7em; font-weight: normal; margin: 0.3em 0 !important; }
+.personal-notes-body .personal-note-adhikarana-name { color: #0f4761; }
+.personal-notes-body .personal-note-adhikarana-index { color: #0b5394; }
+.personal-notes-body .personal-note-overview { color: #222; font-size: 0.88em; text-align: justify; margin: 0.2em 0 0.4em !important; }
+.personal-notes-body .personal-note-section-title { font-size: 0.7em; margin: 0.35em 0 0.1em !important; }
+.personal-notes-body .personal-note-field { font-size: 1em; }
+.personal-notes-body .personal-note-label { font-weight: normal; color: inherit; }
+.personal-notes-body .personal-note-sutra { text-align: center; font-size: 0.7em; margin: 0.35em 0 !important; }
+.personal-notes-body .personal-note-detail-heading,
+.personal-notes-body .personal-note-detail-content { font-size: 1em; }
+.personal-notes-body .personal-note-detail-heading { margin-top: 0.2em !important; }
+.personal-notes-body .personal-note-document { font-size: 1.1em !important; color: #000; }
+.personal-notes-body .personal-note-document * { font-size: inherit !important; color: inherit; }
 .personal-notes-section .commentary-header:hover { background: #4A8588; transition: all 0.3s ease; }
 .resize-handle { position: absolute; bottom: 0; right: 0; width: 20px; height: 20px; cursor: nwse-resize; background: linear-gradient(135deg, transparent 0%, transparent 50%, #5F9EA0 50%, #5F9EA0 100%); border-bottom-right-radius: 13px; }
 .resize-handle:hover { background: linear-gradient(135deg, transparent 0%, transparent 50%, #66B2B5 50%, #66B2B5 100%); }

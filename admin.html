@@ -781,6 +781,7 @@
         <div class="actions" id="actions">
             <button class="btn btn-primary" onclick="loadData()">📂 Load Data</button>
             <button class="btn btn-success" onclick="saveData()">💾 Download Sutra JSON</button>
+            <button class="btn btn-success" onclick="savePersonalNotesData()">💾 Download Personal Notes JSON</button>
             <button class="btn btn-success" onclick="saveAdhikaranaData()">💾 Download Adhikarana JSON</button>
             <div id="status"></div>
         </div>
@@ -903,6 +904,8 @@
         // ====== END AUTHENTICATION ======
 
         let sutraData = {};
+        let personalNotesData = {};
+        let originalPersonalNotes = {};
         let adhikaranaData = {};
         let sutraTextMap = {}; // Map of sutra ID to sutra text from CSV
         let sutraOrderMap = {}; // Map of sutra ID to order from CSV id column
@@ -1012,6 +1015,32 @@
                 const sutraResponse = await fetch(DATA_CONFIG.dataPath);
                 if (!sutraResponse.ok) throw new Error('Failed to load sutra data');
                 sutraData = await sutraResponse.json();
+
+                const personalNotesResponse = await fetch(DATA_CONFIG.personalNotesPath);
+                if (!personalNotesResponse.ok) throw new Error('Failed to load personal notes data');
+                personalNotesData = await personalNotesResponse.json();
+                if (!personalNotesData || typeof personalNotesData !== 'object' || Array.isArray(personalNotesData)) {
+                    throw new Error('Personal notes data must be a JSON object');
+                }
+
+                originalPersonalNotes = {};
+                for (const [sutraId, note] of Object.entries(personalNotesData)) {
+                    const sutra = sutraData[sutraId];
+                    if (!sutra) throw new Error(`Personal notes reference unknown sutra ${sutraId}`);
+                    const notesKey = 'व्यक्तिगत-टिपाणी';
+                    originalPersonalNotes[sutraId] = Object.prototype.hasOwnProperty.call(sutra, notesKey)
+                        ? JSON.parse(JSON.stringify(sutra[notesKey]))
+                        : null;
+
+                    if (note === null) {
+                        delete sutra[notesKey];
+                    } else {
+                        if (!note || typeof note !== 'object' || Array.isArray(note) || typeof note.moola !== 'string') {
+                            throw new Error(`Invalid personal note for sutra ${sutraId}`);
+                        }
+                        sutra[notesKey] = JSON.parse(JSON.stringify(note));
+                    }
+                }
                 
                 // Load adhikarana data
                 try {
@@ -2233,7 +2262,10 @@
                 alert('No sutra selected');
                 return;
             }
-            showStatus(`Changes to Sutra ${currentSutraId} are ready. Click "Download JSON" to save.`, 'success');
+            const download = currentPart === 'व्यक्तिगत-टिपाणी'
+                ? 'Download Personal Notes JSON'
+                : 'Download JSON';
+            showStatus(`Changes to Sutra ${currentSutraId} are ready. Click "${download}" to save.`, 'success');
         }
 
         // Save all changes and download
@@ -2259,19 +2291,44 @@
 
         // Save data as JSON file
         function saveData() {
-            const dataStr = JSON.stringify(sutraData, null, 2);
+            const data = JSON.parse(JSON.stringify(sutraData));
+            const notesKey = 'व्यक्तिगत-टिपाणी';
+            for (const [sutraId, note] of Object.entries(originalPersonalNotes)) {
+                if (!data[sutraId]) continue;
+                if (note === null) {
+                    delete data[sutraId][notesKey];
+                } else {
+                    data[sutraId][notesKey] = note;
+                }
+            }
+            downloadJsonFile(data, 'sutra-details.json');
+            showStatus('Sutra JSON downloaded. Download Personal Notes JSON separately to save note edits.', 'success');
+        }
+
+        function savePersonalNotesData() {
+            const notesKey = 'व्यक्तिगत-टिपाणी';
+            const notes = {};
+            for (const sutraId of Object.keys(personalNotesData)) {
+                const sutra = sutraData[sutraId];
+                const note = sutra && sutra[notesKey];
+                notes[sutraId] = note ? JSON.parse(JSON.stringify(note)) : null;
+            }
+            downloadJsonFile(notes, 'personal-notes.json');
+            showStatus('Personal Notes JSON downloaded! Upload to sutra/ folder.', 'success');
+        }
+
+        function downloadJsonFile(data, fileName) {
+            const dataStr = JSON.stringify(data, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'sutra-details.json';
+            a.download = fileName;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            
-            showStatus('Sutra JSON file downloaded! Upload to sutra/ folder.', 'success');
         }
 
         // Save adhikarana data as JSON file

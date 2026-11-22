@@ -1847,11 +1847,34 @@ async function loadSutras() {
         // Load JSON details with cache-busting
         try {
             const jsonResponse = await fetch(`sutra/sutra-details.json?v=${timestamp}`);
+            if (!jsonResponse.ok) throw new Error(`Failed to load sutra details: ${jsonResponse.status}`);
             sutraDetails = await jsonResponse.json();
         } catch (jsonError) {
             console.warn('Sutra details JSON not found, using placeholders:', jsonError);
             sutraDetails = {};
         }
+
+        const personalNotesResponse = await fetch(`sutra/personal-notes.json?v=${timestamp}`);
+        if (!personalNotesResponse.ok) {
+            throw new Error(`Failed to load personal notes: ${personalNotesResponse.status}`);
+        }
+        const personalNotes = await personalNotesResponse.json();
+        if (!personalNotes || typeof personalNotes !== 'object' || Array.isArray(personalNotes)) {
+            throw new Error('Personal notes data must be a JSON object');
+        }
+        for (const [sutraId, note] of Object.entries(personalNotes)) {
+            const sutra = sutraDetails[sutraId];
+            if (!sutra) throw new Error(`Personal notes reference unknown sutra ${sutraId}`);
+            if (note === null) {
+                delete sutra['व्यक्तिगत-टिपाणी'];
+            } else {
+                if (!note || typeof note !== 'object' || Array.isArray(note) || typeof note.moola !== 'string') {
+                    throw new Error(`Invalid personal note for sutra ${sutraId}`);
+                }
+                sutra['व्यक्तिगत-टिपाणी'] = note;
+            }
+        }
+        console.log('Personal notes loaded:', Object.keys(personalNotes).length);
         
         // Load adhikarana details
         try {
