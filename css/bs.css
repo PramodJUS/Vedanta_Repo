@@ -1692,7 +1692,7 @@ span[data-type="direct"] {
 }
 
 .adhikarana-name {
-    font-size: 1.3rem;
+    font-size: 1em;
     font-weight: 600;
     color: #667eea;
     margin-bottom: 15px;
@@ -1703,7 +1703,7 @@ span[data-type="direct"] {
 }
 
 .adhikarana-location {
-    font-size: 1.1rem;
+    font-size: 1em;
     color: #666;
     margin-bottom: 20px;
 }
@@ -1711,7 +1711,7 @@ span[data-type="direct"] {
 .adhikarana-popup-body h4 {
     color: #764ba2;
     margin: 20px 0 15px 0;
-    font-size: 1.15rem;
+    font-size: 1em;
 }
 
 .adhikarana-sutra-list {
@@ -1760,6 +1760,29 @@ span[data-type="direct"] {
     display: block;
     margin-bottom: 6px;
 }
+
+.adhikarana-content-section > h4 { margin-top: 0; }
+
+.adhikarana-translations-collapse { margin-bottom: 12px; }
+.adhikarana-translations-collapse > summary {
+    color: #764ba2;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.adhikarana-translations-collapse:not([open]) {
+    background: #e8f0f7;
+    border: 1px solid #c8d9e8;
+    border-left: 3px solid #3e6f8e;
+    border-radius: 6px;
+    padding: 12px 15px;
+}
+
+.adhikarana-content-body { margin-top: 12px; }
+.adhikarana-content-group h4 { margin: 12px 0 6px; }
+.adhikarana-content-field { margin-bottom: 8px; }
+.adhikarana-translations-body { margin-top: 12px; }
+.adhikarana-translations-body .adhikarana-detail-section:last-child { margin-bottom: 0; }
 
 .info-tooltip {
     display: inline-block;
@@ -1989,6 +2012,9 @@ span[data-type="direct"] {
 .personal-notes-body .personal-note-pada { text-align: center; font-size: 0.7em; margin-bottom: 0.15em !important; }
 .personal-notes-body .personal-note-pada-topic { text-align: center; color: #212121; font-size: 1em; margin-bottom: 0.35em !important; }
 .personal-notes-body .personal-note-adhikarana-title { text-align: center; font-size: 0.7em; font-weight: normal; margin: 0.3em 0 !important; }
+.personal-notes-body .personal-note-adhikarana-details { margin: 0.35em 0; padding: 0.35em 0.65em; background: #e0eaf2; border: 1px solid #b9ccdc; border-left: 4px solid #477b9a; border-radius: 6px; white-space: normal; line-height: 1.4; }
+.personal-notes-body .personal-note-adhikarana-details[open] { background: white; }
+.personal-notes-body .personal-note-adhikarana-details > summary { cursor: pointer; list-style-position: inside; }
 .personal-notes-body .personal-note-adhikarana-name { color: #0f4761; }
 .personal-notes-body .personal-note-adhikarana-index { color: #0b5394; }
 .personal-notes-body .personal-note-overview { color: #222; font-size: 0.88em; text-align: justify; margin: 0.2em 0 0.4em !important; }

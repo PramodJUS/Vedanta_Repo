@@ -320,6 +320,7 @@ Translations stored alongside moola text:
 - `RELEASE_NOTES.md`: Version history
 - `DATA_FILLING_GUIDE.md`: **⭐ Complete guide for filling remaining sutra data**
 - `DATA_PROGRESS.md`: Progress tracker for data completion
+- `dataimport/personal_note_convert.md`: Guide for converting Excel data into personal notes and preserving formatting
 - `dataimport/START_HERE.md`: Quick start for web scraping
 - `dataimport/README.md`: Complete scraping toolkit documentation
 - `dataimport/SCRAPING_SESSION_SUMMARY.md`: **⭐ Adhikarana scraping workflow and progress (19/562 sutras complete)**

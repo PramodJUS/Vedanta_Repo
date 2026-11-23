@@ -23,5 +23,5 @@ editing notes in the admin panel, download `personal-notes.json` to save those
 changes. If the workbook is regenerated later, update the workbook first so
 those changes are retained.
 
-See [guide.md](./guide.md) for the repeatable workflow and how to add one-off
-color or alignment exceptions in the JSON.
+See [personal_note_convert.md](./personal_note_convert.md) for the repeatable
+workflow and how to add one-off color or alignment exceptions in the JSON.

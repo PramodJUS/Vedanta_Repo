@@ -60,19 +60,34 @@ class ExcelToPersonalNotesTests(unittest.TestCase):
             content = notes["1.1.1"]["moola"]
             self.assertTrue(content.startswith('<div class="personal-note-document">'))
             self.assertIn(
-                'class="personal-note-section-title" '
-                'style="text-align:center;color:#0000ff">सङ्गतिः',
-                content,
-            )
-            self.assertIn(
                 'class="personal-note-detail-heading" '
                 'style="text-align:left;color:#000000">सूत्रार्थः',
                 content,
             )
-            self.assertEqual(content.count("जिज्ञासाधिकरणम्"), 1)
+            self.assertNotIn("personal-note-adhikarana-details", content)
+            self.assertNotIn("जिज्ञासाधिकरणम्", content)
             self.assertNotIn("अधिकरणम् - जिज्ञासाधिकरणम्", content)
 
-    def test_fills_down_adhikarana_context_and_escapes_excel_text(self) -> None:
+    def test_omits_repeated_adhikarana_content_from_sutra_notes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            workbook_path = Path(directory) / "source.xlsx"
+            first = self._row(
+                1,
+                **{"अधिकरणम्": "जिज्ञासाधिकरणम् – 1 (1)"},
+            )
+            second = self._row(
+                2,
+                **{"अधिकरणम्": "जिज्ञासाधिकरणम् – 1 (1)"},
+            )
+            self._write_workbook(workbook_path, [first, second])
+
+            notes = build_personal_notes(workbook_path, None)
+
+            for note in notes.values():
+                self.assertNotIn("personal-note-adhikarana-details", note["moola"])
+                self.assertNotIn("जिज्ञासाधिकरणम्", note["moola"])
+
+    def test_fills_down_context_without_emitting_it_and_escapes_excel_text(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             workbook_path = Path(directory) / "source.xlsx"
             first = self._row(1, **{"सूत्रार्थः": "x < y & z"})
@@ -92,7 +107,7 @@ class ExcelToPersonalNotesTests(unittest.TestCase):
 
             notes = build_personal_notes(workbook_path, None)
 
-            self.assertIn("जिज्ञासाधिकरणम्", notes["1.1.2"]["moola"])
+            self.assertNotIn("जिज्ञासाधिकरणम्", notes["1.1.2"]["moola"])
             self.assertIn("x &lt; y &amp; z", notes["1.1.1"]["moola"])
 
     def test_rejects_duplicate_sutra_ids(self) -> None:
@@ -102,17 +117,6 @@ class ExcelToPersonalNotesTests(unittest.TestCase):
 
             with self.assertRaisesRegex(ValueError, "Duplicate sutra ID 1.1.1"):
                 build_personal_notes(workbook_path, None)
-
-    def test_formats_adhikarana_sequence_separately(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            workbook_path = Path(directory) / "source.xlsx"
-            row = self._row(1, **{"अधिकरणम्": "जन्माधिकरणम् – 2 (1)"})
-            self._write_workbook(workbook_path, [row])
-
-            note = build_personal_notes(workbook_path, None)["1.1.1"]["moola"]
-
-            self.assertIn('class="personal-note-adhikarana-name">जन्माधिकरणम्', note)
-            self.assertIn('class="personal-note-adhikarana-index"> – 2 (1)', note)
 
     def test_colors_anvaya_terms_only_in_sutra_artha(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -156,21 +160,6 @@ class ExcelToPersonalNotesTests(unittest.TestCase):
 
             self.assertIn(
                 'class="personal-note-pada" style="text-align:center;color:#0000ff"',
-                note,
-            )
-            self.assertIn(
-                'class="personal-note-adhikarana-title" '
-                'style="text-align:center;color:#0000ff"',
-                note,
-            )
-            self.assertIn(
-                'class="personal-note-section-title" '
-                'style="text-align:center;color:#0000ff">सङ्गतिः',
-                note,
-            )
-            self.assertIn(
-                'class="personal-note-section-title" '
-                'style="text-align:center;color:#0000ff">अधिकरणशरीरम्',
                 note,
             )
             self.assertIn(

@@ -56,22 +56,6 @@ PAGE_FIELDS = (
     ("पादविषयः", "personal-note-pada-topic"),
 )
 
-SANGATI_FIELDS = (
-    ("विषयवाक्यम्", "विषयवाक्यम्"),
-    ("शास्त्रसङ्गतिः", "शास्त्रसङ्गतिः"),
-    ("अध्यायसङ्गतिः", "अध्यायसङ्गतिः"),
-    ("पादसङ्गतिः", "पादसङ्गतिः"),
-    ("अधिकरणसङ्गतिः", "अधिकरणसङ्गतिः"),
-    ("श्रुतिसङ्गतिः", "श्रुतिसङ्गतिः"),
-)
-
-ADHIKARANA_BODY_FIELDS = (
-    ("विषयः", "विषयः"),
-    ("संशयः", "संशयः"),
-    ("पूर्वपक्षः", "पूर्वपक्षः"),
-    ("सिद्धान्तः", "सिद्धान्तः"),
-)
-
 SUTRA_DETAIL_FIELDS = (
     ("पदच्छेदः", "पदच्छेदः"),
     ("अन्वयः", "अन्वयः"),
@@ -233,50 +217,8 @@ def _styled_paragraph(value: Any, class_name: str, style: str) -> str | None:
     return f'<p class="{class_name}" style="{style}">{safe_text}</p>'
 
 
-def _field_paragraph(label: str, value: Any) -> str | None:
-    safe_text = _safe_text(value)
-    if not safe_text:
-        return None
-    return (
-        '<p class="personal-note-field">'
-        f'<span class="personal-note-label">{html.escape(label)}</span> – '
-        f"{safe_text}</p>"
-    )
-
-
-def _field_paragraphs(
-    fields: tuple[tuple[str, str], ...],
-    row: dict[str, Any],
-) -> list[str]:
-    return [
-        paragraph
-        for label, header in fields
-        if (paragraph := _field_paragraph(label, row.get(header))) is not None
-    ]
-
-
 def _adhikarana_title(row: dict[str, Any]) -> str:
     return _display_value(row.get("अधिकरणम्"))
-
-
-def _adhikarana_title_paragraph(value: str, color: str | None = None) -> str:
-    suffix = re.search(r"\s+[–-]\s*\d+(?:\s*\(\d+\))?$", value)
-    if suffix:
-        name = html.escape(value[: suffix.start()].strip(), quote=True)
-        index = html.escape(suffix.group(0), quote=True)
-        title = (
-            f'<span class="personal-note-adhikarana-name">{name}</span>'
-            f'<span class="personal-note-adhikarana-index">{index}</span>'
-        )
-    else:
-        title = (
-            '<span class="personal-note-adhikarana-name">'
-            f"{html.escape(value, quote=True)}</span>"
-        )
-    return (
-        '<p class="personal-note-adhikarana-title" '
-        f'style="text-align:center;color:#{color or "0000ff"}">{title}</p>'
-    )
 
 
 def _render_note(
@@ -298,34 +240,6 @@ def _render_note(
         )
         if paragraph:
             blocks.append(paragraph)
-
-    adhikarana_name = _display_value(row.get("अधिकरणम्"))
-    if adhikarana_name:
-        blocks.append(_adhikarana_title_paragraph(adhikarana_name, "0000ff"))
-
-    overview = _paragraph(row.get("अधिकरणविषयः"), "personal-note-overview")
-    if overview:
-        blocks.append(overview)
-
-    sangati = _field_paragraphs(SANGATI_FIELDS, row)
-    if sangati:
-        blocks.extend(
-            (
-                '<p class="personal-note-section-title" '
-                'style="text-align:center;color:#0000ff">सङ्गतिः</p>',
-                *sangati,
-            )
-        )
-
-    adhikarana_body = _field_paragraphs(ADHIKARANA_BODY_FIELDS, row)
-    if adhikarana_body:
-        blocks.extend(
-            (
-                '<p class="personal-note-section-title" '
-                'style="text-align:center;color:#0000ff">अधिकरणशरीरम्</p>',
-                *adhikarana_body,
-            )
-        )
 
     sutra = _styled_paragraph(
         row.get("सूत्रम्"),

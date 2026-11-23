@@ -862,6 +862,11 @@ function applyVyakhyanaFontSize() {
     if (personalNotesBody) {
         personalNotesBody.style.fontSize = `${vyakhyanaFontSize}%`;
     }
+
+    const adhikaranaPopupBody = document.querySelector('.adhikarana-popup-body');
+    if (adhikaranaPopupBody) {
+        adhikaranaPopupBody.style.fontSize = `${vyakhyanaFontSize}%`;
+    }
 }
 
 function splitTextIntoPages(text, charsPerPage) {
@@ -3468,10 +3473,110 @@ function stopSequentialPlayback() {
     stopSpeech();
 }
 
+function getAdhikaranaDetailsForSutra(sutra) {
+    for (const [key, value] of Object.entries(adhikaranaDetails)) {
+        if (key.startsWith('_')) continue;
+        if (value.name === sutra.adhikarana) return value;
+    }
+
+    return {};
+}
+
+function getSutraAdhikaranaContent(details, sutra) {
+    if (
+        details.sutraContent !== undefined &&
+        (!details.sutraContent || typeof details.sutraContent !== 'object' || Array.isArray(details.sutraContent))
+    ) {
+        throw new Error(`Invalid sutra-specific adhikarana content for ${details.name}`);
+    }
+
+    const sutraId = `${sutra.adhyaya}.${sutra.pada}.${sutra.sutra_number}`;
+    const sutraContentReference = details.sutraContent?.[sutraId];
+    let sutraContent;
+    if (sutraContentReference !== undefined) {
+        const variants = details.sutraContentVariants;
+        if (
+            typeof sutraContentReference !== 'string' ||
+            !variants ||
+            typeof variants !== 'object' ||
+            Array.isArray(variants) ||
+            !Object.prototype.hasOwnProperty.call(variants, sutraContentReference)
+        ) {
+            throw new Error(`Invalid adhikarana content reference for ${sutraId}`);
+        }
+        sutraContent = variants[sutraContentReference];
+        if (!sutraContent || typeof sutraContent !== 'object' || Array.isArray(sutraContent)) {
+            throw new Error(`Invalid adhikarana content variant for ${sutraId}`);
+        }
+    }
+
+    return details.adhikaranaContent
+        ? { ...details.adhikaranaContent, ...sutraContent }
+        : details.adhikaranaContent;
+}
+
+function renderPersonalNoteAdhikarana(sutra) {
+    if (!sutra.adhikarana) return '';
+
+    const details = getAdhikaranaDetailsForSutra(sutra);
+    const content = getSutraAdhikaranaContent(details, sutra);
+    if (!content) return '';
+    if (
+        typeof content !== 'object' ||
+        Array.isArray(content) ||
+        typeof content.title !== 'string' ||
+        typeof content.overview !== 'string' ||
+        !Array.isArray(content.sangati) ||
+        !Array.isArray(content.body)
+    ) {
+        throw new Error(`Invalid adhikarana content for ${details.name}`);
+    }
+
+    const displayText = (text) => {
+        if (typeof text !== 'string') {
+            throw new Error(`Invalid adhikarana content field for ${details.name}`);
+        }
+        const translated = currentLanguage !== 'sa'
+            ? transliterateText(text, currentLanguage)
+            : text;
+        return String(translated).replace(/[&<>"']/g, character => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        })[character]);
+    };
+    const renderFields = (fields) => fields.map(field => {
+        if (!field || typeof field !== 'object' || Array.isArray(field)) {
+            throw new Error(`Invalid adhikarana content group for ${details.name}`);
+        }
+        return `<div class="personal-note-field">
+            <strong class="personal-note-label">${displayText(field.label)}</strong>
+            <span>${displayText(field.value)}</span>
+        </div>`;
+    }).join('');
+    const renderGroup = (label, fields) => fields.length
+        ? `<h4 class="personal-note-section-title">${displayText(label)}</h4>${renderFields(fields)}`
+        : '';
+    const sutraId = `${sutra.adhyaya}.${sutra.pada}.${sutra.sutra_number}`;
+
+    return `<details class="personal-note-adhikarana-details">
+        <summary>
+            <span class="personal-note-adhikarana-name">${displayText(sutra.adhikarana)}</span>
+            <span class="personal-note-adhikarana-index">${sutraId}</span>
+        </summary>
+        <h4 class="personal-note-section-title">${displayText(content.title)}</h4>
+        <p class="personal-note-overview">${displayText(content.overview)}</p>
+        ${renderGroup('सङ्गतिः', content.sangati)}
+        ${renderGroup('अधिकरणशरीरम्', content.body)}
+    </details>`;
+}
+
 // Show adhikarana information popup
 function showAdhikaranaInfo(sutra) {
     if (!sutra.adhikarana) return;
-    
+
     // Create popup overlay if it doesn't exist
     let popup = document.getElementById('adhikaranaPopup');
     if (!popup) {
@@ -3480,24 +3585,16 @@ function showAdhikaranaInfo(sutra) {
         popup.className = 'adhikarana-popup-overlay';
         document.body.appendChild(popup);
     }
-    
-    const adhikaranaText = currentLanguage !== 'sa' ? 
-                          transliterateText(sutra.adhikarana, currentLanguage) : 
-                          sutra.adhikarana;
-    
-    const adhikaranaLabel = currentLanguage !== 'sa' ? 
-                           transliterateText('अधिकरणम्', currentLanguage) : 
-                           'अधिकरणम्';
-    
-    // Get adhikarana details from JSON - find by matching name
-    let details = {};
-    for (const [key, value] of Object.entries(adhikaranaDetails)) {
-        if (key.startsWith('_')) continue; // Skip _glossary and _section_tooltips
-        if (value.name === sutra.adhikarana) {
-            details = value;
-            break;
-        }
-    }
+
+    const adhikaranaText = currentLanguage !== 'sa'
+        ? transliterateText(sutra.adhikarana, currentLanguage)
+        : sutra.adhikarana;
+
+    const adhikaranaLabel = currentLanguage !== 'sa'
+        ? transliterateText('अधिकरणम्', currentLanguage)
+        : 'अधिकरणम्';
+
+    const details = getAdhikaranaDetailsForSutra(sutra);
     console.log('Adhikarana name:', sutra.adhikarana);
     console.log('Adhikarana details:', details);
     
@@ -3543,9 +3640,80 @@ function showAdhikaranaInfo(sutra) {
     // Fields to skip
     const metadataFields = ['name', 'sutras'];
     
+    const adhikaranaContent = getSutraAdhikaranaContent(details, sutra);
+    if (adhikaranaContent) {
+        if (
+            typeof adhikaranaContent !== 'object' ||
+            Array.isArray(adhikaranaContent) ||
+            typeof adhikaranaContent.title !== 'string' ||
+            typeof adhikaranaContent.overview !== 'string' ||
+            !Array.isArray(adhikaranaContent.sangati) ||
+            !Array.isArray(adhikaranaContent.body)
+        ) {
+            throw new Error(`Invalid adhikarana content for ${details.name}`);
+        }
+
+        const escapeContent = (text) => String(text).replace(/[&<>"']/g, character => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        })[character]);
+        const displayContentText = (text) => {
+            const translated = currentLanguage !== 'sa'
+                ? transliterateText(text, currentLanguage)
+                : text;
+            return escapeContent(translated);
+        };
+        const renderContentField = (label, value) => {
+            if (typeof label !== 'string' || typeof value !== 'string') {
+                throw new Error(`Invalid adhikarana content field for ${details.name}`);
+            }
+            return `<div class="adhikarana-content-field">
+                <strong>${displayContentText(label)}</strong>
+                <span>${displayContentText(value)}</span>
+            </div>`;
+        };
+        const renderContentGroup = (label, fields) => {
+            const renderedFields = fields.map(field => {
+                if (!field || typeof field !== 'object' || Array.isArray(field)) {
+                    throw new Error(`Invalid adhikarana content group for ${details.name}`);
+                }
+                return renderContentField(field.label, field.value);
+            }).join('');
+            return `<section class="adhikarana-content-group">
+                <h4>${displayContentText(label)}</h4>
+                ${renderedFields}
+            </section>`;
+        };
+
+        const sangatiHTML = adhikaranaContent.sangati.length
+            ? renderContentGroup('सङ्गतिः', adhikaranaContent.sangati)
+            : '';
+        const bodyHTML = adhikaranaContent.body.length
+            ? renderContentGroup('अधिकरणशरीरम्', adhikaranaContent.body)
+            : '';
+
+        detailsHTML += `<section class="adhikarana-detail-section adhikarana-content-section">
+            <h4>${displayContentText(adhikaranaContent.title)}</h4>
+            <div class="adhikarana-content-body">
+                ${renderContentField('अधिकरणविषयः', adhikaranaContent.overview)}
+                ${sangatiHTML}
+                ${bodyHTML}
+            </div>
+        </section>`;
+    }
+
     // Display all custom fields
+    let existingTranslationsHTML = '';
     for (const [fieldKey, fieldValue] of Object.entries(details)) {
-        if (metadataFields.includes(fieldKey)) continue;
+        if (
+            metadataFields.includes(fieldKey) ||
+            fieldKey === 'adhikaranaContent' ||
+            fieldKey === 'sutraContent' ||
+            fieldKey === 'sutraContentVariants'
+        ) continue;
         
         // Transliterate field label and value based on current language
         const fieldLabel = currentLanguage !== 'sa' ? transliterateText(fieldKey, currentLanguage) : fieldKey;
@@ -3556,9 +3724,15 @@ function showAdhikaranaInfo(sutra) {
         const tooltip = sectionTooltips[sanskritPart.toLowerCase()] || '';
         const tooltipHTML = tooltip ? `<span class="info-tooltip" title="${tooltip}">ℹ️</span>` : '';
         
-        detailsHTML += `<div class="adhikarana-detail-section">
+        existingTranslationsHTML += `<div class="adhikarana-detail-section">
             <strong>${fieldLabel}:${tooltipHTML}</strong> ${addTermTooltips(transliteratedValue)}
         </div>`;
+    }
+    if (existingTranslationsHTML) {
+        detailsHTML += `<details class="adhikarana-translations-collapse">
+            <summary>English translations</summary>
+            <div class="adhikarana-translations-body">${existingTranslationsHTML}</div>
+        </details>`;
     }
     
     popup.innerHTML = `
@@ -3580,6 +3754,8 @@ function showAdhikaranaInfo(sutra) {
             </div>
         </div>
     `;
+
+    applyVyakhyanaFontSize();
     
     popup.style.display = 'flex';
     
@@ -3957,6 +4133,15 @@ function showPersonalNotes() {
     // Convert line breaks to HTML (in case of manually edited JSON with actual newlines)
     notesText = notesText.replace(/\\r\\n\\r\\n|\\n\\n|\\r\\r/g, '<br><br>');
     notesText = notesText.replace(/\\r\\n|\\n|\\r/g, '<br>');
+
+    const adhikaranaHTML = renderPersonalNoteAdhikarana(currentSutra);
+    if (adhikaranaHTML) {
+        const sutraLineMatch = /<p\b[^>]*class=["'][^"']*\bpersonal-note-sutra\b[^"']*["'][^>]*>/i.exec(notesText);
+        if (!sutraLineMatch) {
+            throw new Error(`Personal note for ${sutraKey} has no sutra line to place adhikarana details before`);
+        }
+        notesText = `${notesText.slice(0, sutraLineMatch.index)}${adhikaranaHTML}${notesText.slice(sutraLineMatch.index)}`;
+    }
     
     const notesLabel = currentLanguage !== 'sa' ? 
                       transliterateText('व्यक्तिगत टिप्पणी', currentLanguage) + ' (Personal Notes)' : 

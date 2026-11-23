@@ -39,10 +39,12 @@ python dataimport/excel_to_personal_notes.py "C:\path\to\cumulative-workbook.xls
 
 The generated HTML is stored in each sutra's `व्यक्तिगत-टिपाणी.moola` field.
 The output includes inline HTML styles so the color and alignment choices are
-visible in the JSON itself:
+visible in the JSON itself. Adhikaraṇa-level overview, सङ्गतिः, and
+अधिकरणशरीरम् belong in `sutra/adhikarana-details.json`, not in each sutra's
+personal note. Keeping them in the adhikaraṇa record avoids repeating the same
+content across all sutras in that adhikaraṇa.
 
-- Blue and centered: pada heading, adhikaraṇa title, `सङ्गतिः`, and
-  `अधिकरणशरीरम्`.
+- Blue and centered: pada heading.
 - Red and centered: the sutra line.
 - Black and left-aligned: the `सूत्रार्थः` heading.
 - `सूत्रार्थः` uses the same paragraph formatting as `अन्वयः`.
@@ -51,6 +53,19 @@ visible in the JSON itself:
   `सं अन्वयात् सं अन्वयात् तत् शास्त्रयोनि तु`, each of those words is red
   wherever it appears as a whole word in `सूत्रार्थः`. `कर्तव्या` in sutra
   `1.1.1` is red because it appears in that row's `अन्वयः`.
+
+The adhikaraṇa info popup shows this content expanded at the top. The matching
+entry in `sutra/adhikarana-details.json` stores the shared content as
+`adhikaranaContent` (`title`, `overview`, `sangati`, and `body`). When a
+particular sutra has different adhikaraṇa context, store only the differing
+fields once in `sutraContentVariants`. Map each affected sutra ID (for example,
+`1.1.6`) to a variant key in `sutraContent`; sutras with identical overrides
+should reference the same variant. The popup resolves the reference and merges
+the override with the shared content. The personal-notes popup also renders this
+content from the same record in a darker, collapsed-by-default section just
+before the sutra line, after the pada and topic headings. The converter does not
+duplicate it in each sutra's note. Existing English adhikaraṇa details remain
+beneath it in a collapsed `English translations` section.
 
 ## Add a one-off formatting exception
 
