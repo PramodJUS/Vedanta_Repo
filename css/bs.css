@@ -2014,7 +2014,7 @@ span[data-type="direct"] {
 .personal-notes-body .personal-note-adhikarana-title { text-align: center; font-size: 0.7em; font-weight: normal; margin: 0.3em 0 !important; }
 .personal-notes-body .personal-note-adhikarana-details { margin: 0.35em 0; padding: 0.35em 0.65em; background: #e0eaf2; border: 1px solid #b9ccdc; border-left: 4px solid #477b9a; border-radius: 6px; white-space: normal; line-height: 1.4; }
 .personal-notes-body .personal-note-adhikarana-details[open] { background: white; }
-.personal-notes-body .personal-note-adhikarana-details > summary { cursor: pointer; list-style-position: inside; }
+.personal-notes-body .personal-note-adhikarana-details > summary { cursor: pointer; list-style-position: inside; text-align: center; }
 .personal-notes-body .personal-note-adhikarana-name { color: #0f4761; }
 .personal-notes-body .personal-note-adhikarana-index { color: #0b5394; }
 .personal-notes-body .personal-note-overview { color: #222; font-size: 0.88em; text-align: justify; margin: 0.2em 0 0.4em !important; }
